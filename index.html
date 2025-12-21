@@ -15,9 +15,9 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#FF6B9D', // Bright pink
-                        secondary: '#C77DFF', // Purple
-                        accent: '#FFB3C6', // Light pink
+                        primary: '#FF6B9D',
+                        secondary: '#C77DFF',
+                        accent: '#FFB3C6',
                         dark: '#0f172a',
                         light: '#f8fafc',
                         pink: {
@@ -63,10 +63,8 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 107, 157, 0.15);
-            /* Changed to pink border */
         }
 
-        /* Animation base styles */
         .animate-on-scroll {
             opacity: 0;
             transform: translateY(20px);
@@ -78,7 +76,6 @@
             transform: translateY(0);
         }
 
-        /* Custom scrollbar - Updated to pink/purple */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -94,6 +91,63 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(to bottom, #FF4785, #B65CFF);
+        }
+
+        /* Custom styles for project cards */
+        .project-card {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .project-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 0.75rem;
+            padding: 2px;
+            background: linear-gradient(45deg, transparent, rgba(255, 107, 157, 0.3), rgba(199, 125, 255, 0.3), transparent);
+            -webkit-mask: 
+                linear-gradient(#fff 0 0) content-box, 
+                linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .project-card:hover::after {
+            opacity: 1;
+        }
+
+        .project-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .project-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: 8px;
+        }
+
+        .project-arrow {
+            opacity: 0;
+            transform: translateX(-5px);
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover .project-arrow {
+            opacity: 1;
+            transform: translateX(0);
         }
     </style>
 </head>
@@ -120,187 +174,230 @@
             <div class="flex justify-center">
                 <div class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- Project 1 - Binary to Decimal Converter -->
-                    <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-pink-500/20 transition-all duration-300 opacity-0 transform translate-y-10 transition-all duration-500 ease-out hover:scale-[1.03] hover:-translate-y-1 group animate-on-scroll"
-                        id="project-1">
-                        <div
-                            class="h-60 bg-gradient-to-br from-pink-450/20 to-purple-450/20 flex items-center justify-center group-hover:from-pink-450/30 group-hover:to-purple-450/30 transition-all duration-300">
-                            <img src="projects/binary-to-decimal.png" alt="Binary to Decimal Converter"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                loading="lazy">
-                        </div>
-                        <div class="p-6">
-                            <h3
-                                class="text-xl font-bold text-white mb-3 group-hover:text-pink-350 transition-colors duration-300">
-                                Binary to Decimal Converter</h3>
-                            <p
-                                class="text-gray-400 mb-4 text-sm line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
-                                Converts binary numbers to decimal values
-                            </p>
-                            <div class="flex gap-3">
-                                <a href="projects/to-dolist.html" target="_blank" rel="noopener noreferrer" class="flex-1 text-center transition-all duration-300 ease-in-out
-                border border-pink-450 text-pink-350
-                px-4 py-2 rounded-lg font-medium text-sm
-                hover:bg-gradient-to-r hover:from-pink-550 hover:to-pink-450
-                hover:text-white hover:shadow-pink-500/30 hover:shadow-md group-hover:shadow-lg">
-                                    Live Demo <i class="fas fa-external-link-alt ml-1 text-xs opacity-70"></i>
-                                </a>
-                                <a href="sample.html" class="flex-1 text-center transition-all duration-300 ease-in-out
-                border border-purple-450 text-purple-350
-                px-4 py-2 rounded-lg font-medium text-sm
-                hover:bg-gradient-to-r hover:from-purple-550 hover:to-purple-450
-                hover:text-white hover:shadow-purple-500/30 hover:shadow-md group-hover:shadow-lg">
-                                    Details
-                                </a>
+                    <a href="projects/to-dolist.html" target="_blank" rel="noopener noreferrer"
+                       class="project-card bg-gray-800/50 rounded-xl overflow-hidden shadow-lg hover:shadow-pink-500/20 
+                              transition-all duration-300 opacity-0 transform translate-y-10 
+                              transition-all duration-500 ease-out hover:scale-[1.02] hover:-translate-y-1 
+                              group animate-on-scroll p-6 border border-gray-700/50 hover:border-pink-450/30"
+                       id="project-1">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="project-icon bg-gradient-to-br from-pink-450/20 to-purple-450/20 
+                                        group-hover:from-pink-450/30 group-hover:to-purple-450/30">
+                                <i class="fas fa-exchange-alt text-pink-350 text-xl"></i>
                             </div>
+                            <span class="project-tag bg-pink-450/10 text-pink-350 border border-pink-450/20">
+                                Beginner
+                            </span>
                         </div>
-                    </div>
+                        
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-pink-350 transition-colors duration-300">
+                            Binary to Decimal Converter
+                        </h3>
+                        <p class="text-gray-400 mb-4 text-sm line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
+                            Converts binary numbers to decimal values with real-time calculation
+                        </p>
+                        
+                        <div class="flex items-center justify-between mt-6">
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-code text-pink-450/70"></i>
+                                    <span>JavaScript</span>
+                                </span>
+                                <span class="text-gray-600">•</span>
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-layer-group text-purple-450/70"></i>
+                                    <span>Web App</span>
+                                </span>
+                            </div>
+                            <span class="project-arrow text-pink-350">
+                                <i class="fas fa-external-link-alt"></i>
+                            </span>
+                        </div>
+                    </a>
 
                     <!-- Project 2 - Border Radius Previewer -->
-                    <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-pink-500/20 transition-all duration-300 opacity-0 transform translate-y-10 transition-all duration-500 ease-out hover:scale-[1.03] hover:-translate-y-1 group animate-on-scroll"
-                        id="project-2">
-                        <div
-                            class="h-60 bg-gradient-to-br from-pink-450/20 to-purple-450/20 flex items-center justify-center group-hover:from-pink-450/30 group-hover:to-purple-450/30 transition-all duration-300">
-                            <img src="projects/border-radius-previewer.png" alt="Border Radius Previewer"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                loading="lazy">
-                        </div>
-                        <div class="p-6">
-                            <h3
-                                class="text-xl font-bold text-white mb-3 group-hover:text-pink-350 transition-colors duration-300">
-                                Border Radius Previewer</h3>
-                            <p
-                                class="text-gray-400 mb-4 text-sm line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
-                                Interactive tool for previewing border radius values
-                            </p>
-                            <div class="flex gap-3">
-                                <a href="https://websysproject.vercel.app/" target="_blank" rel="noopener noreferrer"
-                                    class="flex-1 text-center transition-all duration-300 ease-in-out
-                border border-pink-450 text-pink-350
-                px-4 py-2 rounded-lg font-medium text-sm
-                hover:bg-gradient-to-r hover:from-pink-550 hover:to-pink-450
-                hover:text-white hover:shadow-pink-500/30 hover:shadow-md group-hover:shadow-lg">
-                                    Live Demo <i class="fas fa-external-link-alt ml-1 text-xs opacity-70"></i>
-                                </a>
-                                <a href="videogame.html" class="flex-1 text-center transition-all duration-300 ease-in-out
-                border border-purple-450 text-purple-350
-                px-4 py-2 rounded-lg font-medium text-sm
-                hover:bg-gradient-to-r hover:from-purple-550 hover:to-purple-450
-                hover:text-white hover:shadow-purple-500/30 hover:shadow-md group-hover:shadow-lg">
-                                    Details
-                                </a>
+                    <a href="https://websysproject.vercel.app/" target="_blank" rel="noopener noreferrer"
+                       class="project-card bg-gray-800/50 rounded-xl overflow-hidden shadow-lg hover:shadow-pink-500/20 
+                              transition-all duration-300 opacity-0 transform translate-y-10 
+                              transition-all duration-500 ease-out hover:scale-[1.02] hover:-translate-y-1 
+                              group animate-on-scroll p-6 border border-gray-700/50 hover:border-pink-450/30"
+                       id="project-2">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="project-icon bg-gradient-to-br from-pink-450/20 to-purple-450/20 
+                                        group-hover:from-pink-450/30 group-hover:to-purple-450/30">
+                                <i class="fas fa-square-full text-pink-350 text-xl"></i>
                             </div>
+                            <span class="project-tag bg-purple-450/10 text-purple-350 border border-purple-450/20">
+                                Frontend
+                            </span>
                         </div>
-                    </div>
+                        
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-pink-350 transition-colors duration-300">
+                            Border Radius Previewer
+                        </h3>
+                        <p class="text-gray-400 mb-4 text-sm line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
+                            Interactive tool for previewing and customizing border radius values
+                        </p>
+                        
+                        <div class="flex items-center justify-between mt-6">
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-code text-pink-450/70"></i>
+                                    <span>HTML/CSS/JS</span>
+                                </span>
+                                <span class="text-gray-600">•</span>
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-sliders-h text-purple-450/70"></i>
+                                    <span>Interactive</span>
+                                </span>
+                            </div>
+                            <span class="project-arrow text-pink-350">
+                                <i class="fas fa-external-link-alt"></i>
+                            </span>
+                        </div>
+                    </a>
 
                     <!-- Project 3 - Calculator -->
-                    <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-pink-500/20 transition-all duration-300 opacity-0 transform translate-y-10 transition-all duration-500 ease-out hover:scale-[1.03] hover:-translate-y-1 group animate-on-scroll"
-                        id="project-3">
-                        <div
-                            class="h-60 bg-gradient-to-br from-pink-450/20 to-purple-450/20 flex items-center justify-center group-hover:from-pink-450/30 group-hover:to-purple-450/30 transition-all duration-300">
-                            <img src="projects/calculator.png" alt="Calculator App"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                loading="lazy">
-                        </div>
-                        <div class="p-6">
-                            <h3
-                                class="text-xl font-bold text-white mb-3 group-hover:text-pink-350 transition-colors duration-300">
-                                Calculator</h3>
-                            <p
-                                class="text-gray-400 mb-4 text-sm line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
-                                A sleek, user-friendly calculator app with essential functions and a modern design
-                            </p>
-                            <div class="flex gap-3">
-                                <a href="https://www.figma.com/proto/tuSJR8tCoTdsk5AGu6gemx/CCS3010-331-_ELUPRE?node-id=1-3"
-                                    target="_blank" rel="noopener noreferrer" class="flex-1 text-center transition-all duration-300 ease-in-out
-                border border-pink-450 text-pink-350
-                px-4 py-2 rounded-lg font-medium text-sm
-                hover:bg-gradient-to-r hover:from-pink-550 hover:to-pink-450
-                hover:text-white hover:shadow-pink-500/30 hover:shadow-md group-hover:shadow-lg">
-                                    Live Demo <i class="fas fa-external-link-alt ml-1 text-xs opacity-70"></i>
-                                </a>
-                                <a href="figma.html" class="flex-1 text-center transition-all duration-300 ease-in-out
-                border border-purple-450 text-purple-350
-                px-4 py-2 rounded-lg font-medium text-sm
-                hover:bg-gradient-to-r hover:from-purple-550 hover:to-purple-450
-                hover:text-white hover:shadow-purple-500/30 hover:shadow-md group-hover:shadow-lg">
-                                    Details
-                                </a>
+                    <a href="projects/calculator.html" target="_blank" rel="noopener noreferrer"
+                       class="project-card bg-gray-800/50 rounded-xl overflow-hidden shadow-lg hover:shadow-pink-500/20 
+                              transition-all duration-300 opacity-0 transform translate-y-10 
+                              transition-all duration-500 ease-out hover:scale-[1.02] hover:-translate-y-1 
+                              group animate-on-scroll p-6 border border-gray-700/50 hover:border-pink-450/30"
+                       id="project-3">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="project-icon bg-gradient-to-br from-pink-450/20 to-purple-450/20 
+                                        group-hover:from-pink-450/30 group-hover:to-purple-450/30">
+                                <i class="fas fa-calculator text-pink-350 text-xl"></i>
                             </div>
+                            <span class="project-tag bg-pink-450/10 text-pink-350 border border-pink-450/20">
+                                Beginner
+                            </span>
                         </div>
-                    </div>
+                        
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-pink-350 transition-colors duration-300">
+                            Calculator
+                        </h3>
+                        <p class="text-gray-400 mb-4 text-sm line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
+                            Sleek calculator with essential functions and modern UI design
+                        </p>
+                        
+                        <div class="flex items-center justify-between mt-6">
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-code text-pink-450/70"></i>
+                                    <span>JavaScript</span>
+                                </span>
+                                <span class="text-gray-600">•</span>
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-mobile-alt text-purple-450/70"></i>
+                                    <span>Responsive</span>
+                                </span>
+                            </div>
+                            <span class="project-arrow text-pink-350">
+                                <i class="fas fa-external-link-alt"></i>
+                            </span>
+                        </div>
+                    </a>
 
                     <!-- Project 4 - Christmas Light -->
-                    <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-pink-500/20 transition-all duration-300 opacity-0 transform translate-y-10 transition-all duration-500 ease-out hover:scale-[1.03] hover:-translate-y-1 group animate-on-scroll"
-                        id="project-4">
-                        <div
-                            class="h-60 bg-gradient-to-br from-pink-450/20 to-purple-450/20 flex items-center justify-center group-hover:from-pink-450/30 group-hover:to-purple-450/30 transition-all duration-300">
-                            <img src="projects/christmas-light.png" alt="Christmas Light Display"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                loading="lazy">
-                        </div>
-                        <div class="p-6">
-                            <h3
-                                class="text-xl font-bold text-white mb-3 group-hover:text-pink-350 transition-colors duration-300">
-                                Christmas Light</h3>
-                            <p
-                                class="text-gray-400 mb-4 text-sm line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
-                                Interactive Christmas light display with customizable patterns and colors
-                            </p>
-                            <div class="flex gap-3">
-                                <a href="projects/imagescanlive.html" target="_blank" rel="noopener noreferrer" class="flex-1 text-center transition-all duration-300 ease-in-out
-        border border-pink-450 text-pink-350
-        px-4 py-2 rounded-lg font-medium text-sm
-        hover:bg-gradient-to-r hover:from-pink-550 hover:to-pink-450
-        hover:text-white hover:shadow-pink-500/30 hover:shadow-md group-hover:shadow-lg">
-                                    Live Demo <i class="fas fa-external-link-alt ml-1 text-xs opacity-70"></i>
-                                </a>
-                                <a href="imagescan.html" class="flex-1 text-center transition-all duration-300 ease-in-out
-        border border-purple-450 text-purple-350
-        px-4 py-2 rounded-lg font-medium text-sm
-        hover:bg-gradient-to-r hover:from-purple-550 hover:to-purple-450
-        hover:text-white hover:shadow-purple-500/30 hover:shadow-md group-hover:shadow-lg">
-                                    Details
-                                </a>
+                    <a href="projects/christmas-light.html" target="_blank" rel="noopener noreferrer"
+                       class="project-card bg-gray-800/50 rounded-xl overflow-hidden shadow-lg hover:shadow-pink-500/20 
+                              transition-all duration-300 opacity-0 transform translate-y-10 
+                              transition-all duration-500 ease-out hover:scale-[1.02] hover:-translate-y-1 
+                              group animate-on-scroll p-6 border border-gray-700/50 hover:border-pink-450/30"
+                       id="project-4">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="project-icon bg-gradient-to-br from-pink-450/20 to-purple-450/20 
+                                        group-hover:from-pink-450/30 group-hover:to-purple-450/30">
+                                <i class="fas fa-lightbulb text-pink-350 text-xl"></i>
                             </div>
+                            <span class="project-tag bg-purple-450/10 text-purple-350 border border-purple-450/20">
+                                Interactive
+                            </span>
                         </div>
-                    </div>
+                        
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-pink-350 transition-colors duration-300">
+                            Christmas Light
+                        </h3>
+                        <p class="text-gray-400 mb-4 text-sm line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
+                            Interactive Christmas light display with customizable patterns and colors
+                        </p>
+                        
+                        <div class="flex items-center justify-between mt-6">
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-code text-pink-450/70"></i>
+                                    <span>JavaScript</span>
+                                </span>
+                                <span class="text-gray-600">•</span>
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-palette text-purple-450/70"></i>
+                                    <span>Animation</span>
+                                </span>
+                            </div>
+                            <span class="project-arrow text-pink-350">
+                                <i class="fas fa-external-link-alt"></i>
+                            </span>
+                        </div>
+                    </a>
 
                     <!-- Project 5 - Cause Effect App -->
-                    <div class="bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-pink-500/20 transition-all duration-300 opacity-0 transform translate-y-10 transition-all duration-500 ease-out hover:scale-[1.03] hover:-translate-y-1 group animate-on-scroll"
-                        id="project-5">
-                        <div
-                            class="h-60 bg-gradient-to-br from-pink-450/20 to-purple-450/20 flex items-center justify-center group-hover:from-pink-450/30 group-hover:to-purple-450/30 transition-all duration-300">
-                            <img src="projects/cause-effect-app.png" alt="Cause Effect App"
-                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                loading="lazy">
-                        </div>
-                        <div class="p-6">
-                            <h3
-                                class="text-xl font-bold text-white mb-3 group-hover:text-pink-350 transition-colors duration-300">
-                                Cause Effect App</h3>
-                            <p
-                                class="text-gray-400 mb-4 text-sm line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
-                                A cause-effect relationship visualization tool for educational purposes
-                            </p>
-                            <div class="flex gap-3">
-                                <a href="projects/clawmachine.html" target="_blank" rel="noopener noreferrer" class="flex-1 text-center transition-all duration-300 ease-in-out
-        border border-pink-450 text-pink-350
-        px-4 py-2 rounded-lg font-medium text-sm
-        hover:bg-gradient-to-r hover:from-pink-550 hover:to-purple-450
-        hover:text-white hover:shadow-md group-hover:shadow-lg hover:shadow-pink-500/30">
-                                    Live Demo <i class="fas fa-play ml-1 text-xs opacity-70"></i>
-                                </a>
-                                <a href="clawmachinedetails.html" class="flex-1 text-center transition-all duration-300 ease-in-out
-        border border-purple-450 text-purple-350
-        px-4 py-2 rounded-lg font-medium text-sm
-        hover:bg-gradient-to-r hover:from-purple-550 hover:to-pink-450
-        hover:text-white hover:shadow-md group-hover:shadow-lg">
-                                    Details
-                                </a>
+                    <a href="projects/cause-effect.html" target="_blank" rel="noopener noreferrer"
+                       class="project-card bg-gray-800/50 rounded-xl overflow-hidden shadow-lg hover:shadow-pink-500/20 
+                              transition-all duration-300 opacity-0 transform translate-y-10 
+                              transition-all duration-500 ease-out hover:scale-[1.02] hover:-translate-y-1 
+                              group animate-on-scroll p-6 border border-gray-700/50 hover:border-pink-450/30"
+                       id="project-5">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="project-icon bg-gradient-to-br from-pink-450/20 to-purple-450/20 
+                                        group-hover:from-pink-450/30 group-hover:to-purple-450/30">
+                                <i class="fas fa-project-diagram text-pink-350 text-xl"></i>
                             </div>
+                            <span class="project-tag bg-pink-450/10 text-pink-350 border border-pink-450/20">
+                                Intermediate
+                            </span>
                         </div>
-                    </div>
+                        
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-pink-350 transition-colors duration-300">
+                            Cause Effect App
+                        </h3>
+                        <p class="text-gray-400 mb-4 text-sm line-clamp-2 group-hover:text-gray-300 transition-colors duration-300">
+                            Interactive tool for visualizing cause-effect relationships and dependencies
+                        </p>
+                        
+                        <div class="flex items-center justify-between mt-6">
+                            <div class="flex items-center gap-2 text-xs text-gray-500">
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-code text-pink-450/70"></i>
+                                    <span>React</span>
+                                </span>
+                                <span class="text-gray-600">•</span>
+                                <span class="flex items-center gap-1">
+                                    <i class="fas fa-brain text-purple-450/70"></i>
+                                    <span>Educational</span>
+                                </span>
+                            </div>
+                            <span class="project-arrow text-pink-350">
+                                <i class="fas fa-external-link-alt"></i>
+                            </span>
+                        </div>
+                    </a>
 
+                </div>
+            </div>
+
+            <!-- Stats Footer -->
+            <div class="text-center mt-16 animate-on-scroll">
+                <div class="inline-flex items-center gap-8 text-sm text-gray-400">
+                    <span class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-pink-450 rounded-full animate-pulse"></span>
+                        <span>5 Projects Complete</span>
+                    </span>
+                    <span class="hidden md:inline text-gray-600">•</span>
+                    <span class="flex items-center gap-2">
+                        <span class="w-2 h-2 bg-purple-450 rounded-full"></span>
+                        <span>50+ More to Build</span>
+                    </span>
                 </div>
             </div>
 
@@ -309,7 +406,6 @@
 
     <!-- JavaScript -->
     <script>
-        // All Projects Page JavaScript
         document.addEventListener('DOMContentLoaded', () => {
             const projectElements = [
                 { id: 'page-header', delay: 0 },
@@ -317,8 +413,7 @@
                 { id: 'project-2', delay: 200 },
                 { id: 'project-3', delay: 300 },
                 { id: 'project-4', delay: 400 },
-                { id: 'project-5', delay: 500 },
-                { id: 'cta-section', delay: 600 }
+                { id: 'project-5', delay: 500 }
             ];
 
             const observer = new IntersectionObserver((entries) => {
