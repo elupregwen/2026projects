@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Binary to Decimal Converter</title>
-    <meta name="description" content="Convert binary numbers to decimal numbers.">
-    <meta name="keywords" content="binary, decimal, converter, binary to decimal">
+    <title>Universal Number Converter</title>
+    <meta name="description" content="Convert between Binary, Decimal, Hexadecimal, Octal and other number systems.">
+    <meta name="keywords" content="binary, decimal, hexadecimal, octal, converter, number system">
     <link rel="stylesheet" href="/styles.css">
 
     <!-- Tailwind CSS -->
@@ -43,25 +43,48 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        .binary-digit {
+        .converter-card {
             transition: all 0.3s ease;
-            cursor: pointer;
         }
         
-        .binary-digit:hover {
+        .converter-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.3);
+            box-shadow: 0 10px 25px rgba(255, 107, 157, 0.15);
         }
         
-        .binary-digit.active {
-            background: linear-gradient(135deg, #FF6B9D, #C77DFF);
-            color: white;
-        }
-        
-        .power-value {
+        .number-system-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
             font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        input:focus {
+            outline: none;
+            ring: 2px;
+        }
+        
+        .copy-success {
+            animation: copyFlash 0.5s ease;
+        }
+        
+        @keyframes copyFlash {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .base-indicator {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
             color: #FF9EBD;
-            opacity: 0.8;
+            font-weight: bold;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -79,173 +102,313 @@
     </div>
 
     <main class="w-full py-12">
-        <div class="container mx-auto px-6 max-w-4xl">
+        <div class="container mx-auto px-6 max-w-6xl">
             <!-- Page Header -->
             <div id="page-header" class="text-center mb-12">
                 <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                    Binary to Decimal 
-                    <span class="gradient-text bg-gradient-to-r from-pink-450 to-purple-450">Converter</span>
+                    Universal
+                    <span class="gradient-text bg-gradient-to-r from-pink-450 to-purple-450">Number Converter</span>
                 </h1>
-                <p class="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-                    Convert binary numbers (0s and 1s) to decimal numbers interactively
+                <p class="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                    Convert between Binary, Decimal, Hexadecimal, Octal, and more in real-time
                 </p>
                 <div class="w-20 h-1 bg-gradient-to-r from-pink-450 to-purple-450 rounded-full mx-auto mt-8"></div>
             </div>
 
-            <!-- Converter Container -->
-            <div class="glass-card rounded-2xl p-8 mb-12 border border-pink-450/20">
+            <!-- Main Converter Card -->
+            <div class="glass-card rounded-2xl p-8 mb-12 border border-pink-450/20 converter-card">
                 <!-- Input Section -->
                 <div class="mb-10">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-2xl font-bold text-white flex items-center">
-                            <i class="fas fa-binary mr-3 text-pink-350"></i>
-                            Binary Input
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-8">
+                        <h2 class="text-2xl font-bold text-white flex items-center mb-4 md:mb-0">
+                            <i class="fas fa-exchange-alt mr-3 text-pink-350"></i>
+                            Convert From
                         </h2>
-                        <div class="flex items-center space-x-4">
-                            <button id="clear-btn" class="px-4 py-2 text-sm rounded-lg border border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition-colors">
-                                <i class="fas fa-redo mr-1"></i> Clear
+                        <div class="flex flex-wrap gap-3">
+                            <button class="input-type-btn px-4 py-2.5 rounded-lg font-medium border border-pink-450 text-pink-350 bg-pink-450/10 hover:bg-pink-450/20 transition-all duration-300 active" data-base="2">
+                                <span class="font-mono">Binary</span>
+                                <span class="number-system-badge bg-pink-450/20 text-pink-350 border border-pink-450/30">Base 2</span>
                             </button>
-                            <button id="random-btn" class="px-4 py-2 text-sm rounded-lg border border-purple-450 text-purple-350 hover:text-white hover:bg-purple-450/20 transition-colors">
-                                <i class="fas fa-random mr-1"></i> Random
+                            <button class="input-type-btn px-4 py-2.5 rounded-lg font-medium border border-green-400 text-green-300 bg-green-400/10 hover:bg-green-400/20 transition-all duration-300" data-base="10">
+                                <span class="font-mono">Decimal</span>
+                                <span class="number-system-badge bg-green-400/20 text-green-300 border border-green-400/30">Base 10</span>
+                            </button>
+                            <button class="input-type-btn px-4 py-2.5 rounded-lg font-medium border border-blue-400 text-blue-300 bg-blue-400/10 hover:bg-blue-400/20 transition-all duration-300" data-base="16">
+                                <span class="font-mono">Hexadecimal</span>
+                                <span class="number-system-badge bg-blue-400/20 text-blue-300 border border-blue-400/30">Base 16</span>
+                            </button>
+                            <button class="input-type-btn px-4 py-2.5 rounded-lg font-medium border border-yellow-400 text-yellow-300 bg-yellow-400/10 hover:bg-yellow-400/20 transition-all duration-300" data-base="8">
+                                <span class="font-mono">Octal</span>
+                                <span class="number-system-badge bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">Base 8</span>
                             </button>
                         </div>
                     </div>
                     
-                    <!-- Binary Digits Display -->
-                    <div id="binary-display" class="grid grid-cols-8 md:grid-cols-16 gap-3 mb-6">
-                        <!-- Digits will be generated by JavaScript -->
-                    </div>
-                    
-                    <!-- Binary Input Field -->
+                    <!-- Input Field with Base Indicator -->
                     <div class="relative">
-                        <input type="text" id="binary-input" 
-                               class="w-full px-6 py-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white text-lg font-mono
+                        <div class="base-indicator" id="input-base-indicator">2</div>
+                        <input type="text" id="number-input" 
+                               class="w-full pl-10 pr-6 py-4 bg-gray-800/50 border border-gray-700 rounded-xl text-white text-lg font-mono
                                       focus:outline-none focus:border-pink-450 focus:ring-2 focus:ring-pink-450/30
                                       placeholder-gray-500"
-                               placeholder="Enter binary number (e.g., 1010)"
-                               maxlength="16"
-                               autocomplete="off">
-                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">
-                            Max 16 bits
+                               placeholder="Enter number to convert"
+                               autocomplete="off"
+                               autofocus>
+                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-3">
+                            <button id="clear-input-btn" class="text-gray-400 hover:text-white transition-colors" title="Clear input">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button id="random-input-btn" class="text-gray-400 hover:text-purple-350 transition-colors" title="Random number">
+                                <i class="fas fa-random"></i>
+                            </button>
                         </div>
                     </div>
-                    <p class="text-gray-400 text-sm mt-2 flex items-center">
-                        <i class="fas fa-info-circle mr-2 text-pink-350"></i>
-                        Click the binary bits above or type 0s and 1s in the input field
-                    </p>
+                    
+                    <div class="flex flex-wrap items-center justify-between mt-3">
+                        <p class="text-gray-400 text-sm flex items-center">
+                            <i class="fas fa-info-circle mr-2 text-pink-350"></i>
+                            Currently converting from: <span id="current-base-name" class="text-pink-350 ml-1 font-semibold">Binary (Base 2)</span>
+                        </p>
+                        <p class="text-gray-400 text-sm" id="input-validation"></p>
+                    </div>
                 </div>
 
-                <!-- Conversion Section -->
+                <!-- Conversion Results Grid -->
                 <div class="mb-10">
-                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-                        <i class="fas fa-calculator mr-3 text-purple-350"></i>
-                        Conversion Process
+                    <h2 class="text-2xl font-bold text-white mb-8 flex items-center">
+                        <i class="fas fa-table-cells-large mr-3 text-purple-350"></i>
+                        Conversion Results
                     </h2>
                     
-                    <!-- Step-by-step Calculation -->
-                    <div id="calculation-steps" class="space-y-4 mb-8">
-                        <!-- Steps will be generated by JavaScript -->
-                    </div>
-                    
-                    <!-- Result Display -->
-                    <div class="bg-gradient-to-r from-pink-450/10 to-purple-450/10 border border-pink-450/30 rounded-xl p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div>
-                                <h3 class="text-lg font-semibold text-white">Decimal Result</h3>
-                                <p class="text-gray-400 text-sm">Converted value</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Binary Result -->
+                        <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700 hover:border-pink-450/30 transition-all duration-300">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-white flex items-center">
+                                    <i class="fas fa-binary mr-2 text-pink-350"></i>
+                                    Binary
+                                </h3>
+                                <span class="number-system-badge bg-pink-450/20 text-pink-350 border border-pink-450/30">Base 2</span>
                             </div>
-                            <div class="flex items-center space-x-3">
-                                <button id="copy-btn" class="px-4 py-2 text-sm rounded-lg border border-pink-450 text-pink-350 hover:text-white hover:bg-pink-450/20 transition-colors">
+                            <div class="font-mono text-2xl font-bold text-white mb-3 break-all" id="result-binary">0</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400 text-sm">Digits: <span id="binary-digits">1</span></span>
+                                <button class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-pink-450 text-pink-350 hover:text-white hover:bg-pink-450/20 transition-colors" data-target="binary">
                                     <i class="far fa-copy mr-1"></i> Copy
                                 </button>
                             </div>
                         </div>
                         
-                        <div class="text-center">
-                            <div class="text-5xl md:text-6xl font-bold text-white mb-2" id="decimal-result">0</div>
-                            <div class="text-gray-400 text-lg font-mono" id="binary-display-result">0000 0000 0000 0000</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Explanation Section -->
-                <div>
-                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-                        <i class="fas fa-lightbulb mr-3 text-accent"></i>
-                        How Binary to Decimal Works
-                    </h2>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700">
-                            <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
-                                <i class="fas fa-list-ol mr-2 text-pink-350"></i>
-                                Step-by-step Formula
-                            </h3>
-                            <ul class="space-y-2 text-gray-300">
-                                <li class="flex items-start">
-                                    <span class="text-pink-350 mr-2">1.</span>
-                                    Start from the rightmost bit (LSB)
-                                </li>
-                                <li class="flex items-start">
-                                    <span class="text-pink-350 mr-2">2.</span>
-                                    Assign powers of 2: 2⁰, 2¹, 2², ...
-                                </li>
-                                <li class="flex items-start">
-                                    <span class="text-pink-350 mr-2">3.</span>
-                                    Multiply each bit by its power value
-                                </li>
-                                <li class="flex items-start">
-                                    <span class="text-pink-350 mr-2">4.</span>
-                                    Sum all the results
-                                </li>
-                            </ul>
+                        <!-- Decimal Result -->
+                        <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700 hover:border-green-400/30 transition-all duration-300">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-white flex items-center">
+                                    <i class="fas fa-hashtag mr-2 text-green-300"></i>
+                                    Decimal
+                                </h3>
+                                <span class="number-system-badge bg-green-400/20 text-green-300 border border-green-400/30">Base 10</span>
+                            </div>
+                            <div class="font-mono text-2xl font-bold text-white mb-3" id="result-decimal">0</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400 text-sm">Value</span>
+                                <button class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-green-400 text-green-300 hover:text-white hover:bg-green-400/20 transition-colors" data-target="decimal">
+                                    <i class="far fa-copy mr-1"></i> Copy
+                                </button>
+                            </div>
                         </div>
                         
-                        <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700">
-                            <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
-                                <i class="fas fa-code mr-2 text-purple-350"></i>
-                                Example: 1010₂
-                            </h3>
-                            <div class="text-gray-300">
-                                <p class="mb-2">1×2³ + 0×2² + 1×2¹ + 0×2⁰</p>
-                                <p class="mb-2">= 8 + 0 + 2 + 0</p>
-                                <p class="text-white font-bold">= 10₁₀</p>
+                        <!-- Hexadecimal Result -->
+                        <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700 hover:border-blue-400/30 transition-all duration-300">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-white flex items-center">
+                                    <i class="fas fa-hashtag mr-2 text-blue-300"></i>
+                                    Hexadecimal
+                                </h3>
+                                <span class="number-system-badge bg-blue-400/20 text-blue-300 border border-blue-400/30">Base 16</span>
+                            </div>
+                            <div class="font-mono text-2xl font-bold text-white mb-3" id="result-hexadecimal">0</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400 text-sm">Digits: <span id="hex-digits">1</span></span>
+                                <button class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-blue-400 text-blue-300 hover:text-white hover:bg-blue-400/20 transition-colors" data-target="hexadecimal">
+                                    <i class="far fa-copy mr-1"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Octal Result -->
+                        <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700 hover:border-yellow-400/30 transition-all duration-300">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-white flex items-center">
+                                    <i class="fas fa-hashtag mr-2 text-yellow-300"></i>
+                                    Octal
+                                </h3>
+                                <span class="number-system-badge bg-yellow-400/20 text-yellow-300 border border-yellow-400/30">Base 8</span>
+                            </div>
+                            <div class="font-mono text-2xl font-bold text-white mb-3" id="result-octal">0</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400 text-sm">Digits: <span id="octal-digits">1</span></span>
+                                <button class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-yellow-400 text-yellow-300 hover:text-white hover:bg-yellow-400/20 transition-colors" data-target="octal">
+                                    <i class="far fa-copy mr-1"></i> Copy
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Additional Conversions -->
+                <div class="mb-10">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                        <i class="fas fa-plus-circle mr-3 text-accent"></i>
+                        Additional Conversions
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- ASCII Character -->
+                        <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700">
+                            <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
+                                <i class="fas fa-font mr-2 text-purple-350"></i>
+                                ASCII Character
+                            </h3>
+                            <div class="flex items-center justify-between">
+                                <div class="text-center flex-1">
+                                    <div class="text-4xl font-bold text-white mb-2" id="result-ascii">NUL</div>
+                                    <div class="text-gray-400 text-sm">Code: <span id="ascii-code" class="font-mono">0</span></div>
+                                </div>
+                                <button class="copy-btn ml-4 px-3 py-1.5 text-sm rounded-lg border border-purple-450 text-purple-350 hover:text-white hover:bg-purple-450/20 transition-colors" data-target="ascii">
+                                    <i class="far fa-copy mr-1"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- 32-bit Representation -->
+                        <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700">
+                            <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
+                                <i class="fas fa-microchip mr-2 text-pink-350"></i>
+                                32-bit Binary
+                            </h3>
+                            <div class="font-mono text-sm text-gray-300 mb-3 break-all" id="result-32bit">00000000000000000000000000000000</div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-400 text-sm">Full 32 bits</span>
+                                <button class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-pink-450 text-pink-350 hover:text-white hover:bg-pink-450/20 transition-colors" data-target="32bit">
+                                    <i class="far fa-copy mr-1"></i> Copy
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Custom Base -->
+                        <div class="bg-gray-800/30 rounded-xl p-5 border border-gray-700">
+                            <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
+                                <i class="fas fa-sliders-h mr-2 text-green-300"></i>
+                                Custom Base
+                            </h3>
+                            <div class="flex items-center space-x-3">
+                                <input type="number" id="custom-base-input" min="2" max="36" value="5"
+                                       class="flex-1 px-3 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white text-sm
+                                              focus:outline-none focus:border-green-400">
+                                <div class="font-mono text-lg font-bold text-white" id="result-custom">0</div>
+                                <button class="copy-btn px-3 py-1.5 text-sm rounded-lg border border-green-400 text-green-300 hover:text-white hover:bg-green-400/20 transition-colors" data-target="custom">
+                                    <i class="far fa-copy mr-1"></i> Copy
+                                </button>
+                            </div>
+                            <p class="text-gray-400 text-xs mt-3">Enter base (2-36) for custom conversion</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Examples -->
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+                        <i class="fas fa-bolt mr-3 text-yellow-400"></i>
+                        Quick Examples
+                    </h2>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+                        <button class="example-btn px-3 py-2.5 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center text-sm">
+                            <div class="font-mono">1010</div>
+                            <div class="text-xs text-gray-400">Binary → 10</div>
+                        </button>
+                        <button class="example-btn px-3 py-2.5 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center text-sm">
+                            <div class="font-mono">255</div>
+                            <div class="text-xs text-gray-400">Dec → FF</div>
+                        </button>
+                        <button class="example-btn px-3 py-2.5 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center text-sm">
+                            <div class="font-mono">FF</div>
+                            <div class="text-xs text-gray-400">Hex → 255</div>
+                        </button>
+                        <button class="example-btn px-3 py-2.5 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center text-sm">
+                            <div class="font-mono">777</div>
+                            <div class="text-xs text-gray-400">Octal → 511</div>
+                        </button>
+                        <button class="example-btn px-3 py-2.5 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center text-sm">
+                            <div class="font-mono">42</div>
+                            <div class="text-xs text-gray-400">The Answer</div>
+                        </button>
+                        <button class="example-btn px-3 py-2.5 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center text-sm">
+                            <div class="font-mono">1000</div>
+                            <div class="text-xs text-gray-400">Binary → 8</div>
+                        </button>
+                        <button class="example-btn px-3 py-2.5 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center text-sm">
+                            <div class="font-mono">ABCD</div>
+                            <div class="text-xs text-gray-400">Hex → 43981</div>
+                        </button>
+                        <button class="example-btn px-3 py-2.5 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center text-sm">
+                            <div class="font-mono">2048</div>
+                            <div class="text-xs text-gray-400">2¹¹</div>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <!-- Quick Examples -->
+            <!-- Number Systems Info -->
             <div class="glass-card rounded-2xl p-8 border border-purple-450/20">
                 <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-                    <i class="fas fa-bolt mr-3 text-yellow-400"></i>
-                    Quick Examples
+                    <i class="fas fa-book-open mr-3 text-purple-350"></i>
+                    About Number Systems
                 </h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <button class="example-btn quick-example px-4 py-3 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center">
-                        <div class="font-mono">0001</div>
-                        <div class="text-sm text-gray-400">= 1</div>
-                    </button>
-                    <button class="example-btn quick-example px-4 py-3 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center">
-                        <div class="font-mono">1000</div>
-                        <div class="text-sm text-gray-400">= 8</div>
-                    </button>
-                    <button class="example-btn quick-example px-4 py-3 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center">
-                        <div class="font-mono">1111</div>
-                        <div class="text-sm text-gray-400">= 15</div>
-                    </button>
-                    <button class="example-btn quick-example px-4 py-3 rounded-lg border border-gray-600 text-gray-300 hover:border-pink-450 hover:text-white hover:bg-pink-450/10 transition-all text-center">
-                        <div class="font-mono">101010</div>
-                        <div class="text-sm text-gray-400">= 42</div>
-                    </button>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-gradient-to-br from-pink-450/5 to-transparent rounded-xl p-5 border border-pink-450/10">
+                        <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
+                            <i class="fas fa-binary mr-2 text-pink-350"></i>
+                            Binary (Base 2)
+                        </h3>
+                        <p class="text-gray-300 text-sm mb-3">Uses only two digits: 0 and 1. Foundation of all digital systems.</p>
+                        <div class="text-gray-400 text-xs">Digits: 0-1</div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-green-400/5 to-transparent rounded-xl p-5 border border-green-400/10">
+                        <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
+                            <i class="fas fa-hashtag mr-2 text-green-300"></i>
+                            Decimal (Base 10)
+                        </h3>
+                        <p class="text-gray-300 text-sm mb-3">Our everyday number system. Uses digits 0-9.</p>
+                        <div class="text-gray-400 text-xs">Digits: 0-9</div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-blue-400/5 to-transparent rounded-xl p-5 border border-blue-400/10">
+                        <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
+                            <i class="fas fa-hashtag mr-2 text-blue-300"></i>
+                            Hexadecimal (Base 16)
+                        </h3>
+                        <p class="text-gray-300 text-sm mb-3">Uses digits 0-9 and letters A-F. Common in programming.</p>
+                        <div class="text-gray-400 text-xs">Digits: 0-9, A-F</div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-br from-yellow-400/5 to-transparent rounded-xl p-5 border border-yellow-400/10">
+                        <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
+                            <i class="fas fa-hashtag mr-2 text-yellow-300"></i>
+                            Octal (Base 8)
+                        </h3>
+                        <p class="text-gray-300 text-sm mb-3">Uses digits 0-7. Used in some Unix permissions.</p>
+                        <div class="text-gray-400 text-xs">Digits: 0-7</div>
+                    </div>
                 </div>
             </div>
         </div>
     </main>
 
     <!-- JavaScript -->
-    <script src="bin2dec.js"></script>
+    <script src="proj1.js"></script>
 </body>
 
 </html>
