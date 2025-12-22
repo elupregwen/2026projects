@@ -93,3 +93,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+
+// Coming Soon JavaScript for the gradient text animation
+document.addEventListener('DOMContentLoaded', () => {
+            // Make sure gradient text works
+            const gradientText = document.querySelector('.gradient-text');
+            if (gradientText) {
+                gradientText.style.backgroundClip = 'text';
+                gradientText.style.webkitBackgroundClip = 'text';
+                gradientText.style.webkitTextFillColor = 'transparent';
+            }
+        });
