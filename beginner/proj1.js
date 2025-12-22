@@ -1,7 +1,7 @@
 // number-converter.js - Universal Number System Converter
 
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
+    // DOM Elements with null checks
     const numberInput = document.getElementById('number-input');
     const inputBaseIndicator = document.getElementById('input-base-indicator');
     const inputTypeBtns = document.querySelectorAll('.input-type-btn');
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentBaseName = document.getElementById('current-base-name');
     const inputValidation = document.getElementById('input-validation');
     
-    // Result elements
+    // Result elements with null checks
     const resultBinary = document.getElementById('result-binary');
     const resultDecimal = document.getElementById('result-decimal');
     const resultHexadecimal = document.getElementById('result-hexadecimal');
@@ -35,6 +35,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // Current input base (default: binary)
     let currentBase = 2;
     let currentInput = '';
+    let errorState = false;
+
+    // Safe element update function
+    function safeUpdate(element, value) {
+        if (element && element.textContent !== undefined) {
+            element.textContent = value;
+        }
+    }
+    
+    // Safe element style update
+    function safeStyleUpdate(element, property, value) {
+        if (element && element.style) {
+            element.style[property] = value;
+        }
+    }
     
     // Base names mapping
     const baseNames = {
@@ -48,12 +63,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const baseCharacters = {
         2: '01',
         8: '01234567',
-        10: '0123456789',
+        10: '0123456789-',
         16: '0123456789ABCDEFabcdef'
     };
     
+    // Max safe integer for JavaScript
+    const MAX_SAFE_INTEGER = 9007199254740991;
+    
     // Initialize
     function init() {
+        // Reset error state
+        errorState = false;
+        
+        // Check if essential elements exist
+        if (!numberInput) {
+            console.error('Number input element not found!');
+            return;
+        }
+        
         // Set active input type button
         setActiveInputType(2);
         updateAllConversions('0');
@@ -64,6 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set active input type
     function setActiveInputType(base) {
         currentBase = base;
+        
+        // Reset error state when changing base
+        errorState = false;
+        safeUpdate(inputValidation, '');
         
         // Update buttons
         inputTypeBtns.forEach(btn => {
@@ -82,13 +113,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // Update base indicator
-        inputBaseIndicator.textContent = base;
-        inputBaseIndicator.style.color = getButtonColor(base);
+        safeUpdate(inputBaseIndicator, base.toString());
+        safeStyleUpdate(inputBaseIndicator, 'color', getButtonColor(base));
         
         // Update current base name
         const baseInfo = baseNames[base];
-        currentBaseName.textContent = `${baseInfo.name} (Base ${base})`;
-        currentBaseName.style.color = `var(--tw-${baseInfo.color}-400)`;
+        safeUpdate(currentBaseName, `${baseInfo.name} (Base ${base})`);
         
         // Update placeholder
         const examples = {
@@ -97,7 +127,9 @@ document.addEventListener('DOMContentLoaded', () => {
             16: 'e.g., FF or 1A3',
             8: 'e.g., 777'
         };
-        numberInput.placeholder = `Enter ${baseInfo.name.toLowerCase()} number (${examples[base]})`;
+        if (numberInput) {
+            numberInput.placeholder = `Enter ${baseInfo.name.toLowerCase()} number (${examples[base]})`;
+        }
         
         // Re-validate current input
         if (currentInput) {
@@ -136,7 +168,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const chars = baseCharacters[base];
         const inputUpper = input.toUpperCase();
         
-        // Check each character
+        // Check for negative sign in decimal
+        if (base === 10 && inputUpper.includes('-')) {
+            // Ensure negative sign is only at the beginning
+            if (inputUpper.indexOf('-') > 0) {
+                return { 
+                    isValid: false, 
+                    message: 'Negative sign must be at the beginning' 
+                };
+            }
+            // Check remaining characters
+            const remaining = inputUpper.substring(1);
+            for (let char of remaining) {
+                if (!'0123456789'.includes(char)) {
+                    return { 
+                        isValid: false, 
+                        message: `Invalid decimal digit: "${char}"` 
+                    };
+                }
+            }
+            return { isValid: true, message: `Valid ${baseNames[base].name} number` };
+        }
+        
+        // Check each character for other bases
         for (let char of inputUpper) {
             if (!chars.includes(char)) {
                 return { 
@@ -149,117 +203,149 @@ document.addEventListener('DOMContentLoaded', () => {
         return { isValid: true, message: `Valid ${baseNames[base].name} number` };
     }
     
-    // Convert from any base to decimal
+    // Safe conversion to decimal with error handling
     function toDecimal(numberStr, fromBase) {
-        // Remove any whitespace and convert to uppercase
-        numberStr = numberStr.trim().toUpperCase();
-        if (numberStr === '') return 0;
-        
-        // Handle negative numbers
-        let isNegative = false;
-        if (numberStr.startsWith('-')) {
-            isNegative = true;
-            numberStr = numberStr.substring(1);
-        }
-        
-        let decimal = 0;
-        const digits = numberStr.split('');
-        
-        // Convert each digit
-        for (let i = 0; i < digits.length; i++) {
-            const digit = digits[i];
-            let digitValue;
+        try {
+            // Remove any whitespace and convert to uppercase
+            numberStr = numberStr.trim().toUpperCase();
+            if (numberStr === '' || numberStr === '-') return 0;
             
-            if (digit >= '0' && digit <= '9') {
-                digitValue = parseInt(digit);
-            } else if (digit >= 'A' && digit <= 'F') {
-                digitValue = digit.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
-            } else {
-                digitValue = 0;
+            // Handle negative numbers
+            let isNegative = false;
+            if (numberStr.startsWith('-')) {
+                isNegative = true;
+                numberStr = numberStr.substring(1);
             }
             
-            const power = digits.length - 1 - i;
-            decimal += digitValue * Math.pow(fromBase, power);
+            // For decimal base, just parse it
+            if (fromBase === 10) {
+                const num = parseInt(numberStr, 10);
+                if (isNaN(num)) return 0;
+                return isNegative ? -num : num;
+            }
+            
+            let decimal = 0;
+            const digits = numberStr.split('');
+            
+            // Convert each digit
+            for (let i = 0; i < digits.length; i++) {
+                const digit = digits[i];
+                let digitValue;
+                
+                if (digit >= '0' && digit <= '9') {
+                    digitValue = parseInt(digit);
+                } else if (digit >= 'A' && digit <= 'F') {
+                    digitValue = digit.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
+                } else {
+                    digitValue = 0;
+                }
+                
+                const power = digits.length - 1 - i;
+                decimal += digitValue * Math.pow(fromBase, power);
+            }
+            
+            return isNegative ? -decimal : decimal;
+        } catch (error) {
+            console.warn('Conversion error:', error.message);
+            throw new Error('Number too large for conversion');
         }
-        
-        return isNegative ? -decimal : decimal;
     }
     
     // Convert decimal to any base
     function fromDecimal(decimalNumber, toBase) {
-        if (decimalNumber === 0) return '0';
-        
-        let number = Math.abs(decimalNumber);
-        let result = '';
-        const digits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        
-        // Handle negative numbers
-        if (decimalNumber < 0) {
-            result = '-';
+        try {
+            if (decimalNumber === 0) return '0';
+            
+            let number = Math.abs(decimalNumber);
+            let result = '';
+            const digits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            
+            // Convert
+            while (number > 0) {
+                const remainder = number % toBase;
+                result = digits[remainder] + result;
+                number = Math.floor(number / toBase);
+            }
+            
+            result = result || '0';
+            
+            // Add negative sign if needed
+            if (decimalNumber < 0) {
+                result = '-' + result;
+            }
+            
+            return result;
+        } catch (error) {
+            console.warn('Conversion error:', error.message);
+            throw new Error('Conversion error');
         }
-        
-        // Convert
-        while (number > 0) {
-            const remainder = number % toBase;
-            result = digits[remainder] + result;
-            number = Math.floor(number / toBase);
-        }
-        
-        return result || '0';
     }
     
     // Convert between any bases
     function convertBase(numberStr, fromBase, toBase) {
-        if (fromBase === toBase) return numberStr.toUpperCase();
-        
-        // Convert to decimal first
-        const decimal = toDecimal(numberStr, fromBase);
-        
-        // Convert from decimal to target base
-        return fromDecimal(decimal, toBase);
+        try {
+            if (fromBase === toBase) return numberStr.toUpperCase();
+            
+            // Convert to decimal first
+            const decimal = toDecimal(numberStr, fromBase);
+            
+            // Convert from decimal to target base
+            return fromDecimal(decimal, toBase);
+        } catch (error) {
+            throw error;
+        }
     }
     
     // Update all conversion results
     function updateAllConversions(inputValue) {
-        currentInput = inputValue;
-        
-        // Validate input
-        const validation = validateInput(inputValue, currentBase);
-        inputValidation.textContent = validation.message;
-        inputValidation.style.color = validation.isValid ? '#10B981' : '#EF4444';
-        
-        if (!validation.isValid && inputValue !== '') {
-            // Clear results if invalid
-            clearResults();
-            return;
-        }
-        
-        if (inputValue === '') {
-            clearResults();
-            return;
-        }
-        
         try {
+            currentInput = inputValue;
+            
+            // Reset error state
+            errorState = false;
+            safeUpdate(inputValidation, '');
+            safeStyleUpdate(inputValidation, 'color', '');
+            
+            // Clear input or empty string
+            if (inputValue === '') {
+                clearResults();
+                safeUpdate(inputValidation, 'Enter a number to convert');
+                safeStyleUpdate(inputValidation, 'color', '#6B7280');
+                return;
+            }
+            
+            // Validate input
+            const validation = validateInput(inputValue, currentBase);
+            if (!validation.isValid) {
+                safeUpdate(inputValidation, validation.message);
+                safeStyleUpdate(inputValidation, 'color', '#EF4444');
+                clearResults();
+                return;
+            }
+            
             // Main conversions
             const decimalValue = toDecimal(inputValue, currentBase);
             
+            safeUpdate(inputValidation, validation.message);
+            safeStyleUpdate(inputValidation, 'color', '#10B981');
+            
             // Binary
             const binary = convertBase(inputValue, currentBase, 2);
-            resultBinary.textContent = formatBinary(binary);
-            binaryDigits.textContent = binary.replace(/[^01]/g, '').length;
+            safeUpdate(resultBinary, formatBinary(binary));
+            safeUpdate(binaryDigits, binary.replace(/[^01]/g, '').length.toString());
             
             // Decimal
-            resultDecimal.textContent = decimalValue.toLocaleString();
+            safeUpdate(resultDecimal, decimalValue.toLocaleString());
             
             // Hexadecimal
             const hexadecimal = convertBase(inputValue, currentBase, 16);
-            resultHexadecimal.textContent = hexadecimal;
-            hexDigits.textContent = hexadecimal.replace(/[^0-9A-F]/g, '').length;
+            safeUpdate(resultHexadecimal, hexadecimal);
+            safeUpdate(hexDigits, hexadecimal.replace(/[^0-9A-F]/g, '').length.toString());
             
             // Octal
             const octal = convertBase(inputValue, currentBase, 8);
-            resultOctal.textContent = octal;
-            octalDigits.textContent = octal.replace(/[^0-7]/g, '').length;
+            safeUpdate(resultOctal, octal);
+            safeUpdate(octalDigits, octal.replace(/[^0-7]/g, '').length.toString());
             
             // ASCII Character
             updateAsciiConversion(decimalValue);
@@ -271,9 +357,10 @@ document.addEventListener('DOMContentLoaded', () => {
             updateCustomBaseConversion(decimalValue);
             
         } catch (error) {
-            console.error('Conversion error:', error);
-            inputValidation.textContent = 'Error: Number too large for conversion';
-            inputValidation.style.color = '#EF4444';
+            console.warn('Conversion failed:', error.message);
+            errorState = true;
+            safeUpdate(inputValidation, `Error: ${error.message}. Try a smaller number.`);
+            safeStyleUpdate(inputValidation, 'color', '#EF4444');
             clearResults();
         }
     }
@@ -289,98 +376,136 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update ASCII conversion
     function updateAsciiConversion(decimalValue) {
-        if (decimalValue >= 0 && decimalValue <= 127) {
-            const char = String.fromCharCode(decimalValue);
-            // Check if it's a printable character
-            if (decimalValue >= 32 && decimalValue <= 126) {
-                resultAscii.textContent = char;
+        try {
+            if (decimalValue >= 0 && decimalValue <= 127) {
+                const char = String.fromCharCode(decimalValue);
+                // Check if it's a printable character
+                if (decimalValue >= 32 && decimalValue <= 126) {
+                    safeUpdate(resultAscii, char);
+                } else {
+                    // Control character names
+                    const controlChars = {
+                        0: 'NUL', 1: 'SOH', 2: 'STX', 3: 'ETX', 4: 'EOT', 5: 'ENQ', 6: 'ACK', 7: 'BEL',
+                        8: 'BS', 9: 'TAB', 10: 'LF', 11: 'VT', 12: 'FF', 13: 'CR', 14: 'SO', 15: 'SI',
+                        16: 'DLE', 17: 'DC1', 18: 'DC2', 19: 'DC3', 20: 'DC4', 21: 'NAK', 22: 'SYN',
+                        23: 'ETB', 24: 'CAN', 25: 'EM', 26: 'SUB', 27: 'ESC', 28: 'FS', 29: 'GS',
+                        30: 'RS', 31: 'US', 127: 'DEL'
+                    };
+                    safeUpdate(resultAscii, controlChars[decimalValue] || `CTRL-${decimalValue}`);
+                }
+                safeUpdate(asciiCode, decimalValue.toString());
             } else {
-                // Control character names
-                const controlChars = {
-                    0: 'NUL', 1: 'SOH', 2: 'STX', 3: 'ETX', 4: 'EOT', 5: 'ENQ', 6: 'ACK', 7: 'BEL',
-                    8: 'BS', 9: 'TAB', 10: 'LF', 11: 'VT', 12: 'FF', 13: 'CR', 14: 'SO', 15: 'SI',
-                    16: 'DLE', 17: 'DC1', 18: 'DC2', 19: 'DC3', 20: 'DC4', 21: 'NAK', 22: 'SYN',
-                    23: 'ETB', 24: 'CAN', 25: 'EM', 26: 'SUB', 27: 'ESC', 28: 'FS', 29: 'GS',
-                    30: 'RS', 31: 'US', 127: 'DEL'
-                };
-                resultAscii.textContent = controlChars[decimalValue] || `CTRL-${decimalValue}`;
+                safeUpdate(resultAscii, 'N/A');
+                safeUpdate(asciiCode, 'N/A');
             }
-            asciiCode.textContent = decimalValue;
-        } else {
-            resultAscii.textContent = 'N/A';
-            asciiCode.textContent = 'N/A';
+        } catch (error) {
+            safeUpdate(resultAscii, 'Error');
+            safeUpdate(asciiCode, 'Error');
         }
     }
     
     // Update 32-bit binary representation
     function update32BitBinary(decimalValue) {
-        if (decimalValue >= -2147483648 && decimalValue <= 2147483647) {
-            // Convert to 32-bit signed binary
-            let binary32;
-            if (decimalValue >= 0) {
-                binary32 = decimalValue.toString(2).padStart(32, '0');
+        try {
+            if (decimalValue >= -2147483648 && decimalValue <= 2147483647) {
+                // Convert to 32-bit signed binary
+                let binary32;
+                if (decimalValue >= 0) {
+                    binary32 = decimalValue.toString(2).padStart(32, '0');
+                } else {
+                    // Two's complement for negative numbers
+                    binary32 = (decimalValue >>> 0).toString(2);
+                }
+                safeUpdate(result32Bit, binary32.replace(/(.{8})/g, '$1 ').trim());
             } else {
-                // Two's complement for negative numbers
-                binary32 = (decimalValue >>> 0).toString(2);
+                safeUpdate(result32Bit, 'Out of 32-bit range');
             }
-            result32Bit.textContent = binary32.replace(/(.{8})/g, '$1 ').trim();
-        } else {
-            result32Bit.textContent = 'Out of 32-bit range';
+        } catch (error) {
+            safeUpdate(result32Bit, 'Conversion error');
         }
     }
     
     // Update custom base conversion
     function updateCustomBaseConversion(decimalValue) {
-        const customBase = parseInt(customBaseInput.value) || 5;
-        
-        if (customBase >= 2 && customBase <= 36) {
-            const customResult = fromDecimal(decimalValue, customBase);
-            resultCustom.textContent = customResult;
-        } else {
-            resultCustom.textContent = 'Invalid base';
+        try {
+            if (customBaseInput) {
+                const customBase = parseInt(customBaseInput.value) || 5;
+                
+                if (customBase >= 2 && customBase <= 36) {
+                    const customResult = fromDecimal(decimalValue, customBase);
+                    safeUpdate(resultCustom, customResult);
+                } else {
+                    safeUpdate(resultCustom, 'Invalid base');
+                }
+            }
+        } catch (error) {
+            safeUpdate(resultCustom, 'Error');
         }
     }
     
     // Clear all results
     function clearResults() {
-        resultBinary.textContent = '0';
-        resultDecimal.textContent = '0';
-        resultHexadecimal.textContent = '0';
-        resultOctal.textContent = '0';
-        resultAscii.textContent = 'NUL';
-        result32Bit.textContent = '00000000000000000000000000000000';
-        resultCustom.textContent = '0';
-        asciiCode.textContent = '0';
-        binaryDigits.textContent = '1';
-        hexDigits.textContent = '1';
-        octalDigits.textContent = '1';
+        safeUpdate(resultBinary, '0');
+        safeUpdate(resultDecimal, '0');
+        safeUpdate(resultHexadecimal, '0');
+        safeUpdate(resultOctal, '0');
+        safeUpdate(resultAscii, 'NUL');
+        safeUpdate(result32Bit, '00000000000000000000000000000000');
+        safeUpdate(resultCustom, '0');
+        safeUpdate(asciiCode, '0');
+        safeUpdate(binaryDigits, '1');
+        safeUpdate(hexDigits, '1');
+        safeUpdate(octalDigits, '1');
     }
     
     // Generate random number based on current base
     function generateRandomNumber() {
+        // Reset error state
+        errorState = false;
+        safeUpdate(inputValidation, '');
+        
         let randomNum = '';
-        const chars = baseCharacters[currentBase];
+        let chars;
         
-        // Generate random length (1-8 for hex/binary, 1-4 for decimal/octal)
-        const maxLength = currentBase === 16 || currentBase === 2 ? 8 : 4;
-        const length = Math.floor(Math.random() * maxLength) + 1;
-        
-        // Generate random digits
-        for (let i = 0; i < length; i++) {
-            const randomIndex = Math.floor(Math.random() * chars.length);
-            randomNum += chars[randomIndex];
+        // Get valid characters for current base
+        if (currentBase === 10) {
+            // For decimal, include negative numbers sometimes
+            chars = '0123456789';
+            const maxLength = 8;
+            const length = Math.floor(Math.random() * maxLength) + 1;
+            
+            // Generate random digits
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * chars.length);
+                randomNum += chars[randomIndex];
+            }
+            
+            // Remove leading zeros
+            randomNum = randomNum.replace(/^0+/, '') || '0';
+            
+            // 25% chance to add negative sign
+            if (Math.random() < 0.25 && randomNum !== '0') {
+                randomNum = '-' + randomNum;
+            }
+        } else {
+            chars = baseCharacters[currentBase].replace('-', '');
+            const maxLength = currentBase === 16 || currentBase === 2 ? 8 : 4;
+            const length = Math.floor(Math.random() * maxLength) + 1;
+            
+            // Generate random digits
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * chars.length);
+                randomNum += chars[randomIndex];
+            }
+            
+            // Remove leading zeros
+            randomNum = randomNum.replace(/^0+/, '') || '0';
         }
         
-        // Remove leading zeros
-        randomNum = randomNum.replace(/^0+/, '') || '0';
-        
-        // 25% chance to add negative sign for decimal
-        if (currentBase === 10 && Math.random() < 0.25) {
-            randomNum = '-' + randomNum;
+        if (numberInput) {
+            numberInput.value = randomNum;
+            validateAndConvert(randomNum);
         }
-        
-        numberInput.value = randomNum;
-        validateAndConvert(randomNum);
     }
     
     // Validate and convert input
@@ -390,6 +515,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Copy result to clipboard
     function copyToClipboard(text, button) {
+        // Don't copy if in error state
+        if (errorState) return;
+        
         navigator.clipboard.writeText(text).then(() => {
             // Visual feedback
             const originalHTML = button.innerHTML;
@@ -419,54 +547,67 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 const base = parseInt(btn.getAttribute('data-base'));
                 setActiveInputType(base);
-                if (numberInput.value) {
+                if (numberInput && numberInput.value) {
                     validateAndConvert(numberInput.value);
                 }
             });
         });
         
         // Number input
-        numberInput.addEventListener('input', (e) => {
-            validateAndConvert(e.target.value);
-        });
+        if (numberInput) {
+            numberInput.addEventListener('input', (e) => {
+                validateAndConvert(e.target.value);
+            });
+        }
         
         // Clear input button
-        clearInputBtn.addEventListener('click', () => {
-            numberInput.value = '';
-            validateAndConvert('');
-            numberInput.focus();
-        });
+        if (clearInputBtn) {
+            clearInputBtn.addEventListener('click', () => {
+                if (numberInput) {
+                    numberInput.value = '';
+                }
+                errorState = false;
+                validateAndConvert('');
+                if (numberInput) {
+                    numberInput.focus();
+                }
+            });
+        }
         
         // Random input button
-        randomInputBtn.addEventListener('click', generateRandomNumber);
+        if (randomInputBtn) {
+            randomInputBtn.addEventListener('click', generateRandomNumber);
+        }
         
         // Copy buttons
         copyBtns.forEach(btn => {
             btn.addEventListener('click', () => {
+                if (errorState) return;
+                
                 const target = btn.getAttribute('data-target');
                 let textToCopy = '';
                 
                 switch(target) {
                     case 'binary':
-                        textToCopy = resultBinary.textContent.replace(/ /g, '');
+                        textToCopy = resultBinary ? resultBinary.textContent.replace(/ /g, '') : '';
                         break;
                     case 'decimal':
-                        textToCopy = resultDecimal.textContent.replace(/,/g, '');
+                        textToCopy = resultDecimal ? resultDecimal.textContent.replace(/,/g, '') : '';
                         break;
                     case 'hexadecimal':
-                        textToCopy = resultHexadecimal.textContent;
+                        textToCopy = resultHexadecimal ? resultHexadecimal.textContent : '';
                         break;
                     case 'octal':
-                        textToCopy = resultOctal.textContent;
+                        textToCopy = resultOctal ? resultOctal.textContent : '';
                         break;
                     case 'ascii':
-                        textToCopy = resultAscii.textContent;
+                        textToCopy = resultAscii ? resultAscii.textContent : '';
                         break;
                     case '32bit':
-                        textToCopy = result32Bit.textContent.replace(/ /g, '');
+                        textToCopy = result32Bit ? result32Bit.textContent.replace(/ /g, '') : '';
                         break;
                     case 'custom':
-                        textToCopy = resultCustom.textContent;
+                        textToCopy = resultCustom ? resultCustom.textContent : '';
                         break;
                 }
                 
@@ -477,10 +618,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Example buttons
         exampleBtns.forEach(btn => {
             btn.addEventListener('click', () => {
+                // Reset error state
+                errorState = false;
+                
                 const binaryText = btn.querySelector('.font-mono').textContent;
-                numberInput.value = binaryText;
-                validateAndConvert(binaryText);
-                numberInput.focus();
+                if (numberInput) {
+                    numberInput.value = binaryText;
+                    validateAndConvert(binaryText);
+                    numberInput.focus();
+                }
                 
                 // Visual feedback
                 btn.style.borderColor = '#FF6B9D';
@@ -496,12 +642,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // Custom base input
-        customBaseInput.addEventListener('input', () => {
-            const customBase = parseInt(customBaseInput.value);
-            if (customBase >= 2 && customBase <= 36 && numberInput.value) {
-                updateCustomBaseConversion(toDecimal(numberInput.value, currentBase));
-            }
-        });
+        if (customBaseInput) {
+            customBaseInput.addEventListener('input', () => {
+                if (errorState || !numberInput || !numberInput.value) return;
+                
+                const customBase = parseInt(customBaseInput.value);
+                if (customBase >= 2 && customBase <= 36) {
+                    try {
+                        const decimalValue = toDecimal(numberInput.value, currentBase);
+                        updateCustomBaseConversion(decimalValue);
+                    } catch (error) {
+                        safeUpdate(resultCustom, 'Error');
+                    }
+                }
+            });
+        }
     }
     
     // Setup keyboard shortcuts
@@ -509,9 +664,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('keydown', (e) => {
             // Clear on Escape
             if (e.key === 'Escape') {
-                numberInput.value = '';
+                if (numberInput) {
+                    numberInput.value = '';
+                }
+                errorState = false;
                 validateAndConvert('');
-                numberInput.focus();
+                if (numberInput) {
+                    numberInput.focus();
+                }
             }
             
             // Random on R
@@ -541,5 +701,22 @@ document.addEventListener('DOMContentLoaded', () => {
     init();
     
     // Focus input on load
-    numberInput.focus();
+    if (numberInput) {
+        numberInput.focus();
+    }
+    
+    // Log any missing elements for debugging
+    const elements = [
+        { name: 'numberInput', element: numberInput },
+        { name: 'resultBinary', element: resultBinary },
+        { name: 'resultDecimal', element: resultDecimal },
+        { name: 'resultHexadecimal', element: resultHexadecimal },
+        { name: 'resultOctal', element: resultOctal }
+    ];
+    
+    elements.forEach(item => {
+        if (!item.element) {
+            console.warn(`Element not found: ${item.name}`);
+        }
+    });
 });
