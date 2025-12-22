@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binary to Decimal Converter</title>
+    <meta name="description" content="Convert binary numbers to decimal numbers.">
+    <meta name="keywords" content="binary, decimal, converter, binary to decimal">
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B9D',
+                        secondary: '#C77DFF',
+                        accent: '#FFB3C6',
+                        dark: '#0f172a',
+                        light: '#f8fafc',
+                        pink: {
+                            350: '#FF9EBD',
+                            450: '#FF6B9D',
+                            550: '#FF4785'
+                        },
+                        purple: {
+                            450: '#C77DFF',
+                            550: '#B65CFF'
+                        }
+                    },
+                    spacing: {
+                        '128': '32rem',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+
+<body class="antialiased min-h-screen flex items-center justify-center">
+    <main class="w-full">
+        <div class="container mx-auto px-6 max-w-7xl">
+            <!-- Page Header -->
+            <div id="page-header" class="text-center mb-12">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+                    Binary to Decimal 
+                    <span class="gradient-text bg-gradient-to-r from-pink-450 to-purple-450">Converter</span>
+                </h1>
+                <p class="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                    Convert binary numbers to decimal numbers.
+                </p>
+                <div class="w-20 h-1 bg-gradient-to-r from-pink-450 to-purple-450 rounded-full mx-auto mt-8"></div>
+                
+                <!-- Add a countdown or back button for better UX -->
+                <div class="mt-12">
+                    <a href="index.html" class="inline-flex items-center justify-center px-8 py-3 rounded-lg font-medium
+                      border border-pink-450 text-pink-350
+                      hover:bg-gradient-to-r hover:from-pink-550 hover:to-pink-450
+                      hover:text-white hover:shadow-md transition-all duration-300">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back to Projects
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+     <!-- JavaScript -->
+    <script src="bin2dec.js"></script>
+</body>
+
+</html>
