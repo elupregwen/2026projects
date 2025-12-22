@@ -35,8 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Current input base (default: binary)
     let currentBase = 2;
     let currentInput = '';
-    let errorState = false;
-
+    
     // Base names mapping
     const baseNames = {
         2: { name: 'Binary', color: 'pink' },
@@ -49,18 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const baseCharacters = {
         2: '01',
         8: '01234567',
-        10: '0123456789-',
+        10: '0123456789',
         16: '0123456789ABCDEFabcdef'
     };
     
-    // Max safe integer for JavaScript
-    const MAX_SAFE_INTEGER = 9007199254740991;
-    
     // Initialize
     function init() {
-        // Reset error state
-        errorState = false;
-        
         // Set active input type button
         setActiveInputType(2);
         updateAllConversions('0');
@@ -71,10 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set active input type
     function setActiveInputType(base) {
         currentBase = base;
-        
-        // Reset error state when changing base
-        errorState = false;
-        inputValidation.textContent = '';
         
         // Update buttons
         inputTypeBtns.forEach(btn => {
@@ -147,29 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const chars = baseCharacters[base];
         const inputUpper = input.toUpperCase();
         
-        // Check for negative sign in decimal
-        if (base === 10 && inputUpper.includes('-')) {
-            // Ensure negative sign is only at the beginning
-            if (inputUpper.indexOf('-') > 0) {
-                return { 
-                    isValid: false, 
-                    message: 'Negative sign must be at the beginning' 
-                };
-            }
-            // Check remaining characters
-            const remaining = inputUpper.substring(1);
-            for (let char of remaining) {
-                if (!'0123456789'.includes(char)) {
-                    return { 
-                        isValid: false, 
-                        message: `Invalid decimal digit: "${char}"` 
-                    };
-                }
-            }
-            return { isValid: true, message: `Valid ${baseNames[base].name} number` };
-        }
-        
-        // Check each character for other bases
+        // Check each character
         for (let char of inputUpper) {
             if (!chars.includes(char)) {
                 return { 
@@ -182,145 +149,92 @@ document.addEventListener('DOMContentLoaded', () => {
         return { isValid: true, message: `Valid ${baseNames[base].name} number` };
     }
     
-    // Safe conversion to decimal with error handling
+    // Convert from any base to decimal
     function toDecimal(numberStr, fromBase) {
-        try {
-            // Remove any whitespace and convert to uppercase
-            numberStr = numberStr.trim().toUpperCase();
-            if (numberStr === '' || numberStr === '-') return 0;
-            
-            // Handle negative numbers
-            let isNegative = false;
-            if (numberStr.startsWith('-')) {
-                isNegative = true;
-                numberStr = numberStr.substring(1);
-            }
-            
-            // For decimal base, just parse it
-            if (fromBase === 10) {
-                const num = parseInt(numberStr, 10);
-                if (isNaN(num)) return 0;
-                if (Math.abs(num) > MAX_SAFE_INTEGER) {
-                    throw new Error('Number too large for accurate conversion');
-                }
-                return isNegative ? -num : num;
-            }
-            
-            let decimal = 0;
-            const digits = numberStr.split('');
-            
-            // Check if number is too long for safe conversion
-            if (digits.length > 15) {
-                throw new Error('Number too large for accurate conversion');
-            }
-            
-            // Convert each digit
-            for (let i = 0; i < digits.length; i++) {
-                const digit = digits[i];
-                let digitValue;
-                
-                if (digit >= '0' && digit <= '9') {
-                    digitValue = parseInt(digit);
-                } else if (digit >= 'A' && digit <= 'F') {
-                    digitValue = digit.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
-                } else {
-                    digitValue = 0;
-                }
-                
-                const power = digits.length - 1 - i;
-                const powerValue = Math.pow(fromBase, power);
-                
-                // Check for overflow
-                if (powerValue > MAX_SAFE_INTEGER || decimal > MAX_SAFE_INTEGER - (digitValue * powerValue)) {
-                    throw new Error('Number too large for accurate conversion');
-                }
-                
-                decimal += digitValue * powerValue;
-            }
-            
-            if (decimal > MAX_SAFE_INTEGER) {
-                throw new Error('Number too large for accurate conversion');
-            }
-            
-            return isNegative ? -decimal : decimal;
-        } catch (error) {
-            console.warn('Conversion error:', error.message);
-            throw error;
+        // Remove any whitespace and convert to uppercase
+        numberStr = numberStr.trim().toUpperCase();
+        if (numberStr === '') return 0;
+        
+        // Handle negative numbers
+        let isNegative = false;
+        if (numberStr.startsWith('-')) {
+            isNegative = true;
+            numberStr = numberStr.substring(1);
         }
+        
+        let decimal = 0;
+        const digits = numberStr.split('');
+        
+        // Convert each digit
+        for (let i = 0; i < digits.length; i++) {
+            const digit = digits[i];
+            let digitValue;
+            
+            if (digit >= '0' && digit <= '9') {
+                digitValue = parseInt(digit);
+            } else if (digit >= 'A' && digit <= 'F') {
+                digitValue = digit.charCodeAt(0) - 'A'.charCodeAt(0) + 10;
+            } else {
+                digitValue = 0;
+            }
+            
+            const power = digits.length - 1 - i;
+            decimal += digitValue * Math.pow(fromBase, power);
+        }
+        
+        return isNegative ? -decimal : decimal;
     }
     
     // Convert decimal to any base
     function fromDecimal(decimalNumber, toBase) {
-        try {
-            if (decimalNumber === 0) return '0';
-            
-            // Handle large numbers
-            if (Math.abs(decimalNumber) > MAX_SAFE_INTEGER) {
-                throw new Error('Number too large for conversion');
-            }
-            
-            let number = Math.abs(decimalNumber);
-            let result = '';
-            const digits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            
-            // Convert
-            while (number > 0) {
-                const remainder = number % toBase;
-                result = digits[remainder] + result;
-                number = Math.floor(number / toBase);
-            }
-            
-            result = result || '0';
-            
-            // Add negative sign if needed
-            if (decimalNumber < 0) {
-                result = '-' + result;
-            }
-            
-            return result;
-        } catch (error) {
-            console.warn('Conversion error:', error.message);
-            throw error;
+        if (decimalNumber === 0) return '0';
+        
+        let number = Math.abs(decimalNumber);
+        let result = '';
+        const digits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        
+        // Handle negative numbers
+        if (decimalNumber < 0) {
+            result = '-';
         }
+        
+        // Convert
+        while (number > 0) {
+            const remainder = number % toBase;
+            result = digits[remainder] + result;
+            number = Math.floor(number / toBase);
+        }
+        
+        return result || '0';
     }
     
     // Convert between any bases
     function convertBase(numberStr, fromBase, toBase) {
-        try {
-            if (fromBase === toBase) return numberStr.toUpperCase();
-            
-            // Convert to decimal first
-            const decimal = toDecimal(numberStr, fromBase);
-            
-            // Convert from decimal to target base
-            return fromDecimal(decimal, toBase);
-        } catch (error) {
-            throw error;
-        }
+        if (fromBase === toBase) return numberStr.toUpperCase();
+        
+        // Convert to decimal first
+        const decimal = toDecimal(numberStr, fromBase);
+        
+        // Convert from decimal to target base
+        return fromDecimal(decimal, toBase);
     }
     
     // Update all conversion results
     function updateAllConversions(inputValue) {
         currentInput = inputValue;
         
-        // Reset error state
-        errorState = false;
-        inputValidation.textContent = '';
-        inputValidation.style.color = '';
+        // Validate input
+        const validation = validateInput(inputValue, currentBase);
+        inputValidation.textContent = validation.message;
+        inputValidation.style.color = validation.isValid ? '#10B981' : '#EF4444';
         
-        // Clear input or empty string
-        if (inputValue === '') {
+        if (!validation.isValid && inputValue !== '') {
+            // Clear results if invalid
             clearResults();
-            inputValidation.textContent = 'Enter a number to convert';
-            inputValidation.style.color = '#6B7280';
             return;
         }
         
-        // Validate input
-        const validation = validateInput(inputValue, currentBase);
-        if (!validation.isValid) {
-            inputValidation.textContent = validation.message;
-            inputValidation.style.color = '#EF4444';
+        if (inputValue === '') {
             clearResults();
             return;
         }
@@ -329,22 +243,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // Main conversions
             const decimalValue = toDecimal(inputValue, currentBase);
             
-            // Check if value is within reasonable bounds
-            if (Math.abs(decimalValue) > 1e15) {
-                inputValidation.textContent = 'Note: Very large number, precision may be limited';
-                inputValidation.style.color = '#F59E0B';
-            } else {
-                inputValidation.textContent = validation.message;
-                inputValidation.style.color = '#10B981';
-            }
-            
             // Binary
             const binary = convertBase(inputValue, currentBase, 2);
             resultBinary.textContent = formatBinary(binary);
             binaryDigits.textContent = binary.replace(/[^01]/g, '').length;
             
             // Decimal
-            resultDecimal.textContent = formatLargeNumber(decimalValue);
+            resultDecimal.textContent = decimalValue.toLocaleString();
             
             // Hexadecimal
             const hexadecimal = convertBase(inputValue, currentBase, 16);
@@ -366,20 +271,11 @@ document.addEventListener('DOMContentLoaded', () => {
             updateCustomBaseConversion(decimalValue);
             
         } catch (error) {
-            console.warn('Conversion failed:', error.message);
-            errorState = true;
-            inputValidation.textContent = `Error: ${error.message}. Try a smaller number.`;
+            console.error('Conversion error:', error);
+            inputValidation.textContent = 'Error: Number too large for conversion';
             inputValidation.style.color = '#EF4444';
             clearResults();
         }
-    }
-    
-    // Format large numbers with commas
-    function formatLargeNumber(num) {
-        if (Math.abs(num) >= 1e12) {
-            return num.toExponential(6);
-        }
-        return num.toLocaleString();
     }
     
     // Format binary with spacing
@@ -418,38 +314,30 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Update 32-bit binary representation
     function update32BitBinary(decimalValue) {
-        try {
-            if (decimalValue >= -2147483648 && decimalValue <= 2147483647) {
-                // Convert to 32-bit signed binary
-                let binary32;
-                if (decimalValue >= 0) {
-                    binary32 = decimalValue.toString(2).padStart(32, '0');
-                } else {
-                    // Two's complement for negative numbers
-                    binary32 = (decimalValue >>> 0).toString(2);
-                }
-                result32Bit.textContent = binary32.replace(/(.{8})/g, '$1 ').trim();
+        if (decimalValue >= -2147483648 && decimalValue <= 2147483647) {
+            // Convert to 32-bit signed binary
+            let binary32;
+            if (decimalValue >= 0) {
+                binary32 = decimalValue.toString(2).padStart(32, '0');
             } else {
-                result32Bit.textContent = 'Out of 32-bit range';
+                // Two's complement for negative numbers
+                binary32 = (decimalValue >>> 0).toString(2);
             }
-        } catch (error) {
-            result32Bit.textContent = 'Conversion error';
+            result32Bit.textContent = binary32.replace(/(.{8})/g, '$1 ').trim();
+        } else {
+            result32Bit.textContent = 'Out of 32-bit range';
         }
     }
     
     // Update custom base conversion
     function updateCustomBaseConversion(decimalValue) {
-        try {
-            const customBase = parseInt(customBaseInput.value) || 5;
-            
-            if (customBase >= 2 && customBase <= 36) {
-                const customResult = fromDecimal(decimalValue, customBase);
-                resultCustom.textContent = customResult;
-            } else {
-                resultCustom.textContent = 'Invalid base';
-            }
-        } catch (error) {
-            resultCustom.textContent = 'Error';
+        const customBase = parseInt(customBaseInput.value) || 5;
+        
+        if (customBase >= 2 && customBase <= 36) {
+            const customResult = fromDecimal(decimalValue, customBase);
+            resultCustom.textContent = customResult;
+        } else {
+            resultCustom.textContent = 'Invalid base';
         }
     }
     
@@ -470,46 +358,25 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Generate random number based on current base
     function generateRandomNumber() {
-        // Reset error state
-        errorState = false;
-        inputValidation.textContent = '';
-        
         let randomNum = '';
-        let chars;
+        const chars = baseCharacters[currentBase];
         
-        // Get valid characters for current base
-        if (currentBase === 10) {
-            // For decimal, include negative numbers sometimes
-            chars = '0123456789';
-            const maxLength = 8;
-            const length = Math.floor(Math.random() * maxLength) + 1;
-            
-            // Generate random digits
-            for (let i = 0; i < length; i++) {
-                const randomIndex = Math.floor(Math.random() * chars.length);
-                randomNum += chars[randomIndex];
-            }
-            
-            // Remove leading zeros
-            randomNum = randomNum.replace(/^0+/, '') || '0';
-            
-            // 25% chance to add negative sign
-            if (Math.random() < 0.25 && randomNum !== '0') {
-                randomNum = '-' + randomNum;
-            }
-        } else {
-            chars = baseCharacters[currentBase].replace('-', '');
-            const maxLength = currentBase === 16 || currentBase === 2 ? 8 : 4;
-            const length = Math.floor(Math.random() * maxLength) + 1;
-            
-            // Generate random digits
-            for (let i = 0; i < length; i++) {
-                const randomIndex = Math.floor(Math.random() * chars.length);
-                randomNum += chars[randomIndex];
-            }
-            
-            // Remove leading zeros
-            randomNum = randomNum.replace(/^0+/, '') || '0';
+        // Generate random length (1-8 for hex/binary, 1-4 for decimal/octal)
+        const maxLength = currentBase === 16 || currentBase === 2 ? 8 : 4;
+        const length = Math.floor(Math.random() * maxLength) + 1;
+        
+        // Generate random digits
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * chars.length);
+            randomNum += chars[randomIndex];
+        }
+        
+        // Remove leading zeros
+        randomNum = randomNum.replace(/^0+/, '') || '0';
+        
+        // 25% chance to add negative sign for decimal
+        if (currentBase === 10 && Math.random() < 0.25) {
+            randomNum = '-' + randomNum;
         }
         
         numberInput.value = randomNum;
@@ -523,9 +390,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Copy result to clipboard
     function copyToClipboard(text, button) {
-        // Don't copy if in error state
-        if (errorState) return;
-        
         navigator.clipboard.writeText(text).then(() => {
             // Visual feedback
             const originalHTML = button.innerHTML;
@@ -569,7 +433,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear input button
         clearInputBtn.addEventListener('click', () => {
             numberInput.value = '';
-            errorState = false;
             validateAndConvert('');
             numberInput.focus();
         });
@@ -580,8 +443,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Copy buttons
         copyBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                if (errorState) return;
-                
                 const target = btn.getAttribute('data-target');
                 let textToCopy = '';
                 
@@ -616,9 +477,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Example buttons
         exampleBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // Reset error state
-                errorState = false;
-                
                 const binaryText = btn.querySelector('.font-mono').textContent;
                 numberInput.value = binaryText;
                 validateAndConvert(binaryText);
@@ -639,16 +497,9 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Custom base input
         customBaseInput.addEventListener('input', () => {
-            if (errorState) return;
-            
             const customBase = parseInt(customBaseInput.value);
             if (customBase >= 2 && customBase <= 36 && numberInput.value) {
-                try {
-                    const decimalValue = toDecimal(numberInput.value, currentBase);
-                    updateCustomBaseConversion(decimalValue);
-                } catch (error) {
-                    resultCustom.textContent = 'Error';
-                }
+                updateCustomBaseConversion(toDecimal(numberInput.value, currentBase));
             }
         });
     }
@@ -659,7 +510,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Clear on Escape
             if (e.key === 'Escape') {
                 numberInput.value = '';
-                errorState = false;
                 validateAndConvert('');
                 numberInput.focus();
             }
@@ -692,9 +542,4 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Focus input on load
     numberInput.focus();
-    
-    // Force reset on page reload
-    window.addEventListener('beforeunload', () => {
-        errorState = false;
-    });
 });
