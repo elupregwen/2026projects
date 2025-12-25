@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎵 Hand Dance Party</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #000; }
+        #container { position: relative; width: 100vw; height: 100vh; }
+        #videoContainer { 
+            position: absolute; 
+            bottom: 20px; 
+            right: 20px;
+            width: 320px; 
+            height: 240px;
+            border: 3px solid #00ff88;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #gestureText {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            font-family: Arial;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 10px;
+        }
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #aaa;
+            font-family: Arial;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="gestureText">👋 Show your hand!</div>
+        <div id="videoContainer">
+            <video id="inputVideo" autoplay playsinline></video>
+            <canvas id="outputCanvas"></canvas>
+        </div>
+        <div id="instructions">
+            <h3>🎮 Gesture Controls:</h3>
+            <p>✋ Open Palm = Fireworks</p>
+            <p>✌️ Peace Sign = Color Wave</p>
+            <p>👆 Pointing = Draw Lines</p>
+            <p>🤘 Rock On = Lightning</p>
+            <p>✊ Fist = Clear All</p>
+        </div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <!-- MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.min.js"></script>
+    <script src="/future/fut1.js"></script>
+</body>
+</html>
