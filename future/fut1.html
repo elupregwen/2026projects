@@ -1,64 +1,197 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎵 Hand Dance Party</title>
+    <title>Hand Gesture Debug</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; }
-        #container { position: relative; width: 100vw; height: 100vh; }
-        #videoContainer { 
-            position: absolute; 
-            bottom: 20px; 
-            right: 20px;
-            width: 320px; 
-            height: 240px;
-            border: 3px solid #00ff88;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        #gestureText {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            font-size: 24px;
-            font-family: Arial;
-            background: rgba(0,0,0,0.7);
-            padding: 10px;
-            border-radius: 10px;
-        }
-        #instructions {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            color: #aaa;
-            font-family: Arial;
-            max-width: 300px;
-        }
+        body { margin: 20px; font-family: Arial; }
+        .container { display: flex; gap: 20px; }
+        #debugInfo { background: #f0f0f0; padding: 20px; border-radius: 10px; }
     </style>
 </head>
 <body>
-    <div id="container">
-        <div id="gestureText">👋 Show your hand!</div>
-        <div id="videoContainer">
-            <video id="inputVideo" autoplay playsinline></video>
-            <canvas id="outputCanvas"></canvas>
+    <h1>🖐️ Hand Gesture Debug Tool</h1>
+    <div class="container">
+        <div>
+            <h3>Camera Feed:</h3>
+            <video id="video" autoplay playsinline width="320" height="240" 
+                   style="border: 3px solid blue;"></video>
+            <h3>MediaPipe Output:</h3>
+            <canvas id="canvas" width="320" height="240" 
+                   style="border: 3px solid green;"></canvas>
         </div>
-        <div id="instructions">
-            <h3>🎮 Gesture Controls:</h3>
-            <p>✋ Open Palm = Fireworks</p>
-            <p>✌️ Peace Sign = Color Wave</p>
-            <p>👆 Pointing = Draw Lines</p>
-            <p>🤘 Rock On = Lightning</p>
-            <p>✊ Fist = Clear All</p>
+        <div id="debugInfo">
+            <h3>Debug Info:</h3>
+            <div id="status">Status: Loading...</div>
+            <div id="gesture">Gesture: None</div>
+            <div id="landmarks">Landmarks: 0</div>
+            <div id="instructions">
+                <h4>What to check:</h4>
+                1. Camera permission allowed? ✓<br>
+                2. Green dots on hand in canvas? ✓<br>
+                3. Gesture text updates? ✓<br>
+                4. Console errors? ✗
+            </div>
         </div>
     </div>
 
-    <!-- Three.js -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <!-- MediaPipe -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.min.js"></script>
-    <script src="fut1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const statusDiv = document.getElementById('status');
+        const gestureDiv = document.getElementById('gesture');
+        const landmarksDiv = document.getElementById('landmarks');
+        
+        let hands = null;
+        let frameCount = 0;
+        
+        async function start() {
+            statusDiv.textContent = "Starting camera...";
+            
+            try {
+                // Start camera
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 320, height: 240 }
+                });
+                video.srcObject = stream;
+                
+                statusDiv.textContent = "Loading MediaPipe...";
+                
+                // Initialize MediaPipe
+                hands = new self.Hands({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                    }
+                });
+                
+                hands.setOptions({
+                    maxNumHands: 1,
+                    modelComplexity: 0,
+                    minDetectionConfidence: 0.7,
+                    minTrackingConfidence: 0.7
+                });
+                
+                hands.onResults(onResults);
+                
+                // Start processing
+                statusDiv.textContent = "Processing frames...";
+                processFrame();
+                
+            } catch (err) {
+                statusDiv.textContent = `Error: ${err.message}`;
+                console.error(err);
+            }
+        }
+        
+        function processFrame() {
+            if (!video.videoWidth) {
+                requestAnimationFrame(processFrame);
+                return;
+            }
+            
+            // Send to MediaPipe
+            hands.send({ image: video });
+            frameCount++;
+            
+            // Update status every 30 frames
+            if (frameCount % 30 === 0) {
+                statusDiv.textContent = `Processing... Frame: ${frameCount}`;
+            }
+            
+            requestAnimationFrame(processFrame);
+        }
+        
+        function onResults(results) {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw video (mirrored)
+            ctx.save();
+            ctx.scale(-1, 1);
+            ctx.translate(-canvas.width, 0);
+            ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
+            
+            // Check for hands
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const landmarks = results.multiHandLandmarks[0];
+                landmarksDiv.textContent = `Landmarks: ${landmarks.length} points`;
+                
+                // Draw all landmarks
+                ctx.fillStyle = 'lime';
+                landmarks.forEach((lm, i) => {
+                    const x = (1 - lm.x) * canvas.width;
+                    const y = lm.y * canvas.height;
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Label first 5 points
+                    if (i < 5) {
+                        ctx.fillStyle = 'white';
+                        ctx.font = '10px Arial';
+                        ctx.fillText(i, x + 5, y - 5);
+                        ctx.fillStyle = 'lime';
+                    }
+                });
+                
+                // Simple gesture detection
+                detectGesture(landmarks);
+                
+            } else {
+                landmarksDiv.textContent = "Landmarks: No hand detected";
+                gestureDiv.textContent = "Gesture: None";
+            }
+        }
+        
+        function detectGesture(landmarks) {
+            // Get key points
+            const thumb = landmarks[4];
+            const index = landmarks[8];
+            const middle = landmarks[12];
+            const ring = landmarks[16];
+            const pinky = landmarks[20];
+            
+            // Get knuckles for comparison
+            const indexKnuckle = landmarks[6];
+            const middleKnuckle = landmarks[10];
+            const ringKnuckle = landmarks[14];
+            const pinkyKnuckle = landmarks[18];
+            
+            // Check if finger is extended
+            const indexUp = index.y < indexKnuckle.y;
+            const middleUp = middle.y < middleKnuckle.y;
+            const ringUp = ring.y < ringKnuckle.y;
+            const pinkyUp = pinky.y < pinkyKnuckle.y;
+            
+            let gesture = "Unknown";
+            
+            // Logic
+            if (indexUp && middleUp && !ringUp && !pinkyUp) {
+                gesture = "✌️ Peace Sign";
+            } else if (indexUp && !middleUp && !ringUp && !pinkyUp) {
+                gesture = "👆 Pointing";
+            } else if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
+                gesture = "✊ Fist";
+            } else if (indexUp && middleUp && ringUp && pinkyUp) {
+                gesture = "✋ Open Hand";
+            } else if (indexUp && !middleUp && !ringUp && pinkyUp) {
+                gesture = "🤘 Rock On";
+            }
+            
+            gestureDiv.textContent = `Gesture: ${gesture}`;
+            
+            // Draw gesture on canvas
+            ctx.fillStyle = 'cyan';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText(gesture, 10, 20);
+        }
+        
+        // Start everything
+        start();
+    </script>
 </body>
 </html>
