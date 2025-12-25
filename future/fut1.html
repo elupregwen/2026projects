@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>🎆 Hand Gesture - VISUAL EFFECTS EDITION</title>
+    <title>Hand Gesture Detector</title>
     <style>
         * {
             margin: 0;
@@ -10,174 +10,122 @@
         }
         
         body {
-            font-family: 'Arial', sans-serif;
-            background: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
             color: white;
-            overflow-x: hidden;
-            position: relative;
+            min-height: 100vh;
+            padding: 20px;
         }
         
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            position: relative;
-            z-index: 10;
         }
         
         header {
             text-align: center;
             margin-bottom: 30px;
             padding: 20px;
-            background: linear-gradient(90deg, rgba(0,255,136,0.1), rgba(0,255,255,0.1));
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 20px;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(0,255,136,0.3);
         }
         
         h1 {
-            font-size: 2.5em;
-            background: linear-gradient(45deg, #00ff88, #00ffff, #ff00ff);
+            font-size: 3em;
+            background: linear-gradient(45deg, #00ff88, #00ffff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
         
-        .main-area {
-            display: flex;
-            flex-wrap: wrap;
+        .subtitle {
+            color: #aaa;
+            font-size: 1.2em;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 30px;
         }
         
-        .camera-section {
-            flex: 1;
-            min-width: 300px;
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
         }
         
         .camera-box {
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.7);
             border-radius: 15px;
             padding: 15px;
             border: 2px solid #00ff88;
             box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-            margin-bottom: 20px;
         }
         
         .camera-box h2 {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             color: #00ff88;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         video, canvas {
             width: 100%;
-            height: 300px;
+            height: 360px;
             border-radius: 10px;
-            background: #111;
+            background: black;
             display: block;
         }
         
-        .gesture-display {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 30px;
+        .stats-panel {
+            background: rgba(0, 0, 0, 0.7);
             border-radius: 15px;
-            text-align: center;
+            padding: 20px;
             border: 2px solid #00ffff;
-            margin-top: 20px;
-        }
-        
-        #gestureText {
-            font-size: 3em;
-            min-height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .effects-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-            overflow: hidden;
-        }
-        
-        /* Particle effects */
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-        }
-        
-        .confetti {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            opacity: 0.8;
-        }
-        
-        .laser {
-            position: absolute;
-            height: 3px;
-            background: linear-gradient(90deg, #ff0000, #ffff00);
-            transform-origin: 0 0;
-        }
-        
-        .ripple {
-            position: absolute;
-            border: 2px solid #00ffff;
-            border-radius: 50%;
-            animation: ripple 1s ease-out;
-        }
-        
-        @keyframes ripple {
-            0% { transform: scale(0); opacity: 1; }
-            100% { transform: scale(5); opacity: 0; }
-        }
-        
-        .firework {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-        }
-        
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 20px;
         }
         
         .stat-item {
-            background: rgba(255, 255, 255, 0.1);
+            margin-bottom: 15px;
             padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 10px;
-            text-align: center;
+        }
+        
+        .stat-label {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 5px;
         }
         
         .stat-value {
             font-size: 1.5em;
-            color: #00ff88;
             font-weight: bold;
+            color: #00ff88;
+        }
+        
+        #gestureDisplay {
+            font-size: 2em;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 10px;
+            margin-top: 10px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .controls {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            justify-content: center;
             margin-top: 20px;
+            justify-content: center;
         }
         
         button {
@@ -189,7 +137,9 @@
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         button:hover {
@@ -197,8 +147,41 @@
             box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
         }
         
-        button#toggleEffects {
-            background: linear-gradient(45deg, #ff00ff, #cc00cc);
+        button.secondary {
+            background: linear-gradient(45deg, #00ffff, #0099cc);
+        }
+        
+        button.danger {
+            background: linear-gradient(45deg, #ff3366, #cc0044);
+        }
+        
+        .fps-meter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            border: 1px solid #00ff88;
+        }
+        
+        .visual-effects {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .effect-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,255,136,0.8) 0%, rgba(0,255,136,0) 70%);
+            animation: pulse 0.5s ease-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(1); opacity: 0; }
         }
         
         .tutorial {
@@ -208,257 +191,306 @@
             margin-top: 30px;
         }
         
-        .gesture-examples {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
+        .tutorial h3 {
+            color: #00ffff;
+            margin-bottom: 15px;
         }
         
-        .example {
-            background: rgba(0, 255, 136, 0.1);
+        .gesture-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .gesture-item {
+            background: rgba(0, 0, 0, 0.3);
             padding: 15px;
             border-radius: 10px;
             text-align: center;
-            width: 150px;
         }
         
-        .example-icon {
+        .gesture-icon {
             font-size: 2.5em;
             margin-bottom: 10px;
         }
         
-        .fps-display {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #00ff88;
-            font-family: monospace;
-            z-index: 1000;
+        .gesture-name {
+            color: #00ff88;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div class="fps-display">
-        FPS: <span id="fps">0</span>
+    <div class="fps-meter">
+        FPS: <span id="fps">0</span> | 
+        Latency: <span id="latency">0</span>ms
     </div>
-    
-    <!-- Effects will be added here -->
-    <div class="effects-overlay" id="effectsOverlay"></div>
     
     <div class="container">
         <header>
-            <h1>✨ MAGIC HAND GESTURES ✨</h1>
-            <p>Wave your hand to create amazing visual effects!</p>
+            <h1>⚡ HAND GESTURE TURBO</h1>
+            <p class="subtitle">Real-time gesture detection with smooth visuals</p>
         </header>
         
-        <div class="main-area">
-            <div class="camera-section">
-                <div class="camera-box">
-                    <h2>📸 Live Camera</h2>
-                    <video id="videoInput" autoplay playsinline muted></video>
+        <div class="main-content">
+            <div class="camera-box">
+                <h2>🎥 Live Camera</h2>
+                <video id="videoInput" autoplay playsinline muted></video>
+            </div>
+            
+            <div class="camera-box">
+                <h2>🖐️ Hand Tracking</h2>
+                <canvas id="canvasOutput" width="640" height="480"></canvas>
+            </div>
+        </div>
+        
+        <div class="stats-panel">
+            <h2>📊 Tracking Stats</h2>
+            
+            <div class="stat-item">
+                <div class="stat-label">Current Gesture</div>
+                <div id="gestureDisplay">Waiting for hand...</div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                <div class="stat-item">
+                    <div class="stat-label">Hands Detected</div>
+                    <div class="stat-value" id="handCount">0</div>
                 </div>
                 
-                <div class="camera-box">
-                    <h2>🖐️ Hand Tracking</h2>
-                    <canvas id="canvasOutput" width="640" height="480"></canvas>
+                <div class="stat-item">
+                    <div class="stat-label">Confidence</div>
+                    <div class="stat-value" id="confidence">0%</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-label">Processing Time</div>
+                    <div class="stat-value" id="processTime">0ms</div>
                 </div>
             </div>
             
-            <div class="gesture-display">
-                <h2>🎯 Current Gesture</h2>
-                <div id="gestureText">👋 Waiting for hand...</div>
-                
-                <div class="stats">
-                    <div class="stat-item">
-                        <div>Hands</div>
-                        <div class="stat-value" id="handCount">0</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>Confidence</div>
-                        <div class="stat-value" id="confidence">0%</div>
-                    </div>
-                    <div class="stat-item">
-                        <div>Effects</div>
-                        <div class="stat-value" id="effectCount">0</div>
-                    </div>
-                </div>
+            <div class="controls">
+                <button onclick="togglePerformanceMode()" id="performanceBtn">
+                    ⚡ Performance Mode: ON
+                </button>
+                <button onclick="toggleVisuals()" id="visualsBtn" class="secondary">
+                    ✨ Visual Effects: ON
+                </button>
+                <button onclick="calibrate()" class="secondary">
+                    🎯 Calibrate
+                </button>
+                <button onclick="toggleCamera()">
+                    📷 Switch Camera
+                </button>
             </div>
         </div>
         
-        <div class="controls">
-            <button onclick="toggleEffects()" id="toggleEffects">
-                🎆 Effects: ON
-            </button>
-            <button onclick="clearEffects()">
-                🧹 Clear Effects
-            </button>
-            <button onclick="togglePerformance()">
-                ⚡ Performance Mode
-            </button>
-        </div>
-        
         <div class="tutorial">
-            <h2>🎮 Gesture Effects Guide</h2>
-            <div class="gesture-examples">
-                <div class="example">
-                    <div class="example-icon">✋</div>
-                    <div>OPEN PALM</div>
-                    <small>Creates ripples</small>
+            <h3>🎮 Quick Gesture Guide</h3>
+            <div class="gesture-list">
+                <div class="gesture-item">
+                    <div class="gesture-icon">✋</div>
+                    <div class="gesture-name">Open Palm</div>
+                    <div>Creates particles</div>
                 </div>
-                <div class="example">
-                    <div class="example-icon">✌️</div>
-                    <div>PEACE SIGN</div>
-                    <small>Rainbow confetti</small>
+                <div class="gesture-item">
+                    <div class="gesture-icon">✌️</div>
+                    <div class="gesture-name">Peace Sign</div>
+                    <div>Changes color theme</div>
                 </div>
-                <div class="example">
-                    <div class="example-icon">👆</div>
-                    <div>POINTING</div>
-                    <small>Laser beams</small>
+                <div class="gesture-item">
+                    <div class="gesture-icon">👆</div>
+                    <div class="gesture-name">Pointing</div>
+                    <div>Draws laser beam</div>
                 </div>
-                <div class="example">
-                    <div class="example-icon">🤘</div>
-                    <div>ROCK ON</div>
-                    <small>Purple explosions</small>
+                <div class="gesture-item">
+                    <div class="gesture-icon">🤘</div>
+                    <div class="gesture-name">Rock On</div>
+                    <div>Shows lightning</div>
                 </div>
-                <div class="example">
-                    <div class="example-icon">✊</div>
-                    <div>FIST</div>
-                    <small>Clears everything</small>
+                <div class="gesture-item">
+                    <div class="gesture-icon">✊</div>
+                    <div class="gesture-name">Fist</div>
+                    <div>Clears effects</div>
                 </div>
-                <div class="example">
-                    <div class="example-icon">👍</div>
-                    <div>THUMBS UP</div>
-                    <small>Golden fireworks</small>
+                <div class="gesture-item">
+                    <div class="gesture-icon">👍</div>
+                    <div class="gesture-name">Thumbs Up</div>
+                    <div>Adds stars</div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Visual effects container -->
+    <div class="visual-effects" id="visualEffects"></div>
+
+    <!-- Load MediaPipe -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
     
     <script>
-        // ========== CONFIGURATION ==========
-        const CONFIG = {
+        // ========== PERFORMANCE OPTIMIZATION ==========
+        const config = {
             width: 640,
             height: 480,
-            effectsEnabled: true,
-            performanceMode: false,
-            maxEffects: 100
+            useMirror: true,
+            highPerformance: true,
+            showVisuals: true,
+            modelComplexity: 0, // 0 = fastest, 1 = balanced, 2 = most accurate
+            detectionConfidence: 0.6,
+            trackingConfidence: 0.5
         };
 
         // ========== ELEMENTS ==========
         const video = document.getElementById('videoInput');
         const canvas = document.getElementById('canvasOutput');
-        const ctx = canvas.getContext('2d');
-        const gestureText = document.getElementById('gestureText');
-        const handCount = document.getElementById('handCount');
-        const confidence = document.getElementById('confidence');
-        const effectCount = document.getElementById('effectCount');
-        const effectsOverlay = document.getElementById('effectsOverlay');
+        const ctx = canvas.getContext('2d', { alpha: false }); // Disable alpha for performance
         const fpsDisplay = document.getElementById('fps');
+        const latencyDisplay = document.getElementById('latency');
+        const gestureDisplay = document.getElementById('gestureDisplay');
+        const handCountDisplay = document.getElementById('handCount');
+        const confidenceDisplay = document.getElementById('confidence');
+        const processTimeDisplay = document.getElementById('processTime');
+        const visualEffectsContainer = document.getElementById('visualEffects');
 
-        // ========== STATE VARIABLES ==========
+        // ========== PERFORMANCE VARIABLES ==========
         let hands = null;
         let currentStream = null;
-        let currentGesture = '';
-        let lastGesture = '';
-        let effects = [];
-        let activeEffects = 0;
+        let lastFrameTime = 0;
         let fps = 0;
         let frameCount = 0;
-        let lastFpsTime = 0;
+        let lastFpsUpdate = 0;
+        let lastGesture = '';
+        let gestureStartTime = 0;
+        let isProcessing = false;
+        
+        // Smoothing for hand position (reduces jitter)
+        let smoothedLandmarks = null;
+        const smoothingFactor = 0.3;
 
-        // ========== INITIALIZATION ==========
+        // ========== INITIALIZE ==========
         async function init() {
-            console.log('🚀 Starting Magic Hand Gestures...');
+            console.log('🚀 Initializing TURBO mode...');
             
             try {
+                // Start with lower resolution for speed
                 await startCamera();
-                await initMediaPipe();
-                startFPSMonitor();
-                requestAnimationFrame(processFrame);
                 
-                console.log('✅ Ready! Make some gestures!');
+                // Initialize MediaPipe with optimized settings
+                await initMediaPipe();
+                
+                // Start performance monitoring
+                startPerformanceMonitor();
+                
+                // Start processing loop
+                requestAnimationFrame(processLoop);
+                
+                console.log('✅ System ready!');
                 
             } catch (error) {
-                console.error('❌ Error:', error);
-                gestureText.textContent = '❌ Error: ' + error.message;
+                console.error('❌ Initialization failed:', error);
             }
         }
 
-        // ========== CAMERA ==========
+        // ========== OPTIMIZED CAMERA ==========
         async function startCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Use lower resolution for better performance
             const constraints = {
                 video: {
-                    width: { ideal: CONFIG.width },
-                    height: { ideal: CONFIG.height },
-                    facingMode: 'user',
-                    frameRate: { ideal: 30 }
+                    width: { ideal: config.width },
+                    height: { ideal: config.height },
+                    frameRate: { ideal: 30 },
+                    facingMode: 'user'
                 }
             };
             
-            currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-            video.srcObject = currentStream;
-            
-            return new Promise(resolve => {
-                video.onloadedmetadata = () => {
-                    video.play();
-                    resolve();
-                };
-            });
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = currentStream;
+                
+                // Wait for video to load
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                    };
+                });
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+            }
         }
 
-        // ========== MEDIAPIPE ==========
+        // ========== OPTIMIZED MEDIAPIPE ==========
         async function initMediaPipe() {
+            console.log('Loading MediaPipe (optimized)...');
+            
             hands = new self.Hands({
                 locateFile: (file) => {
                     return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
                 }
             });
             
+            // OPTIMIZED SETTINGS FOR SPEED
             hands.setOptions({
-                maxNumHands: 1,
-                modelComplexity: CONFIG.performanceMode ? 0 : 1,
-                minDetectionConfidence: 0.6,
-                minTrackingConfidence: 0.5,
+                maxNumHands: 1, // Track only one hand for speed
+                modelComplexity: config.modelComplexity,
+                minDetectionConfidence: config.detectionConfidence,
+                minTrackingConfidence: config.trackingConfidence,
                 selfieMode: true
             });
             
             hands.onResults(onResults);
         }
 
-        // ========== PROCESS FRAMES ==========
-        function processFrame() {
-            if (video.videoWidth > 0 && hands) {
-                hands.send({ image: video });
-            }
-            requestAnimationFrame(processFrame);
-        }
-
-        // ========== HANDLE RESULTS ==========
-        function onResults(results) {
-            // Update FPS
-            frameCount++;
-            const now = Date.now();
-            if (now >= lastFpsTime + 1000) {
-                fps = Math.round((frameCount * 1000) / (now - lastFpsTime));
-                fpsDisplay.textContent = fps;
-                frameCount = 0;
-                lastFpsTime = now;
+        // ========== MAIN PROCESSING LOOP ==========
+        function processLoop(timestamp) {
+            const startTime = performance.now();
+            
+            if (!isProcessing && video.videoWidth > 0 && hands) {
+                isProcessing = true;
+                
+                // Send frame to MediaPipe
+                hands.send({ image: video })
+                    .catch(error => console.error('Processing error:', error))
+                    .finally(() => {
+                        isProcessing = false;
+                        
+                        // Calculate processing time
+                        const processTime = performance.now() - startTime;
+                        processTimeDisplay.textContent = `${Math.round(processTime)}ms`;
+                        
+                        // Update latency display
+                        const latency = Date.now() - startTime;
+                        latencyDisplay.textContent = Math.round(latency);
+                    });
             }
             
-            // Clear canvas
+            // Update FPS counter
+            updateFPS(timestamp);
+            
+            // Continue loop
+            requestAnimationFrame(processLoop);
+        }
+
+        // ========== HANDLE RESULTS (OPTIMIZED) ==========
+        function onResults(results) {
+            const processStart = performance.now();
+            
+            // Clear canvas efficiently
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // Draw video (mirrored)
             ctx.save();
-            ctx.scale(-1, 1);
-            ctx.translate(-canvas.width, 0);
+            if (config.useMirror) {
+                ctx.scale(-1, 1);
+                ctx.translate(-canvas.width, 0);
+            }
             ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
             ctx.restore();
             
@@ -466,384 +498,441 @@
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 const landmarks = results.multiHandLandmarks[0];
                 
-                // Draw hand
-                drawHand(landmarks);
+                // Apply smoothing to reduce jitter
+                smoothedLandmarks = smoothLandmarks(landmarks, smoothedLandmarks);
+                
+                // Draw hand with optimized visuals
+                drawHandOptimized(smoothedLandmarks);
                 
                 // Detect gesture
-                detectGesture(landmarks);
+                const gesture = detectGestureOptimized(smoothedLandmarks);
+                
+                // Update display with gesture
+                updateGestureDisplay(gesture);
                 
                 // Update stats
-                handCount.textContent = results.multiHandLandmarks.length;
+                handCountDisplay.textContent = results.multiHandLandmarks.length;
                 
                 if (results.multiHandedness && results.multiHandedness[0]) {
-                    const conf = results.multiHandedness[0].score * 100;
-                    confidence.textContent = `${Math.round(conf)}%`;
+                    const confidence = results.multiHandedness[0].score * 100;
+                    confidenceDisplay.textContent = `${Math.round(confidence)}%`;
+                }
+                
+                // Create visual effects if enabled
+                if (config.showVisuals && gesture !== lastGesture) {
+                    createVisualEffect(gesture, landmarks);
+                    lastGesture = gesture;
                 }
                 
             } else {
-                handCount.textContent = '0';
-                confidence.textContent = '0%';
-                gestureText.textContent = '👋 Show your hand!';
+                // No hands detected
+                handCountDisplay.textContent = '0';
+                confidenceDisplay.textContent = '0%';
+                gestureDisplay.textContent = '👋 Show your hand!';
+                gestureDisplay.style.background = 'rgba(255, 100, 100, 0.1)';
             }
             
-            // Update effect count
-            effectCount.textContent = effects.length;
+            // Calculate total processing time
+            const totalTime = performance.now() - processStart;
+            processTimeDisplay.textContent = `${Math.round(totalTime)}ms`;
         }
 
-        // ========== DRAW HAND (SIMPLE & CLEAN) ==========
-        function drawHand(landmarks) {
-            // Draw connections
-            const connections = self.Hands.HAND_CONNECTIONS;
-            ctx.strokeStyle = '#00ff88';
+        // ========== SMOOTHING FUNCTION ==========
+        function smoothLandmarks(newLandmarks, previousLandmarks) {
+            if (!previousLandmarks) return newLandmarks;
+            
+            const smoothed = [];
+            for (let i = 0; i < newLandmarks.length; i++) {
+                const newPoint = newLandmarks[i];
+                const prevPoint = previousLandmarks[i];
+                
+                smoothed.push({
+                    x: prevPoint.x * (1 - smoothingFactor) + newPoint.x * smoothingFactor,
+                    y: prevPoint.y * (1 - smoothingFactor) + newPoint.y * smoothingFactor,
+                    z: prevPoint.z * (1 - smoothingFactor) + newPoint.z * smoothingFactor
+                });
+            }
+            
+            return smoothed;
+        }
+
+        // ========== OPTIMIZED HAND DRAWING ==========
+        function drawHandOptimized(landmarks) {
+            // Draw connections with gradient
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, '#00ff88');
+            gradient.addColorStop(0.5, '#00ffff');
+            gradient.addColorStop(1, '#ff00ff');
+            
+            ctx.strokeStyle = gradient;
             ctx.lineWidth = 3;
             ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
             
-            connections.forEach(([start, end]) => {
-                const p1 = landmarks[start];
-                const p2 = landmarks[end];
-                
-                let x1 = (1 - p1.x) * canvas.width;
-                let y1 = p1.y * canvas.height;
-                let x2 = (1 - p2.x) * canvas.width;
-                let y2 = p2.y * canvas.height;
-                
+            // Draw finger connections
+            const fingerConnections = [
+                [0,1,2,3,4],      // Thumb
+                [0,5,6,7,8],      // Index
+                [0,9,10,11,12],   // Middle
+                [0,13,14,15,16],  // Ring
+                [0,17,18,19,20]   // Pinky
+            ];
+            
+            fingerConnections.forEach(finger => {
                 ctx.beginPath();
-                ctx.moveTo(x1, y1);
-                ctx.lineTo(x2, y2);
+                
+                finger.forEach((pointIndex, i) => {
+                    const point = landmarks[pointIndex];
+                    let x = point.x * canvas.width;
+                    let y = point.y * canvas.height;
+                    
+                    if (config.useMirror) {
+                        x = canvas.width - x;
+                    }
+                    
+                    if (i === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                });
+                
                 ctx.stroke();
             });
             
             // Draw landmarks as glowing dots
-            landmarks.forEach(point => {
-                let x = (1 - point.x) * canvas.width;
+            landmarks.forEach((point, index) => {
+                let x = point.x * canvas.width;
                 let y = point.y * canvas.height;
+                
+                if (config.useMirror) {
+                    x = canvas.width - x;
+                }
+                
+                // Create glow effect
+                const radius = index === 0 ? 6 : 4; // Palm point larger
                 
                 // Outer glow
                 ctx.beginPath();
-                ctx.arc(x, y, 6, 0, Math.PI * 2);
+                ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
                 ctx.fillStyle = 'rgba(0, 255, 136, 0.3)';
                 ctx.fill();
                 
                 // Inner dot
                 ctx.beginPath();
-                ctx.arc(x, y, 4, 0, Math.PI * 2);
-                ctx.fillStyle = '#00ff88';
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fillStyle = index === 0 ? '#ff3366' : '#00ff88';
                 ctx.fill();
                 
                 // Center highlight
                 ctx.beginPath();
-                ctx.arc(x, y, 2, 0, Math.PI * 2);
-                ctx.fillStyle = '#ffffff';
+                ctx.arc(x, y, radius / 2, 0, Math.PI * 2);
+                ctx.fillStyle = 'white';
                 ctx.fill();
             });
+            
+            // Draw hand center with special effect
+            const center = landmarks[0];
+            let centerX = center.x * canvas.width;
+            let centerY = center.y * canvas.height;
+            
+            if (config.useMirror) {
+                centerX = canvas.width - centerX;
+            }
+            
+            // Pulsing circle effect
+            const pulseSize = 15 + Math.sin(Date.now() * 0.005) * 5;
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, pulseSize, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
+            ctx.lineWidth = 2;
+            ctx.stroke();
         }
 
-        // ========== GESTURE DETECTION ==========
-        function detectGesture(landmarks) {
+        // ========== OPTIMIZED GESTURE DETECTION ==========
+        function detectGestureOptimized(landmarks) {
+            // Quick reference to key points
             const tips = [4, 8, 12, 16, 20];
             const bases = [2, 5, 9, 13, 17];
             
-            const fingerUp = tips.map((tipIdx, i) => {
+            // Check finger states
+            const fingerStates = tips.map((tipIdx, i) => {
                 const tip = landmarks[tipIdx];
                 const base = landmarks[bases[i]];
-                return tip.y < base.y;
+                return tip.y < base.y; // Finger is up if tip is above base
             });
             
-            const [thumbUp, indexUp, middleUp, ringUp, pinkyUp] = fingerUp;
+            // [thumb, index, middle, ring, pinky]
+            const [thumbUp, indexUp, middleUp, ringUp, pinkyUp] = fingerStates;
             
-            let gesture = '';
-            
+            // Quick gesture detection
             if (indexUp && middleUp && !ringUp && !pinkyUp) {
-                gesture = "✌️ Peace Sign";
+                return "✌️ Peace Sign";
             } else if (indexUp && !middleUp && !ringUp && !pinkyUp) {
-                gesture = "👆 Pointing";
+                return "👆 Pointing";
             } else if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
-                gesture = "✊ Fist";
+                return "✊ Fist";
             } else if (indexUp && middleUp && ringUp && pinkyUp) {
-                gesture = "✋ Open Palm";
+                return "✋ Open Hand";
             } else if (indexUp && !middleUp && !ringUp && pinkyUp) {
-                gesture = "🤘 Rock On";
+                return "🤘 Rock On";
             } else if (thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {
-                gesture = "👍 Thumbs Up";
+                return "👍 Thumbs Up";
             } else {
-                gesture = "✋ Hand Detected";
-            }
-            
-            // Update display
-            if (gesture !== currentGesture) {
-                currentGesture = gesture;
-                gestureText.textContent = gesture;
-                
-                // Trigger effects
-                if (CONFIG.effectsEnabled && gesture !== lastGesture) {
-                    createGestureEffect(gesture, landmarks);
-                    lastGesture = gesture;
-                }
+                return "✋ Detecting...";
             }
         }
 
         // ========== VISUAL EFFECTS ==========
-        function createGestureEffect(gesture, landmarks) {
-            if (!CONFIG.effectsEnabled) return;
+        function createVisualEffect(gesture, landmarks) {
+            if (!config.showVisuals) return;
             
-            // Get hand position
             const center = landmarks[0];
-            const x = (1 - center.x) * window.innerWidth;
+            const x = (config.useMirror ? (1 - center.x) : center.x) * window.innerWidth;
             const y = center.y * window.innerHeight;
             
-            console.log(`Creating effect for: ${gesture} at (${x.toFixed(0)}, ${y.toFixed(0)})`);
+            // Create effect based on gesture
+            let color = '#00ff88';
+            let size = 50;
             
             switch(gesture) {
                 case "✌️ Peace Sign":
-                    createConfetti(x, y);
+                    color = '#00ffff';
+                    createParticles(x, y, color, 20);
                     break;
                 case "👆 Pointing":
-                    createLaser(x, y);
+                    color = '#ff3366';
+                    createLaserBeam(x, y);
                     break;
-                case "✊ Fist":
-                    clearEffects();
-                    break;
-                case "✋ Open Palm":
-                    createRipple(x, y);
+                case "✋ Open Hand":
+                    color = '#ffcc00';
+                    createExplosion(x, y, color);
                     break;
                 case "🤘 Rock On":
-                    createExplosion(x, y, '#ff00ff');
+                    color = '#ff00ff';
+                    createLightning(x, y);
                     break;
                 case "👍 Thumbs Up":
-                    createFireworks(x, y, '#ffcc00');
+                    color = '#00ff88';
+                    createStars(x, y);
                     break;
             }
+            
+            // Always create a circle effect
+            const circle = document.createElement('div');
+            circle.className = 'effect-circle';
+            circle.style.left = `${x}px`;
+            circle.style.top = `${y}px`;
+            circle.style.width = `${size}px`;
+            circle.style.height = `${size}px`;
+            circle.style.background = `radial-gradient(circle, ${color} 0%, ${color}00 70%)`;
+            
+            visualEffectsContainer.appendChild(circle);
+            
+            // Remove after animation
+            setTimeout(() => {
+                circle.remove();
+            }, 500);
         }
 
-        // ========== EFFECT FUNCTIONS ==========
-        function createConfetti(x, y) {
-            console.log('Creating confetti at:', x, y);
-            const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
-            
-            for (let i = 0; i < 50; i++) {
-                setTimeout(() => {
-                    const confetti = document.createElement('div');
-                    confetti.className = 'confetti';
-                    confetti.style.left = `${x}px`;
-                    confetti.style.top = `${y}px`;
-                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                    
-                    effectsOverlay.appendChild(confetti);
-                    effects.push(confetti);
-                    
-                    // Animate
-                    const angle = Math.random() * Math.PI * 2;
-                    const distance = 100 + Math.random() * 200;
-                    const duration = 1000 + Math.random() * 1000;
-                    
-                    confetti.animate([
-                        { 
-                            transform: 'translate(0, 0) rotate(0deg)',
-                            opacity: 1 
-                        },
-                        { 
-                            transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance + 100}px) rotate(${360}deg)`,
-                            opacity: 0 
-                        }
-                    ], {
-                        duration: duration,
-                        easing: 'cubic-bezier(0.1, 0.8, 0.9, 0.1)'
-                    });
-                    
-                    // Remove after animation
-                    setTimeout(() => {
-                        const index = effects.indexOf(confetti);
-                        if (index > -1) effects.splice(index, 1);
-                        confetti.remove();
-                    }, duration);
-                    
-                }, i * 20);
+        function createParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'effect-circle';
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
+                particle.style.width = '20px';
+                particle.style.height = '20px';
+                particle.style.background = `radial-gradient(circle, ${color} 0%, ${color}00 70%)`;
+                particle.style.animation = `pulse ${0.5 + Math.random() * 0.5}s ease-out`;
+                
+                visualEffectsContainer.appendChild(particle);
+                
+                // Animate movement
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 50 + Math.random() * 100;
+                const targetX = x + Math.cos(angle) * distance;
+                const targetY = y + Math.sin(angle) * distance;
+                
+                particle.animate([
+                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                    { transform: `translate(${targetX - x}px, ${targetY - y}px) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 1000,
+                    easing: 'ease-out'
+                });
+                
+                setTimeout(() => particle.remove(), 1000);
             }
         }
 
-        function createLaser(x, y) {
-            console.log('Creating laser at:', x, y);
+        // ========== PERFORMANCE MONITORING ==========
+        function startPerformanceMonitor() {
+            setInterval(() => {
+                // Monitor memory if available
+                if (performance.memory) {
+                    const memoryMB = performance.memory.usedJSHeapSize / 1048576;
+                    if (memoryMB > 100) {
+                        console.warn(`High memory usage: ${memoryMB.toFixed(1)}MB`);
+                    }
+                }
+            }, 5000);
+        }
+
+        function updateFPS(timestamp) {
+            frameCount++;
             
-            for (let i = 0; i < 5; i++) {
+            if (timestamp >= lastFpsUpdate + 1000) {
+                fps = Math.round((frameCount * 1000) / (timestamp - lastFpsUpdate));
+                fpsDisplay.textContent = fps;
+                frameCount = 0;
+                lastFpsUpdate = timestamp;
+            }
+            
+            lastFrameTime = timestamp;
+        }
+
+        function updateGestureDisplay(gesture) {
+            gestureDisplay.textContent = gesture;
+            
+            // Add color based on gesture
+            const colors = {
+                "✌️ Peace Sign": 'rgba(0, 255, 255, 0.2)',
+                "👆 Pointing": 'rgba(255, 51, 102, 0.2)',
+                "✊ Fist": 'rgba(255, 204, 0, 0.2)',
+                "✋ Open Hand": 'rgba(0, 255, 136, 0.2)',
+                "🤘 Rock On": 'rgba(255, 0, 255, 0.2)',
+                "👍 Thumbs Up": 'rgba(0, 255, 136, 0.2)'
+            };
+            
+            gestureDisplay.style.background = colors[gesture] || 'rgba(255, 255, 255, 0.1)';
+            
+            // Add animation
+            gestureDisplay.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                gestureDisplay.style.transform = 'scale(1)';
+            }, 100);
+        }
+
+        // ========== UI CONTROLS ==========
+        function togglePerformanceMode() {
+            config.highPerformance = !config.highPerformance;
+            config.modelComplexity = config.highPerformance ? 0 : 1;
+            
+            const btn = document.getElementById('performanceBtn');
+            btn.textContent = `⚡ Performance Mode: ${config.highPerformance ? 'ON' : 'OFF'}`;
+            
+            // Reinitialize MediaPipe with new settings
+            initMediaPipe();
+        }
+
+        function toggleVisuals() {
+            config.showVisuals = !config.showVisuals;
+            const btn = document.getElementById('visualsBtn');
+            btn.textContent = `✨ Visual Effects: ${config.showVisuals ? 'ON' : 'OFF'}`;
+            
+            // Clear existing effects
+            if (!config.showVisuals) {
+                visualEffectsContainer.innerHTML = '';
+            }
+        }
+
+        function calibrate() {
+            // Reset smoothing
+            smoothedLandmarks = null;
+            
+            // Show calibration message
+            gestureDisplay.textContent = '🎯 Calibrating...';
+            gestureDisplay.style.background = 'rgba(255, 204, 0, 0.3)';
+            
+            setTimeout(() => {
+                gestureDisplay.textContent = '✅ Calibrated!';
                 setTimeout(() => {
-                    const laser = document.createElement('div');
-                    laser.className = 'laser';
-                    laser.style.left = `${x}px`;
-                    laser.style.top = `${y}px`;
-                    
-                    const angle = Math.random() * Math.PI * 2;
-                    const length = 200 + Math.random() * 300;
-                    
-                    laser.style.width = `${length}px`;
-                    laser.style.transform = `rotate(${angle}rad)`;
-                    
-                    effectsOverlay.appendChild(laser);
-                    effects.push(laser);
-                    
-                    // Animate
-                    laser.animate([
-                        { opacity: 1, transform: `rotate(${angle}rad) scaleX(1)` },
-                        { opacity: 0, transform: `rotate(${angle}rad) scaleX(0)` }
-                    ], {
-                        duration: 300,
-                        easing: 'ease-out'
-                    });
-                    
-                    setTimeout(() => {
-                        const index = effects.indexOf(laser);
-                        if (index > -1) effects.splice(index, 1);
-                        laser.remove();
-                    }, 300);
-                    
+                    gestureDisplay.textContent = '👋 Show your hand!';
+                }, 1000);
+            }, 1000);
+        }
+
+        function toggleCamera() {
+            // Implementation for camera switching
+            alert('Camera switching would be implemented here!');
+        }
+
+        // Helper functions for effects
+        function createLaserBeam(x, y) {
+            const beam = document.createElement('div');
+            beam.style.cssText = `
+                position: absolute;
+                left: ${x}px;
+                top: ${y}px;
+                width: 100px;
+                height: 3px;
+                background: linear-gradient(90deg, #ff3366, #ff336600);
+                transform-origin: 0 0;
+                z-index: 1000;
+            `;
+            
+            const angle = Math.random() * Math.PI * 2;
+            beam.style.transform = `rotate(${angle}rad)`;
+            
+            visualEffectsContainer.appendChild(beam);
+            
+            beam.animate([
+                { transform: `rotate(${angle}rad) scaleX(0)`, opacity: 1 },
+                { transform: `rotate(${angle}rad) scaleX(1)`, opacity: 0 }
+            ], {
+                duration: 300,
+                easing: 'ease-out'
+            });
+            
+            setTimeout(() => beam.remove(), 300);
+        }
+
+        function createExplosion(x, y, color) {
+            createParticles(x, y, color, 30);
+        }
+
+        function createLightning(x, y) {
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => {
+                    createLaserBeam(x, y);
                 }, i * 100);
             }
         }
 
-        function createRipple(x, y) {
-            console.log('Creating ripple at:', x, y);
-            
-            for (let i = 0; i < 3; i++) {
+        function createStars(x, y) {
+            for (let i = 0; i < 10; i++) {
                 setTimeout(() => {
-                    const ripple = document.createElement('div');
-                    ripple.className = 'ripple';
-                    ripple.style.left = `${x}px`;
-                    ripple.style.top = `${y}px`;
-                    ripple.style.borderColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                    const star = document.createElement('div');
+                    star.style.cssText = `
+                        position: absolute;
+                        left: ${x + Math.random() * 100 - 50}px;
+                        top: ${y + Math.random() * 100 - 50}px;
+                        width: 20px;
+                        height: 20px;
+                        background: radial-gradient(circle, #ffffff 0%, ${'#00ff88'} 100%);
+                        border-radius: 50%;
+                        z-index: 1000;
+                    `;
                     
-                    effectsOverlay.appendChild(ripple);
-                    effects.push(ripple);
+                    visualEffectsContainer.appendChild(star);
                     
-                    setTimeout(() => {
-                        const index = effects.indexOf(ripple);
-                        if (index > -1) effects.splice(index, 1);
-                        ripple.remove();
-                    }, 1000);
-                    
-                }, i * 200);
-            }
-        }
-
-        function createExplosion(x, y, color) {
-            console.log('Creating explosion at:', x, y);
-            
-            for (let i = 0; i < 30; i++) {
-                setTimeout(() => {
-                    const particle = document.createElement('div');
-                    particle.className = 'particle';
-                    particle.style.left = `${x}px`;
-                    particle.style.top = `${y}px`;
-                    particle.style.width = `${10 + Math.random() * 10}px`;
-                    particle.style.height = particle.style.width;
-                    particle.style.backgroundColor = color;
-                    
-                    effectsOverlay.appendChild(particle);
-                    effects.push(particle);
-                    
-                    const angle = Math.random() * Math.PI * 2;
-                    const distance = 50 + Math.random() * 150;
-                    const duration = 800 + Math.random() * 800;
-                    
-                    particle.animate([
-                        { 
-                            transform: 'translate(0, 0) scale(1)',
-                            opacity: 1 
-                        },
-                        { 
-                            transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`,
-                            opacity: 0 
-                        }
+                    star.animate([
+                        { transform: 'scale(0)', opacity: 1 },
+                        { transform: 'scale(1)', opacity: 0 }
                     ], {
-                        duration: duration,
+                        duration: 1000,
                         easing: 'ease-out'
                     });
                     
-                    setTimeout(() => {
-                        const index = effects.indexOf(particle);
-                        if (index > -1) effects.splice(index, 1);
-                        particle.remove();
-                    }, duration);
-                    
-                }, i * 20);
+                    setTimeout(() => star.remove(), 1000);
+                }, i * 50);
             }
-        }
-
-        function createFireworks(x, y, color) {
-            console.log('Creating fireworks at:', x, y);
-            
-            for (let i = 0; i < 5; i++) {
-                setTimeout(() => {
-                    const firework = document.createElement('div');
-                    firework.className = 'firework';
-                    firework.style.left = `${x}px`;
-                    firework.style.top = `${y}px`;
-                    firework.style.backgroundColor = color;
-                    firework.style.boxShadow = `0 0 10px ${color}`;
-                    
-                    effectsOverlay.appendChild(firework);
-                    effects.push(firework);
-                    
-                    const targetX = x + (Math.random() - 0.5) * 300;
-                    const targetY = y - 100 - Math.random() * 200;
-                    
-                    // Launch
-                    firework.animate([
-                        { transform: 'translate(0, 0)', opacity: 1 },
-                        { transform: `translate(${targetX - x}px, ${targetY - y}px)`, opacity: 1 }
-                    ], {
-                        duration: 500,
-                        easing: 'ease-out'
-                    });
-                    
-                    // Explode after reaching top
-                    setTimeout(() => {
-                        createExplosion(targetX, targetY, color);
-                        firework.remove();
-                        const index = effects.indexOf(firework);
-                        if (index > -1) effects.splice(index, 1);
-                    }, 500);
-                    
-                }, i * 200);
-            }
-        }
-
-        // ========== EFFECTS MANAGEMENT ==========
-        function clearEffects() {
-            console.log('Clearing all effects');
-            effects.forEach(effect => effect.remove());
-            effects = [];
-            effectsOverlay.innerHTML = '';
-        }
-
-        function toggleEffects() {
-            CONFIG.effectsEnabled = !CONFIG.effectsEnabled;
-            const button = document.getElementById('toggleEffects');
-            button.textContent = CONFIG.effectsEnabled ? '🎆 Effects: ON' : '🎆 Effects: OFF';
-            
-            if (!CONFIG.effectsEnabled) {
-                clearEffects();
-            }
-            
-            console.log('Effects enabled:', CONFIG.effectsEnabled);
-        }
-
-        function togglePerformance() {
-            CONFIG.performanceMode = !CONFIG.performanceMode;
-            initMediaPipe(); // Reinitialize with new settings
-        }
-
-        // ========== FPS MONITOR ==========
-        function startFPSMonitor() {
-            setInterval(() => {
-                // Clean up old effects if too many
-                if (effects.length > CONFIG.maxEffects) {
-                    const toRemove = effects.splice(0, effects.length - CONFIG.maxEffects);
-                    toRemove.forEach(effect => effect.remove());
-                }
-            }, 1000);
         }
 
         // ========== START EVERYTHING ==========
-        window.addEventListener('load', init);
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
