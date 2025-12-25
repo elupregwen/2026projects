@@ -1,64 +1,506 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎵 Hand Dance Party</title>
+    <title>Hand Gesture FIXED</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; }
-        #container { position: relative; width: 100vw; height: 100vh; }
-        #videoContainer { 
-            position: absolute; 
-            bottom: 20px; 
-            right: 20px;
-            width: 320px; 
-            height: 240px;
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00ff88;
+        }
+        
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        
+        .box {
             border: 3px solid #00ff88;
             border-radius: 10px;
             overflow: hidden;
+            background: black;
         }
-        #gestureText {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            font-size: 24px;
-            font-family: Arial;
-            background: rgba(0,0,0,0.7);
-            padding: 10px;
+        
+        #status {
+            background: rgba(255, 0, 0, 0.2);
+            padding: 15px;
             border-radius: 10px;
+            margin-bottom: 20px;
+            font-family: monospace;
         }
-        #instructions {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            color: #aaa;
-            font-family: Arial;
-            max-width: 300px;
+        
+        .instructions {
+            background: rgba(0, 255, 136, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: #00ff88;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+        }
+        
+        button:hover {
+            background: #00cc6a;
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <div id="gestureText">👋 Show your hand!</div>
-        <div id="videoContainer">
-            <video id="inputVideo" autoplay playsinline></video>
-            <canvas id="outputCanvas"></canvas>
+    <div class="container">
+        <h1>🖐️ Hand Tracking Debug - FIXED VERSION</h1>
+        
+        <div id="status">
+            <div>Status: <span id="statusText">Initializing...</span></div>
+            <div>Hands Detected: <span id="handCount">0</span></div>
+            <div>Gesture: <span id="gestureText">None</span></div>
+            <div>Confidence: <span id="confidence">0</span></div>
+            <div>Frame: <span id="frameCount">0</span></div>
         </div>
-        <div id="instructions">
-            <h3>🎮 Gesture Controls:</h3>
-            <p>✋ Open Palm = Fireworks</p>
-            <p>✌️ Peace Sign = Color Wave</p>
-            <p>👆 Pointing = Draw Lines</p>
-            <p>🤘 Rock On = Lightning</p>
-            <p>✊ Fist = Clear All</p>
+        
+        <div class="video-container">
+            <div class="box">
+                <h3>Raw Camera</h3>
+                <video id="videoInput" autoplay playsinline 
+                       style="width: 320px; height: 240px;"></video>
+            </div>
+            
+            <div class="box">
+                <h3>MediaPipe Output</h3>
+                <canvas id="canvasOutput" width="320" height="240" 
+                       style="width: 320px; height: 240px;"></canvas>
+            </div>
+        </div>
+        
+        <div style="text-align: center;">
+            <button onclick="toggleCamera()">📷 Switch Camera</button>
+            <button onclick="toggleMirror()">🪞 Toggle Mirror</button>
+            <button onclick="adjustConfidence(0.1)">⬆️ More Sensitive</button>
+            <button onclick="adjustConfidence(-0.1)">⬇️ Less Sensitive</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>🎯 How to make it work:</h3>
+            <p><strong>1. DISTANCE:</strong> Hold your hand 30-50cm from camera</p>
+            <p><strong>2. LIGHTING:</strong> Face light source, not backlit</p>
+            <p><strong>3. BACKGROUND:</strong> Use plain background (wall works best)</p>
+            <p><strong>4. ORIENTATION:</strong> Show palm facing camera</p>
+            <p><strong>5. TRY DIFFERENT:</strong> Use "Switch Camera" if laptop/phone</p>
+            
+            <h3>📊 Debug Tips:</h3>
+            <p>• If confidence stays at 0, move hand closer</p>
+            <p>• Try making a ✋ open palm first</p>
+            <p>• Check browser console (F12) for errors</p>
+            <p>• Allow camera permission when prompted</p>
         </div>
     </div>
 
-    <!-- Three.js -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <!-- MediaPipe -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/hands.min.js"></script>
-    <script src="fut1.js"></script>
+    <!-- Load MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    
+    <script>
+        // ========== CONFIGURATION ==========
+        let config = {
+            width: 320,
+            height: 240,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+            useMirror: true,
+            currentCamera: 'user' // 'user' or 'environment'
+        };
+        
+        // ========== ELEMENTS ==========
+        const video = document.getElementById('videoInput');
+        const canvas = document.getElementById('canvasOutput');
+        const ctx = canvas.getContext('2d');
+        const statusText = document.getElementById('statusText');
+        const handCount = document.getElementById('handCount');
+        const gestureText = document.getElementById('gestureText');
+        const confidence = document.getElementById('confidence');
+        const frameCount = document.getElementById('frameCount');
+        
+        // ========== VARIABLES ==========
+        let hands = null;
+        let frameCounter = 0;
+        let currentStream = null;
+        let lastDetectionTime = 0;
+        let isMirrored = true;
+        
+        // ========== INITIALIZE ==========
+        async function init() {
+            updateStatus("Starting camera...", "orange");
+            
+            try {
+                // First, get camera access
+                await startCamera();
+                
+                // Then initialize MediaPipe
+                await initMediaPipe();
+                
+                // Start processing
+                updateStatus("Ready! Show your hand to camera", "lime");
+                processFrame();
+                
+            } catch (error) {
+                updateStatus(`Error: ${error.message}`, "red");
+                console.error("Init error:", error);
+            }
+        }
+        
+        // ========== CAMERA FUNCTIONS ==========
+        async function startCamera() {
+            // Stop previous stream if exists
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+            
+            const constraints = {
+                video: {
+                    width: { ideal: config.width },
+                    height: { ideal: config.height },
+                    facingMode: config.currentCamera,
+                    frameRate: { ideal: 30 }
+                }
+            };
+            
+            try {
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = currentStream;
+                
+                updateStatus(`Camera ${config.currentCamera} started`, "lightblue");
+                
+                // Wait for video to be ready
+                await new Promise(resolve => {
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                    };
+                });
+                
+            } catch (error) {
+                updateStatus(`Camera error: ${error.message}`, "red");
+                throw error;
+            }
+        }
+        
+        // ========== MEDIAPIPE SETUP ==========
+        async function initMediaPipe() {
+            updateStatus("Loading MediaPipe...", "orange");
+            
+            // Check if Hands is available
+            if (typeof self.Hands === 'undefined') {
+                throw new Error("MediaPipe not loaded. Check internet connection.");
+            }
+            
+            // Create MediaPipe Hands instance
+            hands = new self.Hands({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                }
+            });
+            
+            // Set options - START WITH HIGH SENSITIVITY
+            hands.setOptions({
+                maxNumHands: 2,
+                modelComplexity: 1,  // Use complex model for better detection
+                minDetectionConfidence: config.minDetectionConfidence,
+                minTrackingConfidence: config.minTrackingConfidence,
+                selfieMode: true  // IMPORTANT: Optimized for front camera
+            });
+            
+            // Set callback
+            hands.onResults(onResults);
+            
+            updateStatus("MediaPipe loaded", "lightgreen");
+        }
+        
+        // ========== PROCESS FRAMES ==========
+        async function processFrame() {
+            if (!video.videoWidth || !hands) {
+                requestAnimationFrame(processFrame);
+                return;
+            }
+            
+            try {
+                // Send frame to MediaPipe
+                await hands.send({ image: video });
+                frameCounter++;
+                frameCount.textContent = frameCounter;
+                
+            } catch (error) {
+                console.error("Process frame error:", error);
+            }
+            
+            requestAnimationFrame(processFrame);
+        }
+        
+        // ========== HANDLE RESULTS ==========
+        function onResults(results) {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw video (with optional mirror)
+            ctx.save();
+            if (isMirrored) {
+                ctx.scale(-1, 1);
+                ctx.translate(-canvas.width, 0);
+            }
+            ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
+            
+            // Update detection status
+            const now = Date.now();
+            const hasHands = results.multiHandLandmarks && results.multiHandLandmarks.length > 0;
+            
+            if (hasHands) {
+                lastDetectionTime = now;
+                const numHands = results.multiHandLandmarks.length;
+                handCount.textContent = numHands;
+                
+                // Process each hand
+                results.multiHandLandmarks.forEach((landmarks, index) => {
+                    const handedness = results.multiHandedness[index];
+                    
+                    // Draw hand with details
+                    drawHand(landmarks, handedness);
+                    
+                    // Detect gesture for this hand
+                    const detectedGesture = detectGesture(landmarks, handedness);
+                    
+                    // Update display for first hand
+                    if (index === 0) {
+                        gestureText.textContent = detectedGesture;
+                        
+                        // Show confidence if available
+                        if (handedness && handedness.score) {
+                            confidence.textContent = handedness.score.toFixed(2);
+                        }
+                    }
+                });
+                
+                updateStatus(`✅ Tracking ${results.multiHandLandmarks.length} hand(s)`, "lime");
+                
+            } else {
+                // No hands detected
+                handCount.textContent = "0";
+                gestureText.textContent = "None";
+                confidence.textContent = "0";
+                
+                // Show help message if no detection for a while
+                if (now - lastDetectionTime > 2000) {
+                    updateStatus("❌ No hand detected. Move closer to camera", "orange");
+                    
+                    // Draw help overlay
+                    drawHelpOverlay();
+                }
+            }
+        }
+        
+        // ========== DRAW FUNCTIONS ==========
+        function drawHand(landmarks, handedness) {
+            // Draw connections
+            const connections = self.Hands.HAND_CONNECTIONS;
+            ctx.strokeStyle = handedness.label === 'Left' ? '#00ffff' : '#ff00ff';
+            ctx.lineWidth = 2;
+            
+            connections.forEach(([startIdx, endIdx]) => {
+                const start = landmarks[startIdx];
+                const end = landmarks[endIdx];
+                
+                // Convert normalized coordinates to canvas
+                let startX = start.x * canvas.width;
+                let startY = start.y * canvas.height;
+                let endX = end.x * canvas.width;
+                let endY = end.y * canvas.height;
+                
+                // Adjust for mirror
+                if (isMirrored) {
+                    startX = canvas.width - startX;
+                    endX = canvas.width - endX;
+                }
+                
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+            });
+            
+            // Draw landmarks
+            ctx.fillStyle = '#00ff00';
+            landmarks.forEach(landmark => {
+                let x = landmark.x * canvas.width;
+                let y = landmark.y * canvas.height;
+                
+                if (isMirrored) {
+                    x = canvas.width - x;
+                }
+                
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // Draw hand label
+            if (landmarks[0]) {
+                let labelX = landmarks[0].x * canvas.width;
+                const labelY = landmarks[0].y * canvas.height - 20;
+                
+                if (isMirrored) {
+                    labelX = canvas.width - labelX;
+                }
+                
+                ctx.fillStyle = handedness.label === 'Left' ? '#00ffff' : '#ff00ff';
+                ctx.font = 'bold 14px Arial';
+                ctx.fillText(`${handedness.label} Hand`, labelX, labelY);
+            }
+        }
+        
+        function drawHelpOverlay() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText("Show your hand here", canvas.width / 2, 50);
+            
+            // Draw a hand outline as guide
+            ctx.strokeStyle = 'yellow';
+            ctx.lineWidth = 2;
+            
+            // Simple hand outline
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, canvas.height / 2, 40, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // "Fingers"
+            for (let i = 0; i < 5; i++) {
+                const angle = (i - 2) * 0.4;
+                ctx.beginPath();
+                ctx.moveTo(
+                    canvas.width / 2 + Math.sin(angle) * 30,
+                    canvas.height / 2 - 40
+                );
+                ctx.lineTo(
+                    canvas.width / 2 + Math.sin(angle) * 50,
+                    canvas.height / 2 - 80
+                );
+                ctx.stroke();
+            }
+            
+            ctx.textAlign = 'start';
+        }
+        
+        // ========== GESTURE DETECTION ==========
+        function detectGesture(landmarks, handedness) {
+            // Get key landmarks
+            const thumbTip = landmarks[4];
+            const indexTip = landmarks[8];
+            const middleTip = landmarks[12];
+            const ringTip = landmarks[16];
+            const pinkyTip = landmarks[20];
+            
+            // Get corresponding base points
+            const indexBase = landmarks[5];
+            const middleBase = landmarks[9];
+            const ringBase = landmarks[13];
+            const pinkyBase = landmarks[17];
+            
+            // Check if fingers are extended (tip y < base y)
+            const indexExtended = indexTip.y < indexBase.y;
+            const middleExtended = middleTip.y < middleBase.y;
+            const ringExtended = ringTip.y < ringBase.y;
+            const pinkyExtended = pinkyTip.y < pinkyBase.y;
+            
+            // Simple gesture detection
+            if (indexExtended && middleExtended && !ringExtended && !pinkyExtended) {
+                return "✌️ Peace Sign";
+            } else if (indexExtended && !middleExtended && !ringExtended && !pinkyExtended) {
+                return "👆 Pointing";
+            } else if (!indexExtended && !middleExtended && !ringExtended && !pinkyExtended) {
+                return "✊ Fist";
+            } else if (indexExtended && middleExtended && ringExtended && pinkyExtended) {
+                return "✋ Open Hand";
+            } else if (indexExtended && !middleExtended && !ringExtended && pinkyExtended) {
+                return "🤘 Rock On";
+            } else if (thumbTip.x < landmarks[3].x) {
+                return "👍 Thumbs Up";
+            } else {
+                return "🤔 Unknown Gesture";
+            }
+        }
+        
+        // ========== UI CONTROLS ==========
+        function toggleCamera() {
+            config.currentCamera = config.currentCamera === 'user' ? 'environment' : 'user';
+            updateStatus(`Switching to ${config.currentCamera} camera...`, "orange");
+            startCamera();
+        }
+        
+        function toggleMirror() {
+            isMirrored = !isMirrored;
+            updateStatus(`Mirror: ${isMirrored ? 'ON' : 'OFF'}`, "lightblue");
+        }
+        
+        function adjustConfidence(delta) {
+            config.minDetectionConfidence = Math.max(0.1, Math.min(0.9, 
+                config.minDetectionConfidence + delta));
+            
+            if (hands) {
+                hands.setOptions({
+                    minDetectionConfidence: config.minDetectionConfidence,
+                    minTrackingConfidence: config.minDetectionConfidence - 0.1
+                });
+            }
+            
+            updateStatus(`Sensitivity: ${(1 - config.minDetectionConfidence).toFixed(1)}`, "yellow");
+        }
+        
+        function updateStatus(message, color) {
+            statusText.textContent = message;
+            statusText.style.color = color;
+            console.log(`Status: ${message}`);
+        }
+        
+        // ========== ERROR HANDLING ==========
+        window.addEventListener('error', (e) => {
+            updateStatus(`Error: ${e.message}`, "red");
+            console.error("Global error:", e.error);
+        });
+        
+        // Check for browser compatibility
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            updateStatus("❌ Browser doesn't support camera access", "red");
+        }
+        
+        // ========== START EVERYTHING ==========
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
 </body>
 </html>
