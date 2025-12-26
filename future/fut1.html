@@ -1,8 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>⚡ Hand Gesture - TURBO MODE</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Gesture</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF6B9D',
+                        secondary: '#C77DFF',
+                        accent: '#FFB3C6',
+                        dark: '#0f172a',
+                        light: '#f8fafc',
+                        pink: {
+                            350: '#FF9EBD',
+                            450: '#FF6B9D',
+                            550: '#FF4785'
+                        },
+                        purple: {
+                            450: '#C77DFF',
+                            550: '#B65CFF'
+                        }
+                    },
+                    spacing: {
+                        '128': '32rem',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s ease-in-out infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'sparkle': 'sparkle 2s ease-in-out infinite',
+                        'heartbeat': 'heartbeat 1.5s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        sparkle: {
+                            '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+                            '50%': { opacity: 0.5, transform: 'scale(1.2)' },
+                        },
+                        heartbeat: {
+                            '0%, 100%': { transform: 'scale(1)' },
+                            '50%': { transform: 'scale(1.1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
         * {
             margin: 0;
@@ -12,182 +69,61 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(45deg, #0f0c29, #302b63, #24243e);
-            color: white;
+            background: linear-gradient(135deg, #ffb3c6 0%, #ff9ecc 25%, #c77dff 50%, #b388eb 75%, #a663cc 100%);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
             min-height: 100vh;
-            padding: 20px;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-        }
-
-        h1 {
-            font-size: 3em;
-            background: linear-gradient(45deg, #00ff88, #00ffff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .subtitle {
-            color: #aaa;
-            font-size: 1.2em;
-        }
-
-        .main-content {
-            margin-bottom: 30px;
-        }
-
-        /* Hide the camera box and only show tracking box */
-        .camera-box {
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
-            padding: 15px;
-            border: 2px solid #00ff88;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-            width: 100%;
-        }
-
-        .camera-box h2 {
-            margin-bottom: 15px;
-            color: #00ff88;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Hide video element but keep it running */
-        #videoInput {
-            display: none !important;
-            width: 0 !important;
-            height: 0 !important;
-            position: absolute !important;
-            opacity: 0 !important;
-        }
-
-        #canvasOutput {
-            width: 100% !important;
-            height: 480px !important;
-            border-radius: 10px;
-            background: black;
-            display: block;
-        }
-
-        .stats-panel {
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 15px;
-            padding: 20px;
-            border: 2px solid #00ffff;
-            margin-top: 20px;
-        }
-
-        .stat-item {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-
-        .stat-label {
-            color: #aaa;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #00ff88;
-        }
-
-        #gestureDisplay {
-            font-size: 2em;
-            text-align: center;
-            padding: 20px;
-            background: rgba(0, 255, 136, 0.1);
-            border-radius: 10px;
-            margin-top: 10px;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
-            justify-content: center;
-        }
-
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(45deg, #00ff88, #00cc6a);
-            color: black;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.4);
-        }
-
-        button.secondary {
-            background: linear-gradient(45deg, #00ffff, #0099cc);
-        }
-
-        button.danger {
-            background: linear-gradient(45deg, #ff3366, #cc0044);
-        }
-
-        .fps-meter {
+        /* Full-screen effects */
+        .effect-circle {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-family: monospace;
-            border: 1px solid #00ff88;
-            z-index: 1001;
-        }
-
-        .visual-effects {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            border-radius: 50%;
             pointer-events: none;
             z-index: 1000;
-            overflow: hidden;
+            animation: pulse 0.8s ease-out forwards;
         }
 
-        .effect-circle {
-            position: absolute;
-            border-radius: 50%;
-            animation: pulse 0.5s ease-out forwards;
-            transform-origin: center;
+        .sparkle {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1001;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        .heart {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1002;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+
+        .firework {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1003;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 15px;
+            height: 15px;
+            pointer-events: none;
+            z-index: 1004;
         }
 
         @keyframes pulse {
@@ -195,163 +131,286 @@
                 transform: scale(0);
                 opacity: 1;
             }
+
             100% {
-                transform: scale(1);
+                transform: scale(2);
                 opacity: 0;
             }
         }
 
-        .tutorial {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 30px;
+        @keyframes big-boom {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
         }
 
-        .tutorial h3 {
-            color: #00ffff;
-            margin-bottom: 15px;
+        @keyframes firework-burst {
+            0% {
+                transform: translate(0, 0) scale(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1);
+                opacity: 0;
+            }
         }
 
-        .gesture-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+        @keyframes float-up {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
         }
 
-        .gesture-item {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px;
+        /* Glass morphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 107, 157, 0.3);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 182, 193, 0.2);
             border-radius: 10px;
-            text-align: center;
         }
 
-        .gesture-icon {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #FF6B9D, #C77DFF);
+            border-radius: 10px;
         }
 
-        .gesture-name {
-            color: #00ff88;
-            font-weight: bold;
+        /* Glow effects */
+        .glow-pink {
+            box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+        }
+
+        .glow-purple {
+            box-shadow: 0 0 20px rgba(199, 125, 255, 0.5);
+        }
+
+        /* Hidden video */
+        #videoInput {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
         }
     </style>
 </head>
 
-<body>
-    <div class="fps-meter">
-        FPS: <span id="fps">0</span> |
-        Latency: <span id="latency">0</span>ms
+<body class="text-gray-800 overflow-x-hidden">
+    <!-- Visual Effects Container -->
+    <div id="visualEffects" class="fixed inset-0 pointer-events-none z-50"></div>
+
+    <!-- FPS Meter -->
+    <div class="fixed top-4 right-4 glass px-4 py-2 rounded-full z-40">
+        <span class="text-sm font-semibold text-white">
+            <i class="fas fa-tachometer-alt mr-1"></i>
+            FPS: <span id="fps" class="text-pink-350">0</span> |
+            <i class="fas fa-clock ml-2 mr-1"></i>
+            <span id="latency" class="text-purple-450">0</span>ms
+        </span>
     </div>
 
-    <div class="container">
-        <header>
-            <h1>⚡ HAND GESTURE TURBO</h1>
-            <p class="subtitle">Real-time gesture detection with smooth visuals</p>
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <div class="glass rounded-3xl p-8 mb-6 glow-pink">
+                <h1
+                    class="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-pink-450 via-purple-450 to-pink-550 bg-clip-text text-transparent">
+                    <i class="fas fa-magic mr-4"></i>
+                    Hand Gesture
+                    <i class="fas fa-sparkles ml-4"></i>
+                </h1>
+                <p class="text-xl text-white/80 font-light">
+                    Wave your hand to create magical effects across your screen! ✨
+                </p>
+            </div>
         </header>
 
-        <div class="main-content">
-            <div class="camera-box">
-                <h2>🖐️ Hand Tracking Output</h2>
-                <video id="videoInput" autoplay playsinline muted></video>
-                <canvas id="canvasOutput" width="640" height="480"></canvas>
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <!-- Output Display -->
+            <div class="glass-dark rounded-3xl p-6">
+                <div class="flex items-center mb-4">
+                    <i class="fas fa-hand-sparkles text-2xl text-pink-350 mr-3"></i>
+                    <h2 class="text-2xl font-bold text-white">Magic Output ✨</h2>
+                </div>
+                <div class="relative rounded-2xl overflow-hidden bg-black">
+                    <canvas id="canvasOutput" class="w-full h-96 object-cover" width="640" height="480"></canvas>
+                    <video id="videoInput" autoplay playsinline muted></video>
+                    <div class="absolute bottom-4 left-4 glass px-3 py-1 rounded-full">
+                        <span class="text-sm text-white">
+                            <i class="fas fa-video mr-1"></i> Live
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="glass-dark rounded-3xl p-6">
+                <div class="flex items-center mb-6">
+                    <i class="fas fa-chart-bar text-2xl text-purple-450 mr-3"></i>
+                    <h2 class="text-2xl font-bold text-white">Magic Stats 🌸</h2>
+                </div>
+
+                <!-- Current Gesture -->
+                <div class="glass rounded-2xl p-6 mb-6 text-center animate-pulse-slow">
+                    <div class="text-sm text-white/70 mb-2">Current Magic Spell</div>
+                    <div id="gestureDisplay"
+                        class="text-3xl font-bold bg-gradient-to-r from-pink-350 via-accent to-purple-450 bg-clip-text text-transparent">
+                        <i class="fas fa-wand-sparkles mr-2"></i>
+                        Wave to Begin!
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="glass rounded-2xl p-4 text-center">
+                        <div class="text-sm text-white/70 mb-1">
+                            <i class="fas fa-hands mr-1"></i> Hands
+                        </div>
+                        <div id="handCount" class="text-2xl font-bold text-pink-350">0</div>
+                    </div>
+                    <div class="glass rounded-2xl p-4 text-center">
+                        <div class="text-sm text-white/70 mb-1">
+                            <i class="fas fa-star mr-1"></i> Confidence
+                        </div>
+                        <div id="confidence" class="text-2xl font-bold text-purple-450">0%</div>
+                    </div>
+                    <div class="glass rounded-2xl p-4 text-center">
+                        <div class="text-sm text-white/70 mb-1">
+                            <i class="fas fa-bolt mr-1"></i> Speed
+                        </div>
+                        <div id="processTime" class="text-2xl font-bold text-accent">0ms</div>
+                    </div>
+                    <div class="glass rounded-2xl p-4 text-center">
+                        <div class="text-sm text-white/70 mb-1">
+                            <i class="fas fa-sparkles mr-1"></i> Effects
+                        </div>
+                        <div id="effectCount" class="text-2xl font-bold text-pink-350">0</div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="glass rounded-2xl p-5">
+                    <h3 class="text-lg font-semibold text-white mb-4">
+                        <i class="fas fa-sliders-h mr-2"></i> Magic Controls
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="toggleVisuals()" id="visualsBtn"
+                            class="bg-gradient-to-r from-pink-450 to-pink-550 hover:from-pink-550 hover:to-pink-450 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-105">
+                            <i class="fas fa-sparkles mr-2"></i>
+                            <span class="effect-status">Effects: ON</span>
+                        </button>
+                        <button onclick="togglePerformanceMode()" id="performanceBtn"
+                            class="bg-gradient-to-r from-purple-450 to-purple-550 hover:from-purple-550 hover:to-purple-450 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-105">
+                            <i class="fas fa-bolt mr-2"></i>
+                            <span class="performance-status">Turbo: ON</span>
+                        </button>
+                        <button onclick="calibrate()"
+                            class="bg-gradient-to-r from-accent to-pink-350 hover:from-pink-350 hover:to-accent text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-105">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Calibrate
+                        </button>
+                        <button onclick="clearAllEffects()"
+                            class="bg-gradient-to-r from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-105">
+                            <i class="fas fa-broom mr-2"></i>
+                            Clear Effects
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="stats-panel">
-            <h2>📊 Tracking Stats</h2>
-
-            <div class="stat-item">
-                <div class="stat-label">Current Gesture</div>
-                <div id="gestureDisplay">Waiting for hand...</div>
+        <!-- Gesture Guide -->
+        <div class="glass-dark rounded-3xl p-8 mb-8">
+            <div class="flex items-center mb-6">
+                <i class="fas fa-book-open text-2xl text-pink-350 mr-3"></i>
+                <h2 class="text-2xl font-bold text-white">Spell Book ✨</h2>
             </div>
-
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
-                <div class="stat-item">
-                    <div class="stat-label">Hands Detected</div>
-                    <div class="stat-value" id="handCount">0</div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="glass rounded-2xl p-5 text-center group hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl mb-3 text-pink-350 group-hover:animate-bounce-slow">✋</div>
+                    <div class="font-bold text-white mb-1">Open Palm</div>
+                    <div class="text-sm text-white/70">Creates flower bloom</div>
                 </div>
-
-                <div class="stat-item">
-                    <div class="stat-label">Confidence</div>
-                    <div class="stat-value" id="confidence">0%</div>
+                <div class="glass rounded-2xl p-5 text-center group hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl mb-3 text-purple-450 group-hover:animate-bounce-slow">✌️</div>
+                    <div class="font-bold text-white mb-1">Peace Sign</div>
+                    <div class="text-sm text-white/70">Fireworks display</div>
                 </div>
-
-                <div class="stat-item">
-                    <div class="stat-label">Processing Time</div>
-                    <div class="stat-value" id="processTime">0ms</div>
+                <div class="glass rounded-2xl p-5 text-center group hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl mb-3 text-accent group-hover:animate-bounce-slow">👆</div>
+                    <div class="font-bold text-white mb-1">Pointing</div>
+                    <div class="text-sm text-white/70">Sparkle trails</div>
                 </div>
-            </div>
-
-            <div class="controls">
-                <button onclick="togglePerformanceMode()" id="performanceBtn">
-                    ⚡ Performance Mode: ON
-                </button>
-                <button onclick="toggleVisuals()" id="visualsBtn" class="secondary">
-                    ✨ Visual Effects: ON
-                </button>
-                <button onclick="calibrate()" class="secondary">
-                    🎯 Calibrate
-                </button>
-                <button onclick="toggleCamera()">
-                    📷 Switch Camera
-                </button>
-            </div>
-        </div>
-
-        <div class="tutorial">
-            <h3>🎮 Quick Gesture Guide</h3>
-            <div class="gesture-list">
-                <div class="gesture-item">
-                    <div class="gesture-icon">✋</div>
-                    <div class="gesture-name">Open Palm</div>
-                    <div>Creates particles</div>
+                <div class="glass rounded-2xl p-5 text-center group hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl mb-3 text-pink-550 group-hover:animate-bounce-slow">🤘</div>
+                    <div class="font-bold text-white mb-1">Rock On</div>
+                    <div class="text-sm text-white/70">Hearts explosion</div>
                 </div>
-                <div class="gesture-item">
-                    <div class="gesture-icon">✌️</div>
-                    <div class="gesture-name">Peace Sign</div>
-                    <div>Changes color theme</div>
+                <div class="glass rounded-2xl p-5 text-center group hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl mb-3 text-purple-550 group-hover:animate-bounce-slow">✊</div>
+                    <div class="font-bold text-white mb-1">Fist</div>
+                    <div class="text-sm text-white/70">Clear all magic</div>
                 </div>
-                <div class="gesture-item">
-                    <div class="gesture-icon">👆</div>
-                    <div class="gesture-name">Pointing</div>
-                    <div>Draws laser beam</div>
-                </div>
-                <div class="gesture-item">
-                    <div class="gesture-icon">🤘</div>
-                    <div class="gesture-name">Rock On</div>
-                    <div>Shows lightning</div>
-                </div>
-                <div class="gesture-item">
-                    <div class="gesture-icon">✊</div>
-                    <div class="gesture-name">Fist</div>
-                    <div>Clears effects</div>
-                </div>
-                <div class="gesture-item">
-                    <div class="gesture-icon">👍</div>
-                    <div class="gesture-name">Thumbs Up</div>
-                    <div>Adds stars</div>
+                <div class="glass rounded-2xl p-5 text-center group hover:scale-105 transition-transform duration-300">
+                    <div class="text-4xl mb-3 text-accent group-hover:animate-bounce-slow">👍</div>
+                    <div class="font-bold text-white mb-1">Thumbs Up</div>
+                    <div class="text-sm text-white/70">Confetti shower</div>
                 </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <footer class="text-center glass-dark rounded-3xl p-6">
+            <p class="text-white/70">
+                <i class="fas fa-heart text-pink-350 mr-2"></i>
+                Made with magic by you!
+                <i class="fas fa-star text-yellow-300 ml-2 mr-2"></i>
+                Wave your hand to create beautiful effects
+                <i class="fas fa-magic text-purple-450 ml-2"></i>
+            </p>
+        </footer>
     </div>
-
-    <!-- Visual effects container -->
-    <div class="visual-effects" id="visualEffects"></div>
 
     <!-- Load MediaPipe -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
 
     <script>
-        // ========== PERFORMANCE OPTIMIZATION ==========
+        // ========== CONFIGURATION ==========
         const config = {
             width: 640,
             height: 480,
             useMirror: true,
             highPerformance: true,
             showVisuals: true,
-            modelComplexity: 0, // 0 = fastest, 1 = balanced, 2 = most accurate
+            modelComplexity: 0,
             detectionConfidence: 0.6,
             trackingConfidence: 0.5
         };
@@ -359,13 +418,14 @@
         // ========== ELEMENTS ==========
         const video = document.getElementById('videoInput');
         const canvas = document.getElementById('canvasOutput');
-        const ctx = canvas.getContext('2d', { alpha: false }); // Disable alpha for performance
+        const ctx = canvas.getContext('2d', { alpha: false });
         const fpsDisplay = document.getElementById('fps');
         const latencyDisplay = document.getElementById('latency');
         const gestureDisplay = document.getElementById('gestureDisplay');
         const handCountDisplay = document.getElementById('handCount');
         const confidenceDisplay = document.getElementById('confidence');
         const processTimeDisplay = document.getElementById('processTime');
+        const effectCountDisplay = document.getElementById('effectCount');
         const visualEffectsContainer = document.getElementById('visualEffects');
 
         // ========== PERFORMANCE VARIABLES ==========
@@ -376,44 +436,32 @@
         let frameCount = 0;
         let lastFpsUpdate = 0;
         let lastGesture = '';
-        let gestureStartTime = 0;
         let isProcessing = false;
-
-        // Smoothing for hand position (reduces jitter)
+        let activeEffects = 0;
         let smoothedLandmarks = null;
         const smoothingFactor = 0.3;
 
-        // ========== INITIALIZE ==========
+        // ========== INITIALIZATION ==========
         async function init() {
-            console.log('🚀 Initializing TURBO mode...');
+            console.log('🌸 Initializing Hand Gesture Magic...');
 
             try {
-                // Start with lower resolution for speed
                 await startCamera();
-
-                // Initialize MediaPipe with optimized settings
                 await initMediaPipe();
-
-                // Start performance monitoring
                 startPerformanceMonitor();
-
-                // Start processing loop
                 requestAnimationFrame(processLoop);
-
-                console.log('✅ System ready!');
-
+                console.log('✨ Magic System Ready!');
             } catch (error) {
                 console.error('❌ Initialization failed:', error);
             }
         }
 
-        // ========== OPTIMIZED CAMERA ==========
+        // ========== CAMERA SETUP ==========
         async function startCamera() {
             if (currentStream) {
                 currentStream.getTracks().forEach(track => track.stop());
             }
 
-            // Use lower resolution for better performance
             const constraints = {
                 video: {
                     width: { ideal: config.width },
@@ -427,32 +475,27 @@
                 currentStream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = currentStream;
 
-                // Wait for video to load
                 await new Promise((resolve) => {
                     video.onloadedmetadata = () => {
                         video.play();
                         resolve();
                     };
                 });
-
             } catch (error) {
                 console.error('Camera error:', error);
             }
         }
 
-        // ========== OPTIMIZED MEDIAPIPE ==========
+        // ========== MEDIAPIPE SETUP ==========
         async function initMediaPipe() {
-            console.log('Loading MediaPipe (optimized)...');
-
             hands = new self.Hands({
                 locateFile: (file) => {
                     return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
                 }
             });
 
-            // OPTIMIZED SETTINGS FOR SPEED
             hands.setOptions({
-                maxNumHands: 1, // Track only one hand for speed
+                maxNumHands: 1,
                 modelComplexity: config.modelComplexity,
                 minDetectionConfidence: config.detectionConfidence,
                 minTrackingConfidence: config.trackingConfidence,
@@ -468,38 +511,28 @@
 
             if (!isProcessing && video.videoWidth > 0 && hands) {
                 isProcessing = true;
-
-                // Send frame to MediaPipe
                 hands.send({ image: video })
                     .catch(error => console.error('Processing error:', error))
                     .finally(() => {
                         isProcessing = false;
-
-                        // Calculate processing time
                         const processTime = performance.now() - startTime;
                         processTimeDisplay.textContent = `${Math.round(processTime)}ms`;
-
-                        // Update latency display
-                        const latency = Date.now() - startTime;
-                        latencyDisplay.textContent = Math.round(latency);
+                        latencyDisplay.textContent = Math.round(Date.now() - startTime);
                     });
             }
 
-            // Update FPS counter
             updateFPS(timestamp);
-
-            // Continue loop
             requestAnimationFrame(processLoop);
         }
 
-        // ========== HANDLE RESULTS (OPTIMIZED) ==========
+        // ========== HANDLE RESULTS ==========
         function onResults(results) {
             const processStart = performance.now();
 
-            // Clear canvas efficiently
+            // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw video (mirrored)
+            // Draw video
             ctx.save();
             if (config.useMirror) {
                 ctx.scale(-1, 1);
@@ -508,20 +541,15 @@
             ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
             ctx.restore();
 
-            // Check for hands
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 const landmarks = results.multiHandLandmarks[0];
-
-                // Apply smoothing to reduce jitter
                 smoothedLandmarks = smoothLandmarks(landmarks, smoothedLandmarks);
 
-                // Draw hand with optimized visuals
-                drawHandOptimized(smoothedLandmarks);
+                // Draw hand with girly colors
+                drawHandGirly(smoothedLandmarks);
 
                 // Detect gesture
-                const gesture = detectGestureOptimized(smoothedLandmarks);
-
-                // Update display with gesture
+                const gesture = detectGesture(smoothedLandmarks);
                 updateGestureDisplay(gesture);
 
                 // Update stats
@@ -532,27 +560,28 @@
                     confidenceDisplay.textContent = `${Math.round(confidence)}%`;
                 }
 
-                // Create visual effects if enabled
+                // Create full-screen visual effects
                 if (config.showVisuals && gesture !== lastGesture) {
-                    createVisualEffect(gesture, landmarks);
+                    createFullScreenEffect(gesture, landmarks);
                     lastGesture = gesture;
                 }
 
+                // Update effect count
+                effectCountDisplay.textContent = activeEffects;
+
             } else {
-                // No hands detected
                 handCountDisplay.textContent = '0';
                 confidenceDisplay.textContent = '0%';
-                gestureDisplay.textContent = '👋 Show your hand!';
-                gestureDisplay.style.background = 'rgba(255, 100, 100, 0.1)';
-                lastGesture = ''; // Reset last gesture
+                gestureDisplay.innerHTML = '<i class="fas fa-hand-wave mr-2"></i>Wave your hand to begin magic!';
+                gestureDisplay.className = "text-3xl font-bold text-white";
+                lastGesture = '';
             }
 
-            // Calculate total processing time
             const totalTime = performance.now() - processStart;
             processTimeDisplay.textContent = `${Math.round(totalTime)}ms`;
         }
 
-        // ========== SMOOTHING FUNCTION ==========
+        // ========== SMOOTHING ==========
         function smoothLandmarks(newLandmarks, previousLandmarks) {
             if (!previousLandmarks) return newLandmarks;
 
@@ -571,16 +600,16 @@
             return smoothed;
         }
 
-        // ========== OPTIMIZED HAND DRAWING ==========
-        function drawHandOptimized(landmarks) {
-            // Draw connections with gradient
+        // ========== GIRLY HAND DRAWING ==========
+        function drawHandGirly(landmarks) {
+            // Draw connections with pink-purple gradient
             const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, '#00ff88');
-            gradient.addColorStop(0.5, '#00ffff');
-            gradient.addColorStop(1, '#ff00ff');
+            gradient.addColorStop(0, '#FF6B9D');
+            gradient.addColorStop(0.5, '#C77DFF');
+            gradient.addColorStop(1, '#FFB3C6');
 
             ctx.strokeStyle = gradient;
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 4;
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
 
@@ -595,7 +624,6 @@
 
             fingerConnections.forEach(finger => {
                 ctx.beginPath();
-
                 finger.forEach((pointIndex, i) => {
                     const point = landmarks[pointIndex];
                     let x = point.x * canvas.width;
@@ -611,11 +639,10 @@
                         ctx.lineTo(x, y);
                     }
                 });
-
                 ctx.stroke();
             });
 
-            // Draw landmarks as glowing dots
+            // Draw landmarks as sparkly dots
             landmarks.forEach((point, index) => {
                 let x = point.x * canvas.width;
                 let y = point.y * canvas.height;
@@ -624,64 +651,41 @@
                     x = canvas.width - x;
                 }
 
-                // Create glow effect
-                const radius = index === 0 ? 6 : 4; // Palm point larger
+                const radius = index === 0 ? 8 : 5;
 
                 // Outer glow
                 ctx.beginPath();
-                ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(0, 255, 136, 0.3)';
+                ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 107, 157, 0.3)';
                 ctx.fill();
 
                 // Inner dot
                 ctx.beginPath();
                 ctx.arc(x, y, radius, 0, Math.PI * 2);
-                ctx.fillStyle = index === 0 ? '#ff3366' : '#00ff88';
+                ctx.fillStyle = index === 0 ? '#FF6B9D' : '#C77DFF';
                 ctx.fill();
 
-                // Center highlight
+                // Sparkle highlight
                 ctx.beginPath();
                 ctx.arc(x, y, radius / 2, 0, Math.PI * 2);
                 ctx.fillStyle = 'white';
                 ctx.fill();
             });
-
-            // Draw hand center with special effect
-            const center = landmarks[0];
-            let centerX = center.x * canvas.width;
-            let centerY = center.y * canvas.height;
-
-            if (config.useMirror) {
-                centerX = canvas.width - centerX;
-            }
-
-            // Pulsing circle effect
-            const pulseSize = 15 + Math.sin(Date.now() * 0.005) * 5;
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, pulseSize, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(0, 255, 255, 0.5)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
         }
 
-        // ========== OPTIMIZED GESTURE DETECTION ==========
-        function detectGestureOptimized(landmarks) {
-            // Quick reference to key points
+        // ========== GESTURE DETECTION ==========
+        function detectGesture(landmarks) {
             const tips = [4, 8, 12, 16, 20];
             const bases = [2, 5, 9, 13, 17];
 
-            // Check finger states
             const fingerStates = tips.map((tipIdx, i) => {
                 const tip = landmarks[tipIdx];
                 const base = landmarks[bases[i]];
-                return tip.y < base.y; // Finger is up if tip is above base
+                return tip.y < base.y;
             });
 
-            // [thumb, index, middle, ring, pinky]
             const [thumbUp, indexUp, middleUp, ringUp, pinkyUp] = fingerStates;
 
-            // Quick gesture detection
             if (indexUp && middleUp && !ringUp && !pinkyUp) {
                 return "✌️ Peace Sign";
             } else if (indexUp && !middleUp && !ringUp && !pinkyUp) {
@@ -689,125 +693,315 @@
             } else if (!indexUp && !middleUp && !ringUp && !pinkyUp) {
                 return "✊ Fist";
             } else if (indexUp && middleUp && ringUp && pinkyUp) {
-                return "✋ Open Hand";
+                return "✋ Open Palm";
             } else if (indexUp && !middleUp && !ringUp && pinkyUp) {
                 return "🤘 Rock On";
             } else if (thumbUp && !indexUp && !middleUp && !ringUp && !pinkyUp) {
                 return "👍 Thumbs Up";
             } else {
-                return "✋ Detecting...";
+                return "🌸 Detecting...";
             }
         }
 
-        // ========== VISUAL EFFECTS ==========
-        function createVisualEffect(gesture, landmarks) {
+        // ========== EPIC FULL-SCREEN VISUAL EFFECTS ==========
+        function createFullScreenEffect(gesture, landmarks) {
             if (!config.showVisuals) return;
 
             const center = landmarks[0];
             const x = (config.useMirror ? (1 - center.x) : center.x) * window.innerWidth;
             const y = center.y * window.innerHeight;
 
-            // Clear previous effects if it's a fist (clear gesture)
-            if (gesture === "✊ Fist") {
-                visualEffectsContainer.innerHTML = '';
-                return;
-            }
-
-            // Create effect based on gesture
-            let color = '#00ff88';
-            let size = 50;
-
             switch (gesture) {
                 case "✌️ Peace Sign":
-                    color = '#00ffff';
-                    createParticles(x, y, color, 20);
+                    createFireworks(x, y);
                     break;
                 case "👆 Pointing":
-                    color = '#ff3366';
-                    createLaserBeam(x, y);
+                    createSparkleTrail(x, y);
                     break;
-                case "✋ Open Hand":
-                    color = '#ffcc00';
-                    createExplosion(x, y, color);
+                case "✊ Fist":
+                    clearAllEffects();
+                    break;
+                case "✋ Open Palm":
+                    createFlowerBloom(x, y);
                     break;
                 case "🤘 Rock On":
-                    color = '#ff00ff';
-                    createLightning(x, y);
+                    createHeartExplosion(x, y);
                     break;
                 case "👍 Thumbs Up":
-                    color = '#00ff88';
-                    createStars(x, y);
+                    createConfettiShower(x, y);
                     break;
             }
-
-            // Always create a circle effect for new gestures
-            const circle = document.createElement('div');
-            circle.className = 'effect-circle';
-            circle.style.left = `${x}px`;
-            circle.style.top = `${y}px`;
-            circle.style.width = `${size}px`;
-            circle.style.height = `${size}px`;
-            circle.style.background = `radial-gradient(circle, ${color} 0%, ${color}00 70%)`;
-
-            visualEffectsContainer.appendChild(circle);
-
-            // Remove after animation
-            setTimeout(() => {
-                if (circle.parentNode === visualEffectsContainer) {
-                    circle.remove();
-                }
-            }, 500);
         }
 
-        function createParticles(x, y, color, count) {
-            for (let i = 0; i < count; i++) {
+        // ========== EFFECT FUNCTIONS ==========
+        function createFireworks(x, y) {
+            for (let i = 0; i < 15; i++) {
                 setTimeout(() => {
-                    const particle = document.createElement('div');
-                    particle.className = 'effect-circle';
-                    particle.style.left = `${x}px`;
-                    particle.style.top = `${y}px`;
-                    particle.style.width = '20px';
-                    particle.style.height = '20px';
-                    particle.style.background = `radial-gradient(circle, ${color} 0%, ${color}00 70%)`;
+                    const firework = document.createElement('div');
+                    firework.className = 'firework';
+                    firework.style.left = `${Math.random() * window.innerWidth}px`;
+                    firework.style.top = `${window.innerHeight}px`;
 
-                    visualEffectsContainer.appendChild(particle);
+                    const colors = ['#FF6B9D', '#C77DFF', '#FFB3C6', '#FF9EBD', '#B65CFF'];
+                    const color = colors[Math.floor(Math.random() * colors.length)];
 
-                    // Animate movement
-                    const angle = Math.random() * Math.PI * 2;
-                    const distance = 50 + Math.random() * 100;
-                    const targetX = x + Math.cos(angle) * distance;
-                    const targetY = y + Math.sin(angle) * distance;
+                    // Launch firework
+                    firework.animate([
+                        { transform: 'translateY(0) scale(0)', opacity: 1 },
+                        { transform: `translateY(-${y}px) scale(1)`, opacity: 1 }
+                    ], {
+                        duration: 1000,
+                        easing: 'ease-out'
+                    });
 
-                    particle.animate([
-                        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-                        { transform: `translate(${targetX - x}px, ${targetY - y}px) scale(0)`, opacity: 0 }
+                    // Burst effect
+                    setTimeout(() => {
+                        for (let j = 0; j < 30; j++) {
+                            const particle = document.createElement('div');
+                            particle.className = 'effect-circle';
+                            particle.style.left = firework.style.left;
+                            particle.style.top = firework.style.top;
+                            particle.style.width = '10px';
+                            particle.style.height = '10px';
+                            particle.style.background = `radial-gradient(circle, ${color} 0%, ${color}00 70%)`;
+
+                            const angle = Math.random() * Math.PI * 2;
+                            const distance = 100 + Math.random() * 200;
+                            particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+                            particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
+
+                            visualEffectsContainer.appendChild(particle);
+                            activeEffects++;
+
+                            particle.animate([
+                                { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                                { transform: 'translate(var(--tx), var(--ty)) scale(0)', opacity: 0 }
+                            ], {
+                                duration: 1500,
+                                easing: 'ease-out'
+                            });
+
+                            setTimeout(() => {
+                                if (particle.parentNode) {
+                                    particle.remove();
+                                    activeEffects--;
+                                }
+                            }, 1500);
+                        }
+                        firework.remove();
+                    }, 1000);
+
+                    visualEffectsContainer.appendChild(firework);
+                    activeEffects++;
+                }, i * 100);
+            }
+        }
+
+        function createSparkleTrail(x, y) {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const sparkle = document.createElement('div');
+                    sparkle.className = 'sparkle';
+                    sparkle.style.left = `${x + Math.random() * 100 - 50}px`;
+                    sparkle.style.top = `${y + Math.random() * 100 - 50}px`;
+                    sparkle.style.width = '20px';
+                    sparkle.style.height = '20px';
+                    sparkle.style.background = 'radial-gradient(circle, #FFFFFF 0%, #FF6B9D 100%)';
+                    sparkle.style.borderRadius = '50%';
+                    sparkle.style.boxShadow = '0 0 15px #FFFFFF';
+
+                    visualEffectsContainer.appendChild(sparkle);
+                    activeEffects++;
+
+                    sparkle.animate([
+                        { transform: 'scale(0)', opacity: 1 },
+                        { transform: 'scale(1)', opacity: 0 }
                     ], {
                         duration: 1000,
                         easing: 'ease-out'
                     });
 
                     setTimeout(() => {
-                        if (particle.parentNode === visualEffectsContainer) {
-                            particle.remove();
+                        if (sparkle.parentNode) {
+                            sparkle.remove();
+                            activeEffects--;
                         }
                     }, 1000);
                 }, i * 30);
             }
         }
 
-        // ========== PERFORMANCE MONITORING ==========
-        function startPerformanceMonitor() {
-            setInterval(() => {
-                // Monitor memory if available
-                if (performance.memory) {
-                    const memoryMB = performance.memory.usedJSHeapSize / 1048576;
-                    if (memoryMB > 100) {
-                        console.warn(`High memory usage: ${memoryMB.toFixed(1)}MB`);
+        function createFlowerBloom(x, y) {
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    const flower = document.createElement('div');
+                    flower.className = 'effect-circle';
+                    flower.style.left = `${x}px`;
+                    flower.style.top = `${y}px`;
+                    flower.style.width = '150px';
+                    flower.style.height = '150px';
+                    flower.style.background = `radial-gradient(circle, #FF6B9D 0%, #FFB3C6 50%, transparent 70%)`;
+
+                    visualEffectsContainer.appendChild(flower);
+                    activeEffects++;
+
+                    flower.animate([
+                        { transform: 'scale(0) rotate(0deg)', opacity: 1 },
+                        { transform: 'scale(3) rotate(360deg)', opacity: 0 }
+                    ], {
+                        duration: 2000,
+                        easing: 'ease-out'
+                    });
+
+                    // Add petals
+                    for (let j = 0; j < 12; j++) {
+                        setTimeout(() => {
+                            const petal = document.createElement('div');
+                            petal.style.position = 'fixed';
+                            petal.style.left = `${x}px`;
+                            petal.style.top = `${y}px`;
+                            petal.style.width = '30px';
+                            petal.style.height = '60px';
+                            petal.style.background = `linear-gradient(to bottom, #FF6B9D, #FFB3C6)`;
+                            petal.style.borderRadius = '50%';
+                            petal.style.transformOrigin = 'center bottom';
+
+                            visualEffectsContainer.appendChild(petal);
+                            activeEffects++;
+
+                            const angle = (j * 30) * (Math.PI / 180);
+                            const distance = 100;
+
+                            petal.animate([
+                                { transform: `rotate(${j * 30}deg) translateY(0)`, opacity: 1 },
+                                { transform: `rotate(${j * 30}deg) translateY(${-distance}px)`, opacity: 0 }
+                            ], {
+                                duration: 1500,
+                                easing: 'ease-out'
+                            });
+
+                            setTimeout(() => {
+                                if (petal.parentNode) {
+                                    petal.remove();
+                                    activeEffects--;
+                                }
+                            }, 1500);
+                        }, j * 100);
                     }
-                }
-            }, 5000);
+
+                    setTimeout(() => {
+                        if (flower.parentNode) {
+                            flower.remove();
+                            activeEffects--;
+                        }
+                    }, 2000);
+                }, i * 300);
+            }
         }
 
+        function createHeartExplosion(x, y) {
+            for (let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.className = 'heart';
+                    heart.innerHTML = '❤️';
+                    heart.style.fontSize = '2rem';
+                    heart.style.left = `${x}px`;
+                    heart.style.top = `${y}px`;
+
+                    visualEffectsContainer.appendChild(heart);
+                    activeEffects++;
+
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 200 + Math.random() * 300;
+
+                    heart.animate([
+                        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                        { transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`, opacity: 0 }
+                    ], {
+                        duration: 2000,
+                        easing: 'ease-out'
+                    });
+
+                    setTimeout(() => {
+                        if (heart.parentNode) {
+                            heart.remove();
+                            activeEffects--;
+                        }
+                    }, 2000);
+                }, i * 50);
+            }
+        }
+
+        function createConfettiShower(x, y) {
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * window.innerWidth}px`;
+                confetti.style.top = `-20px`;
+
+                const colors = ['#FF6B9D', '#C77DFF', '#FFB3C6', '#FF9EBD', '#B65CFF', '#FFFFFF'];
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+
+                visualEffectsContainer.appendChild(confetti);
+                activeEffects++;
+
+                confetti.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(${window.innerHeight + 20}px) rotate(${360 + Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: 3000 + Math.random() * 2000,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.9, 1)'
+                });
+
+                setTimeout(() => {
+                    if (confetti.parentNode) {
+                        confetti.remove();
+                        activeEffects--;
+                    }
+                }, 5000);
+            }
+        }
+
+        function clearAllEffects() {
+            visualEffectsContainer.innerHTML = '';
+            activeEffects = 0;
+            effectCountDisplay.textContent = '0';
+        }
+
+        // ========== UI CONTROLS ==========
+        function toggleVisuals() {
+            config.showVisuals = !config.showVisuals;
+            const btn = document.querySelector('.effect-status');
+            btn.textContent = `Effects: ${config.showVisuals ? 'ON' : 'OFF'}`;
+
+            if (!config.showVisuals) {
+                clearAllEffects();
+            }
+        }
+
+        function togglePerformanceMode() {
+            config.highPerformance = !config.highPerformance;
+            config.modelComplexity = config.highPerformance ? 0 : 1;
+            const btn = document.querySelector('.performance-status');
+            btn.textContent = `Turbo: ${config.highPerformance ? 'ON' : 'OFF'}`;
+            initMediaPipe();
+        }
+
+        function calibrate() {
+            smoothedLandmarks = null;
+            gestureDisplay.innerHTML = '<i class="fas fa-cog animate-spin mr-2"></i>Calibrating...';
+
+            setTimeout(() => {
+                gestureDisplay.innerHTML = '<i class="fas fa-check-circle text-green-400 mr-2"></i>Calibrated!';
+                setTimeout(() => {
+                    gestureDisplay.innerHTML = '<i class="fas fa-wand-sparkles mr-2"></i>Wave to Begin!';
+                }, 1000);
+            }, 1000);
+        }
+
+        // ========== FPS MONITORING ==========
         function updateFPS(timestamp) {
             frameCount++;
 
@@ -821,153 +1015,33 @@
             lastFrameTime = timestamp;
         }
 
-        function updateGestureDisplay(gesture) {
-            gestureDisplay.textContent = gesture;
+        function startPerformanceMonitor() {
+            setInterval(() => {
+                if (performance.memory) {
+                    const memoryMB = performance.memory.usedJSHeapSize / 1048576;
+                    if (memoryMB > 100) {
+                        console.warn(`High memory usage: ${memoryMB.toFixed(1)}MB`);
+                    }
+                }
+            }, 5000);
+        }
 
-            // Add color based on gesture
+        function updateGestureDisplay(gesture) {
+            gestureDisplay.innerHTML = `<i class="fas fa-magic mr-2"></i>${gesture}`;
+
             const colors = {
-                "✌️ Peace Sign": 'rgba(0, 255, 255, 0.2)',
-                "👆 Pointing": 'rgba(255, 51, 102, 0.2)',
-                "✊ Fist": 'rgba(255, 204, 0, 0.2)',
-                "✋ Open Hand": 'rgba(0, 255, 136, 0.2)',
-                "🤘 Rock On": 'rgba(255, 0, 255, 0.2)',
-                "👍 Thumbs Up": 'rgba(0, 255, 136, 0.2)'
+                "✌️ Peace Sign": 'from-pink-450 to-purple-450',
+                "👆 Pointing": 'from-purple-450 to-accent',
+                "✊ Fist": 'from-accent to-pink-350',
+                "✋ Open Palm": 'from-pink-350 to-purple-450',
+                "🤘 Rock On": 'from-purple-450 to-pink-550',
+                "👍 Thumbs Up": 'from-pink-550 to-accent'
             };
 
-            gestureDisplay.style.background = colors[gesture] || 'rgba(255, 255, 255, 0.1)';
-
-            // Add animation
-            gestureDisplay.style.transform = 'scale(1.05)';
-            setTimeout(() => {
-                gestureDisplay.style.transform = 'scale(1)';
-            }, 100);
+            gestureDisplay.className = `text-3xl font-bold bg-gradient-to-r ${colors[gesture] || 'from-pink-450 to-purple-450'} bg-clip-text text-transparent`;
         }
 
-        // ========== UI CONTROLS ==========
-        function togglePerformanceMode() {
-            config.highPerformance = !config.highPerformance;
-            config.modelComplexity = config.highPerformance ? 0 : 1;
-
-            const btn = document.getElementById('performanceBtn');
-            btn.textContent = `⚡ Performance Mode: ${config.highPerformance ? 'ON' : 'OFF'}`;
-
-            // Reinitialize MediaPipe with new settings
-            initMediaPipe();
-        }
-
-        function toggleVisuals() {
-            config.showVisuals = !config.showVisuals;
-            const btn = document.getElementById('visualsBtn');
-            btn.textContent = `✨ Visual Effects: ${config.showVisuals ? 'ON' : 'OFF'}`;
-
-            // Clear existing effects
-            if (!config.showVisuals) {
-                visualEffectsContainer.innerHTML = '';
-            }
-        }
-
-        function calibrate() {
-            // Reset smoothing
-            smoothedLandmarks = null;
-
-            // Show calibration message
-            gestureDisplay.textContent = '🎯 Calibrating...';
-            gestureDisplay.style.background = 'rgba(255, 204, 0, 0.3)';
-
-            setTimeout(() => {
-                gestureDisplay.textContent = '✅ Calibrated!';
-                setTimeout(() => {
-                    gestureDisplay.textContent = '👋 Show your hand!';
-                }, 1000);
-            }, 1000);
-        }
-
-        function toggleCamera() {
-            // Implementation for camera switching
-            alert('Camera switching would be implemented here!');
-        }
-
-        // Helper functions for effects
-        function createLaserBeam(x, y) {
-            const beam = document.createElement('div');
-            beam.style.cssText = `
-                position: absolute;
-                left: ${x}px;
-                top: ${y}px;
-                width: 100px;
-                height: 3px;
-                background: linear-gradient(90deg, #ff3366, #ff336600);
-                transform-origin: 0 0;
-                z-index: 1000;
-            `;
-
-            const angle = Math.random() * Math.PI * 2;
-            beam.style.transform = `rotate(${angle}rad)`;
-
-            visualEffectsContainer.appendChild(beam);
-
-            beam.animate([
-                { transform: `rotate(${angle}rad) scaleX(0)`, opacity: 1 },
-                { transform: `rotate(${angle}rad) scaleX(1)`, opacity: 0 }
-            ], {
-                duration: 300,
-                easing: 'ease-out'
-            });
-
-            setTimeout(() => {
-                if (beam.parentNode === visualEffectsContainer) {
-                    beam.remove();
-                }
-            }, 300);
-        }
-
-        function createExplosion(x, y, color) {
-            createParticles(x, y, color, 30);
-        }
-
-        function createLightning(x, y) {
-            for (let i = 0; i < 3; i++) {
-                setTimeout(() => {
-                    createLaserBeam(x, y);
-                }, i * 100);
-            }
-        }
-
-        function createStars(x, y) {
-            for (let i = 0; i < 10; i++) {
-                setTimeout(() => {
-                    const star = document.createElement('div');
-                    star.style.cssText = `
-                        position: absolute;
-                        left: ${x + Math.random() * 100 - 50}px;
-                        top: ${y + Math.random() * 100 - 50}px;
-                        width: 20px;
-                        height: 20px;
-                        background: radial-gradient(circle, #ffffff 0%, ${'#00ff88'} 100%);
-                        border-radius: 50%;
-                        z-index: 1000;
-                    `;
-
-                    visualEffectsContainer.appendChild(star);
-
-                    star.animate([
-                        { transform: 'scale(0)', opacity: 1 },
-                        { transform: 'scale(1)', opacity: 0 }
-                    ], {
-                        duration: 1000,
-                        easing: 'ease-out'
-                    });
-
-                    setTimeout(() => {
-                        if (star.parentNode === visualEffectsContainer) {
-                            star.remove();
-                        }
-                    }, 1000);
-                }, i * 50);
-            }
-        }
-
-        // ========== START EVERYTHING ==========
+        // ========== START APPLICATION ==========
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
