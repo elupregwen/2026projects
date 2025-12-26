@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hand Gesture Detector</title>
-    <meta name="description" content="Detect hand gestures using computer vision.">
+     <meta name="description" content="Detect hand gestures using computer vision.">
     <meta name="keywords" content="hand gesture, computer vision, webcam, gesture detection">
     <style>
         * {
@@ -208,7 +210,6 @@
             height: 100%;
             pointer-events: none;
             z-index: 50;
-            overflow: visible;
         }
         
         .effect-circle {
@@ -671,20 +672,10 @@
             
             lastGesture = gesture;
             
-            // Get hand center position - use wrist point (index 0)
+            // Get hand center position
             const center = landmarks[0];
-            
-            // Calculate position relative to CANVAS, not window
-            // Canvas coordinates are already mirrored in drawing
-            let canvasX = center.x * canvas.width;
-            let canvasY = center.y * canvas.height;
-            
-            // Get canvas position on page
-            const canvasRect = canvas.getBoundingClientRect();
-            
-            // Convert to screen coordinates
-            const screenX = canvasRect.left + (config.useMirror ? (canvas.width - canvasX) : canvasX);
-            const screenY = canvasRect.top + canvasY;
+            const screenX = (config.useMirror ? (1 - center.x) : center.x) * window.innerWidth;
+            const screenY = center.y * window.innerHeight;
             
             // Create effect based on gesture
             switch(gesture) {
