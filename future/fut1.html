@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🌸 Hand Gesture Magic ✨</title>
+    <title>Hand Gesture Magic</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,18 +15,22 @@
                         primary: '#FF6B9D',
                         secondary: '#FF9EBD',
                         accent: '#FFB3C6',
+                        dark: '#0f172a',
+                        light: '#f8fafc',
                         pink: {
-                            100: '#FFF0F5',
-                            200: '#FFE1EB',
-                            300: '#FFC2D6',
+                            250: '#FFD6E0',
                             350: '#FF9EBD',
-                            400: '#FF85AB',
                             450: '#FF6B9D',
-                            500: '#FF5294',
                             550: '#FF4785',
-                            600: '#FF3D76',
                             650: '#FF2D6D'
+                        },
+                        purple: {
+                            450: '#FF9EBD',
+                            550: '#FF6B9D'
                         }
+                    },
+                    spacing: {
+                        '128': '32rem',
                     },
                     animation: {
                         'pulse-slow': 'pulse 3s ease-in-out infinite',
@@ -34,9 +38,6 @@
                         'float': 'float 6s ease-in-out infinite',
                         'sparkle': 'sparkle 2s ease-in-out infinite',
                         'heartbeat': 'heartbeat 1.5s ease-in-out infinite',
-                        'glow': 'glow 2s ease-in-out infinite',
-                        'slide-up': 'slideUp 0.5s ease-out',
-                        'fade-in': 'fadeIn 0.8s ease-out'
                     },
                     keyframes: {
                         float: {
@@ -50,18 +51,6 @@
                         heartbeat: {
                             '0%, 100%': { transform: 'scale(1)' },
                             '50%': { transform: 'scale(1.1)' },
-                        },
-                        glow: {
-                            '0%, 100%': { opacity: 1 },
-                            '50%': { opacity: 0.7 }
-                        },
-                        slideUp: {
-                            '0%': { transform: 'translateY(20px)', opacity: 0 },
-                            '100%': { transform: 'translateY(0)', opacity: 1 }
-                        },
-                        fadeIn: {
-                            '0%': { opacity: 0 },
-                            '100%': { opacity: 1 }
                         }
                     }
                 }
@@ -81,16 +70,10 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, 
-                #FFF0F5 0%, 
-                #FFE1EB 25%, 
-                #FFC2D6 50%, 
-                #FF9EBD 75%, 
-                #FF6B9D 100%);
+            background: linear-gradient(135deg, #ffb3c6 0%, #ff9ecc 25%, #ff9ecc 50%, #ff8cc6 75%, #ff6b9d 100%);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
             min-height: 100vh;
-            overflow: hidden;
         }
 
         @keyframes gradient {
@@ -142,29 +125,60 @@
                 opacity: 1;
             }
             100% {
-                transform: scale(3);
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        @keyframes big-boom {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        @keyframes firework-burst {
+            0% {
+                transform: translate(0, 0) scale(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(1);
+                opacity: 0;
+            }
+        }
+
+        @keyframes float-up {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
                 opacity: 0;
             }
         }
 
         /* Glass morphism */
         .glass {
-            background: rgba(255, 255, 255, 0.25);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px rgba(255, 107, 157, 0.1);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .glass-dark {
             background: rgba(255, 107, 157, 0.15);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(255, 107, 157, 0.15);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         /* Custom scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
 
         ::-webkit-scrollbar-track {
@@ -179,8 +193,7 @@
 
         /* Glow effects */
         .glow-pink {
-            box-shadow: 0 0 30px rgba(255, 107, 157, 0.3),
-                        inset 0 0 20px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 25px rgba(255, 107, 157, 0.4);
         }
 
         /* Hidden video */
@@ -196,134 +209,93 @@
         .transition-all {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        /* Canvas styling */
-        #canvasOutput {
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(255, 107, 157, 0.25);
-        }
-
-        /* Floating elements */
-        .floating {
-            animation: float 6s ease-in-out infinite;
-        }
     </style>
 </head>
-<body class="text-gray-800 overflow-hidden">
+<body class="text-gray-800 overflow-x-hidden">
     <!-- Visual Effects Container -->
-    <div id="visualEffects" class="fixed inset-0 pointer-events-none z-40"></div>
+    <div id="visualEffects" class="fixed inset-0 pointer-events-none z-50"></div>
 
-    <!-- Floating Hearts Background -->
-    <div class="fixed inset-0 pointer-events-none z-30">
-        <div class="absolute top-10 left-10 heart text-3xl text-pink-400 opacity-30">❤️</div>
-        <div class="absolute top-20 right-20 heart text-2xl text-pink-300 opacity-30">✨</div>
-        <div class="absolute bottom-20 left-1/4 heart text-4xl text-pink-500 opacity-30">🌸</div>
-        <div class="absolute bottom-10 right-1/3 heart text-3xl text-pink-450 opacity-30">💖</div>
+    <!-- FPS Meter -->
+    <div class="fixed top-4 right-4 glass px-4 py-2 rounded-full z-40 glow-pink">
+        <span class="text-sm font-semibold text-white">
+            <i class="fas fa-tachometer-alt mr-1"></i>
+            FPS: <span id="fps" class="text-pink-250">0</span> | 
+            <i class="fas fa-clock ml-2 mr-1"></i>
+            <span id="latency" class="text-pink-250">0</span>ms
+        </span>
     </div>
 
-    <div class="h-screen p-4 lg:p-8 flex flex-col">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
         <!-- Header -->
-        <div class="flex justify-between items-center mb-6 lg:mb-8">
-            <div class="glass rounded-2xl px-6 py-3 glow-pink animate-slide-up">
-                <h1 class="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-pink-600 via-pink-500 to-pink-400 bg-clip-text text-transparent">
-                    <i class="fas fa-magic mr-2"></i>
+        <header class="text-center mb-8">
+            <div class="glass rounded-3xl p-6 mb-4 glow-pink">
+                <h1 class="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-pink-450 via-pink-350 to-pink-650 bg-clip-text text-transparent">
+                    <i class="fas fa-magic mr-3"></i>
                     Hand Gesture Magic
-                    <i class="fas fa-sparkles ml-2"></i>
+                    <i class="fas fa-sparkles ml-3"></i>
                 </h1>
+                <p class="text-lg text-white/90 font-light">
+                    Wave your hand to create magical effects across your screen! ✨
+                </p>
             </div>
-            
-            <!-- FPS Meter -->
-            <div class="glass rounded-2xl px-4 py-2 glow-pink animate-slide-up">
-                <span class="text-sm font-semibold text-pink-600">
-                    <i class="fas fa-tachometer-alt mr-1"></i>
-                    FPS: <span id="fps" class="text-pink-500 font-bold">0</span>
-                    <span class="mx-2">•</span>
-                    <i class="fas fa-clock mr-1"></i>
-                    <span id="latency" class="text-pink-500 font-bold">0</span>ms
-                </span>
-            </div>
-        </div>
+        </header>
 
-        <!-- Main Content -->
-        <div class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8">
-            <!-- Left Column - Camera Output (3/4) -->
-            <div class="lg:col-span-3 flex flex-col">
-                <div class="glass-dark rounded-3xl p-5 lg:p-6 flex-1 flex flex-col">
-                    <div class="flex items-center mb-4 lg:mb-6">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center mr-3 shadow-lg">
-                            <i class="fas fa-camera text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl lg:text-2xl font-bold text-white">Magic Camera ✨</h2>
-                            <p class="text-pink-200 text-sm">Real-time hand tracking with effects</p>
-                        </div>
+        <!-- Main Content - 3/4 and 1/4 layout -->
+        <div class="flex flex-col lg:flex-row gap-6 mb-6">
+            <!-- Left Column - Magic Output (3/4) -->
+            <div class="lg:w-3/4">
+                <div class="glass-dark rounded-3xl p-5 h-full">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-hand-sparkles text-2xl text-pink-250 mr-3"></i>
+                        <h2 class="text-2xl font-bold text-white">Magic Output ✨</h2>
                     </div>
-                    
-                    <!-- Camera Output - Larger -->
-                    <div class="flex-1 relative rounded-2xl overflow-hidden bg-gradient-to-br from-pink-100/20 to-pink-300/20 border-2 border-white/30">
-                        <canvas id="canvasOutput" class="w-full h-full object-cover" width="1280" height="720"></canvas>
+                    <div class="relative rounded-2xl overflow-hidden bg-black/50">
+                        <canvas id="canvasOutput" class="w-full h-80 lg:h-96 object-cover" width="640" height="480"></canvas>
                         <video id="videoInput" autoplay playsinline muted></video>
-                        
-                        <!-- Live indicator -->
-                        <div class="absolute top-4 right-4">
-                            <div class="glass px-3 py-1 rounded-full flex items-center">
-                                <div class="w-2 h-2 rounded-full bg-red-400 animate-pulse mr-2"></div>
-                                <span class="text-xs text-white font-medium">LIVE</span>
-                            </div>
-                        </div>
-                        
-                        <!-- Instructions -->
-                        <div class="absolute bottom-4 left-4 right-4 glass rounded-xl p-3">
-                            <div class="flex items-center justify-between">
-                                <div class="text-white text-sm">
-                                    <i class="fas fa-hand-point-right mr-2"></i>
-                                    Wave your hand to start the magic!
-                                </div>
-                                <div id="gestureDisplay" class="text-pink-200 font-bold text-sm animate-glow">
-                                    <i class="fas fa-wand-sparkles mr-1"></i>
-                                    Waiting...
-                                </div>
-                            </div>
+                        <div class="absolute bottom-4 left-4 glass px-3 py-1 rounded-full">
+                            <span class="text-sm text-white">
+                                <i class="fas fa-video mr-1"></i> Live Magic
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Quick Spell Guide - Single Row -->
-                    <div class="mt-6 lg:mt-8 animate-fade-in">
-                        <div class="glass rounded-2xl p-4">
-                            <div class="flex items-center mb-3">
-                                <i class="fas fa-book-sparkles text-pink-400 mr-2"></i>
-                                <h3 class="text-lg font-bold text-white">Quick Spell Guide ✨</h3>
+                    <!-- Spell Book - Below Camera Output -->
+                    <div class="mt-6">
+                        <div class="glass rounded-2xl p-5">
+                            <div class="flex items-center mb-4">
+                                <i class="fas fa-book-open text-xl text-pink-250 mr-2"></i>
+                                <h3 class="text-xl font-bold text-white">Quick Spell Guide ✨</h3>
                             </div>
-                            <div class="grid grid-cols-6 gap-2">
-                                <div class="glass rounded-xl p-2 text-center hover:scale-105 transition-transform duration-300">
-                                    <div class="text-2xl mb-1 text-pink-400">✋</div>
-                                    <div class="font-bold text-white text-xs mb-0.5">Open Palm</div>
-                                    <div class="text-[10px] text-pink-200">Flowers</div>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <div class="glass rounded-xl p-3 text-center hover:scale-105 transition-transform duration-300">
+                                    <div class="text-2xl mb-2 text-pink-350">✋</div>
+                                    <div class="font-bold text-white text-sm mb-1">Open Palm</div>
+                                    <div class="text-xs text-white/70">Flower Bloom</div>
                                 </div>
-                                <div class="glass rounded-xl p-2 text-center hover:scale-105 transition-transform duration-300">
-                                    <div class="text-2xl mb-1 text-pink-400">✌️</div>
-                                    <div class="font-bold text-white text-xs mb-0.5">Peace</div>
-                                    <div class="text-[10px] text-pink-200">Fireworks</div>
+                                <div class="glass rounded-xl p-3 text-center hover:scale-105 transition-transform duration-300">
+                                    <div class="text-2xl mb-2 text-pink-350">✌️</div>
+                                    <div class="font-bold text-white text-sm mb-1">Peace Sign</div>
+                                    <div class="text-xs text-white/70">Fireworks</div>
                                 </div>
-                                <div class="glass rounded-xl p-2 text-center hover:scale-105 transition-transform duration-300">
-                                    <div class="text-2xl mb-1 text-pink-400">👆</div>
-                                    <div class="font-bold text-white text-xs mb-0.5">Pointing</div>
-                                    <div class="text-[10px] text-pink-200">Sparkles</div>
+                                <div class="glass rounded-xl p-3 text-center hover:scale-105 transition-transform duration-300">
+                                    <div class="text-2xl mb-2 text-pink-350">👆</div>
+                                    <div class="font-bold text-white text-sm mb-1">Pointing</div>
+                                    <div class="text-xs text-white/70">Sparkle Trail</div>
                                 </div>
-                                <div class="glass rounded-xl p-2 text-center hover:scale-105 transition-transform duration-300">
-                                    <div class="text-2xl mb-1 text-pink-400">🤘</div>
-                                    <div class="font-bold text-white text-xs mb-0.5">Rock On</div>
-                                    <div class="text-[10px] text-pink-200">Hearts</div>
+                                <div class="glass rounded-xl p-3 text-center hover:scale-105 transition-transform duration-300">
+                                    <div class="text-2xl mb-2 text-pink-350">🤘</div>
+                                    <div class="font-bold text-white text-sm mb-1">Rock On</div>
+                                    <div class="text-xs text-white/70">Hearts</div>
                                 </div>
-                                <div class="glass rounded-xl p-2 text-center hover:scale-105 transition-transform duration-300">
-                                    <div class="text-2xl mb-1 text-pink-400">✊</div>
-                                    <div class="font-bold text-white text-xs mb-0.5">Fist</div>
-                                    <div class="text-[10px] text-pink-200">Clear All</div>
+                                <div class="glass rounded-xl p-3 text-center hover:scale-105 transition-transform duration-300">
+                                    <div class="text-2xl mb-2 text-pink-350">✊</div>
+                                    <div class="font-bold text-white text-sm mb-1">Fist</div>
+                                    <div class="text-xs text-white/70">Clear All</div>
                                 </div>
-                                <div class="glass rounded-xl p-2 text-center hover:scale-105 transition-transform duration-300">
-                                    <div class="text-2xl mb-1 text-pink-400">👍</div>
-                                    <div class="font-bold text-white text-xs mb-0.5">Thumbs Up</div>
-                                    <div class="text-[10px] text-pink-200">Confetti</div>
+                                <div class="glass rounded-xl p-3 text-center hover:scale-105 transition-transform duration-300">
+                                    <div class="text-2xl mb-2 text-pink-350">👍</div>
+                                    <div class="font-bold text-white text-sm mb-1">Thumbs Up</div>
+                                    <div class="text-xs text-white/70">Confetti</div>
                                 </div>
                             </div>
                         </div>
@@ -332,104 +304,103 @@
             </div>
 
             <!-- Right Column - Magic Stats (1/4) -->
-            <div class="lg:col-span-1">
-                <div class="glass-dark rounded-3xl p-5 lg:p-6 h-full flex flex-col">
+            <div class="lg:w-1/4">
+                <div class="glass-dark rounded-3xl p-5 h-full">
                     <div class="flex items-center mb-6">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 flex items-center justify-center mr-3 shadow-lg">
-                            <i class="fas fa-chart-line text-white text-lg"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-xl lg:text-2xl font-bold text-white">Magic Stats</h2>
-                            <p class="text-pink-200 text-sm">Real-time tracking data</p>
+                        <i class="fas fa-chart-bar text-2xl text-pink-250 mr-3"></i>
+                        <h2 class="text-2xl font-bold text-white">Magic Stats 🌸</h2>
+                    </div>
+
+                    <!-- Current Gesture -->
+                    <div class="glass rounded-2xl p-5 mb-6 text-center animate-pulse-slow">
+                        <div class="text-xs text-white/70 mb-2 uppercase tracking-wider">Current Magic Spell</div>
+                        <div id="gestureDisplay" class="text-xl font-bold bg-gradient-to-r from-pink-250 via-pink-350 to-pink-450 bg-clip-text text-transparent">
+                            <i class="fas fa-wand-sparkles mr-2"></i>
+                            Wave to Begin!
                         </div>
                     </div>
 
                     <!-- Stats Grid -->
-                    <div class="space-y-4 mb-6 flex-1">
-                        <!-- Current Gesture -->
-                        <div class="glass rounded-2xl p-4 text-center animate-pulse-slow">
-                            <div class="text-xs text-pink-200 mb-1 uppercase tracking-wider">Active Spell</div>
-                            <div id="currentGesture" class="text-xl font-bold bg-gradient-to-r from-pink-300 via-pink-400 to-pink-500 bg-clip-text text-transparent">
-                                <i class="fas fa-magic mr-1"></i>
-                                Ready
+                    <div class="space-y-4 mb-6">
+                        <div class="glass rounded-2xl p-4">
+                            <div class="flex justify-between items-center">
+                                <div class="text-sm text-white/70">
+                                    <i class="fas fa-hands mr-2"></i> Hands
+                                </div>
+                                <div id="handCount" class="text-xl font-bold text-pink-250">0</div>
                             </div>
                         </div>
                         
-                        <!-- Stats Cards -->
                         <div class="glass rounded-2xl p-4">
-                            <div class="flex items-center mb-2">
-                                <div class="w-8 h-8 rounded-full bg-pink-400/20 flex items-center justify-center mr-2">
-                                    <i class="fas fa-hands text-pink-300"></i>
+                            <div class="flex justify-between items-center">
+                                <div class="text-sm text-white/70">
+                                    <i class="fas fa-star mr-2"></i> Confidence
                                 </div>
-                                <div class="text-sm text-pink-200">Hands Detected</div>
+                                <div id="confidence" class="text-xl font-bold text-pink-350">0%</div>
                             </div>
-                            <div id="handCount" class="text-3xl font-bold text-white text-center">0</div>
                         </div>
                         
                         <div class="glass rounded-2xl p-4">
-                            <div class="flex items-center mb-2">
-                                <div class="w-8 h-8 rounded-full bg-pink-400/20 flex items-center justify-center mr-2">
-                                    <i class="fas fa-star text-pink-300"></i>
+                            <div class="flex justify-between items-center">
+                                <div class="text-sm text-white/70">
+                                    <i class="fas fa-bolt mr-2"></i> Speed
                                 </div>
-                                <div class="text-sm text-pink-200">Confidence</div>
+                                <div id="processTime" class="text-xl font-bold text-pink-250">0ms</div>
                             </div>
-                            <div id="confidence" class="text-3xl font-bold text-white text-center">0%</div>
                         </div>
                         
                         <div class="glass rounded-2xl p-4">
-                            <div class="flex items-center mb-2">
-                                <div class="w-8 h-8 rounded-full bg-pink-400/20 flex items-center justify-center mr-2">
-                                    <i class="fas fa-bolt text-pink-300"></i>
+                            <div class="flex justify-between items-center">
+                                <div class="text-sm text-white/70">
+                                    <i class="fas fa-sparkles mr-2"></i> Effects
                                 </div>
-                                <div class="text-sm text-pink-200">Processing</div>
+                                <div id="effectCount" class="text-xl font-bold text-pink-350">0</div>
                             </div>
-                            <div id="processTime" class="text-3xl font-bold text-white text-center">0ms</div>
-                        </div>
-                        
-                        <div class="glass rounded-2xl p-4">
-                            <div class="flex items-center mb-2">
-                                <div class="w-8 h-8 rounded-full bg-pink-400/20 flex items-center justify-center mr-2">
-                                    <i class="fas fa-sparkles text-pink-300"></i>
-                                </div>
-                                <div class="text-sm text-pink-200">Active Effects</div>
-                            </div>
-                            <div id="effectCount" class="text-3xl font-bold text-white text-center">0</div>
                         </div>
                     </div>
 
                     <!-- Controls -->
                     <div class="glass rounded-2xl p-4">
-                        <h3 class="text-lg font-semibold text-white mb-3 flex items-center">
-                            <i class="fas fa-sliders-h mr-2"></i> Controls
+                        <h3 class="text-lg font-semibold text-white mb-3">
+                            <i class="fas fa-sliders-h mr-2"></i> Magic Controls
                         </h3>
                         <div class="space-y-3">
                             <button onclick="toggleVisuals()" id="visualsBtn" 
-                                    class="w-full bg-gradient-to-r from-pink-400 to-pink-600 hover:from-pink-500 hover:to-pink-400 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg">
+                                    class="w-full bg-gradient-to-r from-pink-450 to-pink-650 hover:from-pink-550 hover:to-pink-450 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-95">
                                 <i class="fas fa-sparkles mr-2"></i>
                                 <span class="effect-status">Effects: ON</span>
                             </button>
                             <button onclick="togglePerformanceMode()" id="performanceBtn" 
-                                    class="w-full bg-gradient-to-r from-pink-300 to-pink-500 hover:from-pink-400 hover:to-pink-300 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 shadow-lg">
+                                    class="w-full bg-gradient-to-r from-pink-350 to-pink-550 hover:from-pink-450 hover:to-pink-350 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-95">
                                 <i class="fas fa-bolt mr-2"></i>
-                                <span class="performance-status">Turbo Mode</span>
+                                <span class="performance-status">Turbo: ON</span>
                             </button>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="calibrate()" 
-                                        class="bg-gradient-to-r from-pink-200 to-pink-400 hover:from-pink-300 hover:to-pink-200 text-white font-bold py-2 px-3 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 text-sm shadow">
-                                    <i class="fas fa-sync-alt mr-1"></i>
-                                    Calibrate
-                                </button>
-                                <button onclick="clearAllEffects()" 
-                                        class="bg-gradient-to-r from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-bold py-2 px-3 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 text-sm shadow">
-                                    <i class="fas fa-broom mr-1"></i>
-                                    Clear All
-                                </button>
-                            </div>
+                            <button onclick="calibrate()" 
+                                    class="w-full bg-gradient-to-r from-pink-250 to-pink-450 hover:from-pink-350 hover:to-pink-250 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-95">
+                                <i class="fas fa-sync-alt mr-2"></i>
+                                Calibrate Magic
+                            </button>
+                            <button onclick="clearAllEffects()" 
+                                    class="w-full bg-gradient-to-r from-rose-400 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-bold py-3 px-4 rounded-xl transition-all duration-300 hover:scale-[1.02] active:scale-95">
+                                <i class="fas fa-broom mr-2"></i>
+                                Clear All Effects
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <footer class="text-center glass-dark rounded-3xl p-4">
+            <p class="text-white/70 text-sm">
+                <i class="fas fa-heart text-pink-250 mr-2 animate-pulse"></i>
+                Made with love and magic! 
+                <i class="fas fa-star text-yellow-200 mx-2 animate-sparkle"></i>
+                Try all the gestures to see different effects
+                <i class="fas fa-magic text-pink-350 ml-2"></i>
+            </p>
+        </footer>
     </div>
 
     <!-- Load MediaPipe -->
@@ -438,8 +409,8 @@
     <script>
         // ========== CONFIGURATION ==========
         const config = {
-            width: 1280,
-            height: 720,
+            width: 640,
+            height: 480,
             useMirror: true,
             highPerformance: true,
             showVisuals: true,
@@ -455,7 +426,6 @@
         const fpsDisplay = document.getElementById('fps');
         const latencyDisplay = document.getElementById('latency');
         const gestureDisplay = document.getElementById('gestureDisplay');
-        const currentGestureDisplay = document.getElementById('currentGesture');
         const handCountDisplay = document.getElementById('handCount');
         const confidenceDisplay = document.getElementById('confidence');
         const processTimeDisplay = document.getElementById('processTime');
@@ -477,7 +447,7 @@
 
         // ========== INITIALIZATION ==========
         async function init() {
-            console.log('🌸 Initializing Full-Screen Magic...');
+            console.log('🌸 Initializing Hand Gesture Magic...');
 
             try {
                 await startCamera();
@@ -550,7 +520,7 @@
                     .finally(() => {
                         isProcessing = false;
                         const processTime = performance.now() - startTime;
-                        processTimeDisplay.textContent = `${Math.round(processTime)}`;
+                        processTimeDisplay.textContent = `${Math.round(processTime)}ms`;
                         latencyDisplay.textContent = Math.round(Date.now() - startTime);
                     });
             }
@@ -566,14 +536,12 @@
             // Clear canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Draw video with pink overlay
+            // Draw video
             ctx.save();
             if (config.useMirror) {
                 ctx.scale(-1, 1);
                 ctx.translate(-canvas.width, 0);
             }
-            
-            // Draw video with pink tint
             ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height);
             ctx.restore();
 
@@ -581,8 +549,8 @@
                 const landmarks = results.multiHandLandmarks[0];
                 smoothedLandmarks = smoothLandmarks(landmarks, smoothedLandmarks);
 
-                // Draw hand with aesthetic pink theme
-                drawHandAesthetic(smoothedLandmarks);
+                // Draw hand with pink colors
+                drawHandPink(smoothedLandmarks);
 
                 // Detect gesture
                 const gesture = detectGesture(smoothedLandmarks);
@@ -593,7 +561,7 @@
                 
                 if (results.multiHandedness && results.multiHandedness[0]) {
                     const confidence = results.multiHandedness[0].score * 100;
-                    confidenceDisplay.textContent = `${Math.round(confidence)}`;
+                    confidenceDisplay.textContent = `${Math.round(confidence)}%`;
                 }
 
                 // Create full-screen visual effects
@@ -607,14 +575,14 @@
 
             } else {
                 handCountDisplay.textContent = '0';
-                confidenceDisplay.textContent = '0';
-                gestureDisplay.innerHTML = '<i class="fas fa-hand-wave mr-1"></i>Wave your hand!';
-                currentGestureDisplay.innerHTML = '<i class="fas fa-wand-sparkles mr-1"></i>Ready';
+                confidenceDisplay.textContent = '0%';
+                gestureDisplay.innerHTML = '<i class="fas fa-hand-wave mr-2"></i>Wave your hand!';
+                gestureDisplay.className = "text-xl font-bold text-white";
                 lastGesture = '';
             }
 
             const totalTime = performance.now() - processStart;
-            processTimeDisplay.textContent = `${Math.round(totalTime)}`;
+            processTimeDisplay.textContent = `${Math.round(totalTime)}ms`;
         }
 
         // ========== SMOOTHING ==========
@@ -636,20 +604,18 @@
             return smoothed;
         }
 
-        // ========== AESTHETIC HAND DRAWING ==========
-        function drawHandAesthetic(landmarks) {
-            // Draw connections with soft pink gradient
+        // ========== PINK HAND DRAWING ==========
+        function drawHandPink(landmarks) {
+            // Draw connections with pink gradient
             const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             gradient.addColorStop(0, '#FF6B9D');
             gradient.addColorStop(0.5, '#FF9EBD');
-            gradient.addColorStop(1, '#FFC2D6');
+            gradient.addColorStop(1, '#FFB3C6');
 
             ctx.strokeStyle = gradient;
-            ctx.lineWidth = 6;
+            ctx.lineWidth = 4;
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
-            ctx.shadowColor = 'rgba(255, 107, 157, 0.5)';
-            ctx.shadowBlur = 15;
 
             // Draw finger connections
             const fingerConnections = [
@@ -680,9 +646,7 @@
                 ctx.stroke();
             });
 
-            ctx.shadowBlur = 0;
-
-            // Draw landmarks as glowing dots
+            // Draw landmarks as sparkly dots
             landmarks.forEach((point, index) => {
                 let x = point.x * canvas.width;
                 let y = point.y * canvas.height;
@@ -691,54 +655,26 @@
                     x = canvas.width - x;
                 }
 
-                const radius = index === 0 ? 10 : 6;
+                const radius = index === 0 ? 8 : 5;
 
                 // Outer glow
                 ctx.beginPath();
-                ctx.arc(x, y, radius + 4, 0, Math.PI * 2);
+                ctx.arc(x, y, radius + 3, 0, Math.PI * 2);
                 ctx.fillStyle = 'rgba(255, 107, 157, 0.3)';
                 ctx.fill();
 
                 // Inner dot
                 ctx.beginPath();
                 ctx.arc(x, y, radius, 0, Math.PI * 2);
-                const innerGradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
-                innerGradient.addColorStop(0, '#FFFFFF');
-                innerGradient.addColorStop(0.5, '#FF9EBD');
-                innerGradient.addColorStop(1, '#FF6B9D');
-                ctx.fillStyle = innerGradient;
+                ctx.fillStyle = index === 0 ? '#FF6B9D' : '#FF9EBD';
                 ctx.fill();
 
                 // Sparkle highlight
                 ctx.beginPath();
-                ctx.arc(x - radius/3, y - radius/3, radius/4, 0, Math.PI * 2);
+                ctx.arc(x, y, radius / 2, 0, Math.PI * 2);
                 ctx.fillStyle = 'white';
                 ctx.fill();
             });
-
-            // Draw hand center with magical effect
-            const center = landmarks[0];
-            let centerX = center.x * canvas.width;
-            let centerY = center.y * canvas.height;
-
-            if (config.useMirror) {
-                centerX = canvas.width - centerX;
-            }
-
-            // Pulsing magical circle
-            const pulseSize = 25 + Math.sin(Date.now() * 0.003) * 8;
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, pulseSize, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, pulseSize - 5, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(255, 107, 157, 0.8)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
         }
 
         // ========== GESTURE DETECTION ==========
@@ -803,40 +739,49 @@
 
         // ========== EFFECT FUNCTIONS ==========
         function createFireworks(x, y) {
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 12; i++) {
                 setTimeout(() => {
                     const firework = document.createElement('div');
                     firework.className = 'firework';
                     firework.style.left = `${Math.random() * window.innerWidth}px`;
                     firework.style.top = `${window.innerHeight}px`;
                     
-                    const colors = ['#FF6B9D', '#FF9EBD', '#FFC2D6', '#FF85AB', '#FF5294'];
+                    const colors = ['#FF6B9D', '#FF9EBD', '#FFB3C6', '#FF8CC6', '#FF4785'];
                     const color = colors[Math.floor(Math.random() * colors.length)];
                     
-                    visualEffectsContainer.appendChild(firework);
-                    activeEffects++;
+                    // Launch firework
+                    firework.animate([
+                        { transform: 'translateY(0) scale(0)', opacity: 1 },
+                        { transform: `translateY(-${y}px) scale(1)`, opacity: 1 }
+                    ], {
+                        duration: 1000,
+                        easing: 'ease-out'
+                    });
 
+                    // Burst effect
                     setTimeout(() => {
-                        for (let j = 0; j < 20; j++) {
+                        for (let j = 0; j < 25; j++) {
                             const particle = document.createElement('div');
                             particle.className = 'effect-circle';
                             particle.style.left = firework.style.left;
                             particle.style.top = firework.style.top;
-                            particle.style.width = '12px';
-                            particle.style.height = '12px';
+                            particle.style.width = '10px';
+                            particle.style.height = '10px';
                             particle.style.background = `radial-gradient(circle, ${color} 0%, ${color}00 70%)`;
                             
                             const angle = Math.random() * Math.PI * 2;
-                            const distance = 150 + Math.random() * 250;
+                            const distance = 100 + Math.random() * 200;
+                            particle.style.setProperty('--tx', `${Math.cos(angle) * distance}px`);
+                            particle.style.setProperty('--ty', `${Math.sin(angle) * distance}px`);
                             
                             visualEffectsContainer.appendChild(particle);
                             activeEffects++;
 
                             particle.animate([
                                 { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-                                { transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`, opacity: 0 }
+                                { transform: 'translate(var(--tx), var(--ty)) scale(0)', opacity: 0 }
                             ], {
-                                duration: 1800,
+                                duration: 1500,
                                 easing: 'ease-out'
                             });
 
@@ -845,74 +790,126 @@
                                     particle.remove();
                                     activeEffects--;
                                 }
-                            }, 1800);
+                            }, 1500);
                         }
-                        if (firework.parentNode) {
-                            firework.remove();
-                            activeEffects--;
-                        }
-                    }, 800);
-                }, i * 150);
+                        firework.remove();
+                    }, 1000);
+
+                    visualEffectsContainer.appendChild(firework);
+                    activeEffects++;
+                }, i * 100);
             }
         }
 
         function createSparkleTrail(x, y) {
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 40; i++) {
                 setTimeout(() => {
                     const sparkle = document.createElement('div');
                     sparkle.className = 'sparkle';
                     sparkle.style.left = `${x + Math.random() * 100 - 50}px`;
                     sparkle.style.top = `${y + Math.random() * 100 - 50}px`;
-                    sparkle.style.width = '25px';
-                    sparkle.style.height = '25px';
+                    sparkle.style.width = '20px';
+                    sparkle.style.height = '20px';
                     sparkle.style.background = 'radial-gradient(circle, #FFFFFF 0%, #FF6B9D 100%)';
                     sparkle.style.borderRadius = '50%';
-                    sparkle.style.boxShadow = '0 0 20px #FFFFFF';
+                    sparkle.style.boxShadow = '0 0 15px #FFFFFF';
 
                     visualEffectsContainer.appendChild(sparkle);
                     activeEffects++;
+
+                    sparkle.animate([
+                        { transform: 'scale(0)', opacity: 1 },
+                        { transform: 'scale(1)', opacity: 0 }
+                    ], {
+                        duration: 1000,
+                        easing: 'ease-out'
+                    });
 
                     setTimeout(() => {
                         if (sparkle.parentNode) {
                             sparkle.remove();
                             activeEffects--;
                         }
-                    }, 2000);
-                }, i * 40);
+                    }, 1000);
+                }, i * 30);
             }
         }
 
         function createFlowerBloom(x, y) {
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 6; i++) {
                 setTimeout(() => {
                     const flower = document.createElement('div');
                     flower.className = 'effect-circle';
                     flower.style.left = `${x}px`;
                     flower.style.top = `${y}px`;
-                    flower.style.width = '200px';
-                    flower.style.height = '200px';
-                    flower.style.background = `radial-gradient(circle, #FF6B9D 0%, #FFC2D6 50%, transparent 70%)`;
+                    flower.style.width = '120px';
+                    flower.style.height = '120px';
+                    flower.style.background = `radial-gradient(circle, #FF6B9D 0%, #FFB3C6 50%, transparent 70%)`;
                     
                     visualEffectsContainer.appendChild(flower);
                     activeEffects++;
+
+                    flower.animate([
+                        { transform: 'scale(0) rotate(0deg)', opacity: 1 },
+                        { transform: 'scale(2.5) rotate(360deg)', opacity: 0 }
+                    ], {
+                        duration: 1800,
+                        easing: 'ease-out'
+                    });
+
+                    // Add petals
+                    for (let j = 0; j < 10; j++) {
+                        setTimeout(() => {
+                            const petal = document.createElement('div');
+                            petal.style.position = 'fixed';
+                            petal.style.left = `${x}px`;
+                            petal.style.top = `${y}px`;
+                            petal.style.width = '25px';
+                            petal.style.height = '50px';
+                            petal.style.background = `linear-gradient(to bottom, #FF6B9D, #FFB3C6)`;
+                            petal.style.borderRadius = '50%';
+                            petal.style.transformOrigin = 'center bottom';
+                            
+                            visualEffectsContainer.appendChild(petal);
+                            activeEffects++;
+
+                            const angle = (j * 36) * (Math.PI / 180);
+                            const distance = 80;
+                            
+                            petal.animate([
+                                { transform: `rotate(${j * 36}deg) translateY(0)`, opacity: 1 },
+                                { transform: `rotate(${j * 36}deg) translateY(${-distance}px)`, opacity: 0 }
+                            ], {
+                                duration: 1200,
+                                easing: 'ease-out'
+                            });
+
+                            setTimeout(() => {
+                                if (petal.parentNode) {
+                                    petal.remove();
+                                    activeEffects--;
+                                }
+                            }, 1200);
+                        }, j * 80);
+                    }
 
                     setTimeout(() => {
                         if (flower.parentNode) {
                             flower.remove();
                             activeEffects--;
                         }
-                    }, 2000);
-                }, i * 300);
+                    }, 1800);
+                }, i * 250);
             }
         }
 
         function createHeartExplosion(x, y) {
-            for (let i = 0; i < 20; i++) {
+            for (let i = 0; i < 25; i++) {
                 setTimeout(() => {
                     const heart = document.createElement('div');
                     heart.className = 'heart';
-                    heart.innerHTML = '💖';
-                    heart.style.fontSize = '2rem';
+                    heart.innerHTML = '❤️';
+                    heart.style.fontSize = '1.5rem';
                     heart.style.left = `${x}px`;
                     heart.style.top = `${y}px`;
                     
@@ -920,38 +917,54 @@
                     activeEffects++;
 
                     const angle = Math.random() * Math.PI * 2;
-                    const distance = 200 + Math.random() * 300;
+                    const distance = 150 + Math.random() * 200;
                     
+                    heart.animate([
+                        { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+                        { transform: `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px) scale(0)`, opacity: 0 }
+                    ], {
+                        duration: 1800,
+                        easing: 'ease-out'
+                    });
+
                     setTimeout(() => {
                         if (heart.parentNode) {
                             heart.remove();
                             activeEffects--;
                         }
-                    }, 2000);
-                }, i * 60);
+                    }, 1800);
+                }, i * 40);
             }
         }
 
         function createConfettiShower(x, y) {
-            for (let i = 0; i < 60; i++) {
+            for (let i = 0; i < 80; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
                 confetti.style.left = `${Math.random() * window.innerWidth}px`;
                 confetti.style.top = `-20px`;
                 
-                const colors = ['#FF6B9D', '#FF9EBD', '#FFC2D6', '#FFFFFF', '#FFE1EB'];
+                const colors = ['#FF6B9D', '#FF9EBD', '#FFB3C6', '#FF8CC6', '#FFFFFF', '#FFD6E0'];
                 confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                 confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
                 
                 visualEffectsContainer.appendChild(confetti);
                 activeEffects++;
 
+                confetti.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: 1 },
+                    { transform: `translateY(${window.innerHeight + 20}px) rotate(${360 + Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: 2500 + Math.random() * 1500,
+                    easing: 'cubic-bezier(0.1, 0.8, 0.9, 1)'
+                });
+
                 setTimeout(() => {
                     if (confetti.parentNode) {
                         confetti.remove();
                         activeEffects--;
                     }
-                }, 3500);
+                }, 4000);
             }
         }
 
@@ -976,18 +989,18 @@
             config.highPerformance = !config.highPerformance;
             config.modelComplexity = config.highPerformance ? 0 : 1;
             const btn = document.querySelector('.performance-status');
-            btn.textContent = config.highPerformance ? 'Turbo: ON' : 'Turbo: OFF';
+            btn.textContent = `Turbo: ${config.highPerformance ? 'ON' : 'OFF'}`;
             initMediaPipe();
         }
 
         function calibrate() {
             smoothedLandmarks = null;
-            currentGestureDisplay.innerHTML = '<i class="fas fa-cog animate-spin mr-1"></i>Calibrating...';
+            gestureDisplay.innerHTML = '<i class="fas fa-cog animate-spin mr-2"></i>Calibrating...';
             
             setTimeout(() => {
-                currentGestureDisplay.innerHTML = '<i class="fas fa-check-circle mr-1"></i>Calibrated!';
+                gestureDisplay.innerHTML = '<i class="fas fa-check-circle text-green-300 mr-2"></i>Calibrated!';
                 setTimeout(() => {
-                    currentGestureDisplay.innerHTML = '<i class="fas fa-wand-sparkles mr-1"></i>Ready';
+                    gestureDisplay.innerHTML = '<i class="fas fa-wand-sparkles mr-2"></i>Wave to Begin!';
                 }, 1000);
             }, 1000);
         }
@@ -1010,7 +1023,7 @@
             setInterval(() => {
                 if (performance.memory) {
                     const memoryMB = performance.memory.usedJSHeapSize / 1048576;
-                    if (memoryMB > 150) {
+                    if (memoryMB > 100) {
                         console.warn(`High memory usage: ${memoryMB.toFixed(1)}MB`);
                     }
                 }
@@ -1018,19 +1031,18 @@
         }
 
         function updateGestureDisplay(gesture) {
-            gestureDisplay.innerHTML = `<i class="fas fa-magic mr-1"></i>${gesture}`;
-            currentGestureDisplay.innerHTML = `<i class="fas fa-magic mr-1"></i>${gesture}`;
+            gestureDisplay.innerHTML = `<i class="fas fa-magic mr-2"></i>${gesture}`;
             
             const colors = {
-                "✌️ Peace Sign": 'from-pink-400 to-pink-600',
-                "👆 Pointing": 'from-pink-300 to-pink-500',
-                "✊ Fist": 'from-pink-500 to-pink-300',
+                "✌️ Peace Sign": 'from-pink-350 to-pink-450',
+                "👆 Pointing": 'from-pink-250 to-pink-350',
+                "✊ Fist": 'from-pink-450 to-pink-650',
                 "✋ Open Palm": 'from-pink-350 to-pink-550',
                 "🤘 Rock On": 'from-pink-550 to-pink-450',
-                "👍 Thumbs Up": 'from-pink-450 to-pink-350'
+                "👍 Thumbs Up": 'from-pink-450 to-pink-250'
             };
 
-            currentGestureDisplay.className = `text-xl font-bold bg-gradient-to-r ${colors[gesture] || 'from-pink-300 to-pink-500'} bg-clip-text text-transparent`;
+            gestureDisplay.className = `text-xl font-bold bg-gradient-to-r ${colors[gesture] || 'from-pink-250 to-pink-450'} bg-clip-text text-transparent`;
         }
 
         // ========== START APPLICATION ==========
