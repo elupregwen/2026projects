@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kodama Fireflies - Ghibli Forest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: #0a190f;
+            overflow-x: hidden;
+        }
+        
+        /* Custom animations for fireflies */
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-20px) translateX(10px); }
+            50% { transform: translateY(-10px) translateX(-10px); }
+            75% { transform: translateY(-15px) translateX(5px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.1); }
+        }
+        
+        /* Tree silhouette styling */
+        .tree {
+            position: absolute;
+            bottom: 0;
+            background: #000;
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .tree-1 {
+            width: 40px;
+            height: 300px;
+            left: 10%;
+            box-shadow: 5px 0 15px rgba(0, 20, 5, 0.8);
+        }
+        
+        .tree-2 {
+            width: 60px;
+            height: 400px;
+            left: 25%;
+            box-shadow: 5px 0 15px rgba(0, 20, 5, 0.8);
+        }
+        
+        .tree-3 {
+            width: 50px;
+            height: 350px;
+            left: 45%;
+            box-shadow: 5px 0 15px rgba(0, 20, 5, 0.8);
+        }
+        
+        .tree-4 {
+            width: 70px;
+            height: 450px;
+            right: 25%;
+            box-shadow: -5px 0 15px rgba(0, 20, 5, 0.8);
+        }
+        
+        .tree-5 {
+            width: 45px;
+            height: 320px;
+            right: 10%;
+            box-shadow: -5px 0 15px rgba(0, 20, 5, 0.8);
+        }
+        
+        /* Firefly/kodama dots */
+        .firefly {
+            position: absolute;
+            border-radius: 50%;
+            background: #c1ffc1;
+            box-shadow: 0 0 10px #a8ffa8, 0 0 20px #90ff90;
+            animation: float 15s infinite ease-in-out, pulse 4s infinite ease-in-out;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .tree-2, .tree-4 {
+                height: 300px;
+            }
+            .firefly {
+                width: 4px;
+                height: 4px;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-200 min-h-screen relative">
+    <!-- Main container -->
+    <div class="relative min-h-screen overflow-hidden">
+        
+        <!-- Moon -->
+        <div class="absolute top-10 right-10 w-24 h-24 rounded-full bg-gradient-to-br from-gray-300 to-gray-100 opacity-30 shadow-2xl"></div>
+        
+        <!-- Stars -->
+        <div class="absolute top-0 left-0 w-full h-full">
+            <div id="stars"></div>
+        </div>
+        
+        <!-- Trees -->
+        <div class="absolute bottom-0 left-0 w-full h-2/3">
+            <div class="tree tree-1"></div>
+            <div class="tree tree-2"></div>
+            <div class="tree tree-3"></div>
+            <div class="tree tree-4"></div>
+            <div class="tree tree-5"></div>
+            
+            <!-- Additional tree details -->
+            <div class="absolute bottom-0 left-0 w-full h-64 bg-gradient-to-t from-black to-transparent"></div>
+        </div>
+        
+        <!-- Fireflies/Kodama -->
+        <div id="fireflies-container"></div>
+        
+        <!-- Content -->
+        <div class="relative z-10 container mx-auto px-4 py-12">
+            <header class="text-center mb-12">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4 tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-green-200 to-emerald-400">
+                    <i class="fas fa-tree mr-4"></i>Kodama Fireflies<i class="fas fa-tree ml-4"></i>
+                </h1>
+                <p class="text-xl md:text-2xl text-green-100 italic max-w-3xl mx-auto">
+                    From a distance, the kodama spirits glow like fireflies in the mystical Ghibli forest
+                </p>
+            </header>
+            
+            <main class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+                    <div class="bg-black/40 backdrop-blur-sm p-8 rounded-2xl border border-green-900/50 shadow-2xl">
+                        <h2 class="text-3xl font-bold mb-6 text-green-300 flex items-center">
+                            <i class="fas fa-seedling mr-3"></i> The Kodama Spirits
+                        </h2>
+                        <p class="text-lg mb-6 leading-relaxed">
+                            In Studio Ghibli's <span class="font-bold text-green-200">Princess Mononoke</span>, the kodama are forest spirits that appear as small, white humanoid creatures with rattling heads. When seen from afar at night, their gentle glow resembles fireflies dancing among the trees.
+                        </p>
+                        <p class="text-lg mb-6 leading-relaxed">
+                            They are indicators of a healthy forest ecosystem. When many kodama appear, it signifies the forest is thriving. Their mysterious greenish glow creates an ethereal atmosphere that captures the magic of Ghibli's natural worlds.
+                        </p>
+                        <div class="flex items-center text-green-200">
+                            <i class="fas fa-quote-left text-2xl mr-4 opacity-70"></i>
+                            <p class="text-xl italic">"They say when the kodama disappear, the forest dies."</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-black/40 backdrop-blur-sm p-8 rounded-2xl border border-green-900/50 shadow-2xl">
+                        <h2 class="text-3xl font-bold mb-6 text-green-300 flex items-center">
+                            <i class="fas fa-firefly mr-3"></i> Firefly Illusion
+                        </h2>
+                        <p class="text-lg mb-6 leading-relaxed">
+                            From a distance, the visual effect of kodama glowing in the dark forest is strikingly similar to observing fireflies. Both create points of gentle, floating light that twinkle and move unpredictably through the trees.
+                        </p>
+                        <ul class="space-y-4 mb-8">
+                            <li class="flex items-start">
+                                <i class="fas fa-circle text-xs mt-2 mr-3 text-green-400"></i>
+                                <span><span class="font-bold text-green-200">Bioluminescence:</span> Fireflies produce light chemically, while kodama glow with mystical energy.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-circle text-xs mt-2 mr-3 text-green-400"></i>
+                                <span><span class="font-bold text-green-200">Movement Patterns:</span> Both move in gentle, floating patterns that seem to follow unseen currents.</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-circle text-xs mt-2 mr-3 text-green-400"></i>
+                                <span><span class="font-bold text-green-200">Atmosphere:</span> Their collective glow creates a magical, ethereal environment that feels alive.</span>
+                            </li>
+                        </ul>
+                        <div class="text-center">
+                            <button id="toggleFireflies" class="bg-gradient-to-r from-green-800 to-emerald-900 hover:from-green-700 hover:to-emerald-800 text-white font-bold py-3 px-8 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg">
+                                <i class="fas fa-magic mr-2"></i> Enhance the Glow
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Ghibli Quote -->
+                <div class="text-center my-16">
+                    <div class="inline-block bg-black/30 p-2 rounded-full mb-6">
+                        <i class="fas fa-film text-3xl text-green-400"></i>
+                    </div>
+                    <blockquote class="max-w-4xl mx-auto text-2xl md:text-3xl italic text-green-100 leading-relaxed">
+                        "The forest is alive, both day and night, filled with spirits and mysteries. 
+                        What may look like fireflies from a distance could very well be the kodama watching over their home."
+                    </blockquote>
+                    <p class="text-green-300 mt-6 text-xl">- Princess Mononoke, Studio Ghibli</p>
+                </div>
+            </main>
+            
+            <footer class="text-center mt-20 pb-10">
+                <p class="text-green-300/70">A tribute to the magical worlds of Studio Ghibli • Kodama Fireflies Illusion</p>
+                <div class="flex justify-center space-x-6 mt-6 text-2xl text-green-400/60">
+                    <i class="fab fa-pagelines hover:text-green-300 transition-colors cursor-pointer"></i>
+                    <i class="fas fa-tree hover:text-green-300 transition-colors cursor-pointer"></i>
+                    <i class="fas fa-moon hover:text-green-300 transition-colors cursor-pointer"></i>
+                    <i class="fas fa-firefly hover:text-green-300 transition-colors cursor-pointer"></i>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Create stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'absolute rounded-full bg-white';
+            star.style.width = Math.random() * 3 + 'px';
+            star.style.height = star.style.width;
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.opacity = Math.random() * 0.7 + 0.1;
+            star.style.animation = `twinkle ${Math.random() * 10 + 5}s infinite ease-in-out`;
+            star.style.animationDelay = Math.random() * 5 + 's';
+            starsContainer.appendChild(star);
+        }
+        
+        // Create fireflies/kodama
+        const firefliesContainer = document.getElementById('fireflies-container');
+        const fireflies = [];
+        
+        function createFirefly() {
+            const firefly = document.createElement('div');
+            firefly.className = 'firefly';
+            
+            // Random size for variety
+            const size = Math.random() * 6 + 3;
+            firefly.style.width = size + 'px';
+            firefly.style.height = size + 'px';
+            
+            // Random position
+            firefly.style.left = Math.random() * 100 + '%';
+            firefly.style.top = Math.random() * 80 + 10 + '%'; // Avoid top and bottom edges
+            
+            // Random color variation (greenish glow)
+            const greenValue = Math.floor(Math.random() * 100 + 155);
+            const blueValue = Math.floor(Math.random() * 50 + 180);
+            firefly.style.background = `rgb(${greenValue - 50}, ${greenValue}, ${blueValue})`;
+            firefly.style.boxShadow = `0 0 ${size*2}px rgb(${greenValue - 30}, ${greenValue + 30}, ${blueValue})`;
+            
+            // Random animation duration and delay
+            const floatDuration = Math.random() * 20 + 15;
+            const pulseDuration = Math.random() * 3 + 2;
+            firefly.style.animation = `float ${floatDuration}s infinite ease-in-out, pulse ${pulseDuration}s infinite ease-in-out`;
+            firefly.style.animationDelay = Math.random() * 10 + 's';
+            
+            firefliesContainer.appendChild(firefly);
+            fireflies.push(firefly);
+        }
+        
+        // Create initial fireflies
+        for (let i = 0; i < 60; i++) {
+            createFirefly();
+        }
+        
+        // Toggle fireflies intensity
+        const toggleButton = document.getElementById('toggleFireflies');
+        let enhanced = false;
+        
+        toggleButton.addEventListener('click', function() {
+            enhanced = !enhanced;
+            
+            if (enhanced) {
+                // Add more fireflies and brighten existing ones
+                for (let i = 0; i < 30; i++) {
+                    createFirefly();
+                }
+                
+                // Brighten existing fireflies
+                fireflies.forEach(firefly => {
+                    firefly.style.opacity = '0.9';
+                    firefly.style.boxShadow = firefly.style.boxShadow.replace('10px', '15px').replace('20px', '30px');
+                });
+                
+                toggleButton.innerHTML = '<i class="fas fa-moon mr-2"></i> Dim the Glow';
+                toggleButton.classList.remove('from-green-800', 'to-emerald-900');
+                toggleButton.classList.add('from-yellow-800', 'to-amber-900');
+                
+                // Change moon to be brighter
+                document.querySelector('.absolute.top-10.right-10').classList.remove('opacity-30');
+                document.querySelector('.absolute.top-10.right-10').classList.add('opacity-70');
+            } else {
+                // Remove extra fireflies (keep only first 60)
+                while (fireflies.length > 60) {
+                    const firefly = fireflies.pop();
+                    if (firefly && firefly.parentNode) {
+                        firefly.parentNode.removeChild(firefly);
+                    }
+                }
+                
+                // Dim existing fireflies
+                fireflies.forEach(firefly => {
+                    firefly.style.opacity = '0.5';
+                    firefly.style.boxShadow = firefly.style.boxShadow.replace('15px', '10px').replace('30px', '20px');
+                });
+                
+                toggleButton.innerHTML = '<i class="fas fa-magic mr-2"></i> Enhance the Glow';
+                toggleButton.classList.remove('from-yellow-800', 'to-amber-900');
+                toggleButton.classList.add('from-green-800', 'to-emerald-900');
+                
+                // Change moon back to dim
+                document.querySelector('.absolute.top-10.right-10').classList.remove('opacity-70');
+                document.querySelector('.absolute.top-10.right-10').classList.add('opacity-30');
+            }
+        });
+        
+        // Make fireflies interactive
+        document.addEventListener('mousemove', function(e) {
+            // Only affect some fireflies randomly
+            fireflies.forEach((firefly, index) => {
+                if (index % 7 === 0) { // Only affect every 7th firefly
+                    const rect = firefly.getBoundingClientRect();
+                    const fireflyX = rect.left + rect.width / 2;
+                    const fireflyY = rect.top + rect.height / 2;
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(e.clientX - fireflyX, 2) + 
+                        Math.pow(e.clientY - fireflyY, 2)
+                    );
+                    
+                    if (distance < 150) {
+                        // Move firefly away from cursor
+                        const dx = e.clientX - fireflyX;
+                        const dy = e.clientY - fireflyY;
+                        
+                        const moveX = -dx * 0.02;
+                        const moveY = -dy * 0.02;
+                        
+                        const currentLeft = parseFloat(firefly.style.left);
+                        const currentTop = parseFloat(firefly.style.top);
+                        
+                        firefly.style.left = (currentLeft + moveX) + '%';
+                        firefly.style.top = (currentTop + moveY) + '%';
+                        
+                        // Brighten when cursor is near
+                        firefly.style.opacity = '0.9';
+                        
+                        // Reset opacity after a short time
+                        setTimeout(() => {
+                            if (!enhanced) {
+                                firefly.style.opacity = '0.5';
+                            }
+                        }, 500);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
