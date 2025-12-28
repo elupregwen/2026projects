@@ -3,116 +3,512 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magical Fluffy Tree</title>
+    <title>Fluffy Tree - Three.js</title>
     <style>
-        body {
+        * {
             margin: 0;
-            overflow: hidden;
-            background: linear-gradient(to bottom, #87CEEB, #98FB98); /* Soft sky to grass gradient, Ghibli-inspired */
+            padding: 0;
+            box-sizing: border-box;
         }
-        #canvas {
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        #container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            margin-top: 20px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
             display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        
+        .value-display {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-align: right;
+        }
+        
+        .checkbox {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox input {
+            margin-right: 10px;
+        }
+        
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+        }
+        
+        canvas {
+            display: block;
+        }
+        
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            color: #4CAF50;
+        }
+        
+        #stats {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+        
+        @media (max-width: 768px) {
+            #info {
+                max-width: 300px;
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
+    <div id="container">
+        <div id="info">
+            <h1>Fluffy Tree with Three.js</h1>
+            <p>This implementation shows the fluffy tree effect using custom GLSL shaders. The foliage uses a vertex shader to create a billboard-like effect that always faces the camera.</p>
+            
+            <div class="controls">
+                <div class="control-group">
+                    <label for="effectBlend">Effect Blend</label>
+                    <input type="range" id="effectBlend" min="0" max="1" step="0.01" value="1">
+                    <div class="value-display" id="effectBlendValue">1.00</div>
+                </div>
+                
+                <div class="checkbox">
+                    <input type="checkbox" id="remapUVs" checked>
+                    <label for="remapUVs">Remap UVs</label>
+                </div>
+                
+                <div class="checkbox">
+                    <input type="checkbox" id="normalizeOffset" checked>
+                    <label for="normalizeOffset">Normalize Offset</label>
+                </div>
+                
+                <div class="control-group">
+                    <label for="windStrength">Wind Strength</label>
+                    <input type="range" id="windStrength" min="0" max="2" step="0.01" value="0.5">
+                    <div class="value-display" id="windStrengthValue">0.50</div>
+                </div>
+                
+                <div class="control-group">
+                    <label for="windSpeed">Wind Speed</label>
+                    <input type="range" id="windSpeed" min="0" max="2" step="0.01" value="0.3">
+                    <div class="value-display" id="windSpeedValue">0.30</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="canvas-container"></div>
+        
+        <div class="loading" id="loading">Loading fluffy tree...</div>
+    </div>
+
+    <!-- Three.js and related libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    
     <script>
-        // Scene setup
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('canvas'), antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-        // Camera position
-        camera.position.set(0, 5, 10);
-        camera.lookAt(0, 0, 0);
-
-        // Lighting for magical feel
-        const ambientLight = new THREE.AmbientLight(0x404040, 0.6); // Soft ambient
-        scene.add(ambientLight);
-
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(5, 10, 5);
-        directionalLight.castShadow = true;
-        scene.add(directionalLight);
-
-        // Add a point light for glow
-        const pointLight = new THREE.PointLight(0xffa500, 1, 100); // Warm orange glow
-        pointLight.position.set(0, 8, 0);
-        scene.add(pointLight);
-
-        // Tree trunk
-        const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.3, 4, 8);
-        const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 }); // Brown
-        const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-        trunk.position.y = 2;
-        trunk.castShadow = true;
-        scene.add(trunk);
-
-        // Fluffy foliage using instanced spheres for a magical, Ghibli-like effect
-        const foliageGeometry = new THREE.SphereGeometry(0.3, 8, 6);
-        const foliageMaterial = new THREE.MeshPhongMaterial({
-            color: 0x228B22, // Green
-            emissive: 0x004400, // Slight glow
-            transparent: true,
-            opacity: 0.8,
-            shininess: 100
-        });
-
-        // Create multiple foliage clusters
-        const foliageCount = 50;
-        const foliageGroup = new THREE.Group();
-        for (let i = 0; i < foliageCount; i++) {
-            const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
-            // Random positions around the top of the trunk for fluffiness
-            foliage.position.set(
-                (Math.random() - 0.5) * 4,
-                4 + Math.random() * 3,
-                (Math.random() - 0.5) * 4
-            );
-            foliage.scale.setScalar(0.5 + Math.random() * 0.5); // Vary sizes
-            foliage.castShadow = true;
-            foliageGroup.add(foliage);
-        }
-        scene.add(foliageGroup);
-
-        // Add some sparkle particles for magic
-        const sparkleGeometry = new THREE.BufferGeometry();
-        const sparkleCount = 100;
-        const positions = new Float32Array(sparkleCount * 3);
-        for (let i = 0; i < sparkleCount; i++) {
-            positions[i * 3] = (Math.random() - 0.5) * 10;
-            positions[i * 3 + 1] = Math.random() * 10;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
-        }
-        sparkleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        const sparkleMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 });
-        const sparkles = new THREE.Points(sparkleGeometry, sparkleMaterial);
-        scene.add(sparkles);
-
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            // Gentle swaying for magical feel
-            foliageGroup.rotation.y += 0.005;
-            foliageGroup.children.forEach((foliage, index) => {
-                foliage.position.y += Math.sin(Date.now() * 0.001 + index) * 0.002;
+        // Wait for DOM to load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Main variables
+            let scene, camera, renderer, controls;
+            let treeGroup, foliageMaterial;
+            let clock = new THREE.Clock();
+            
+            // UI elements
+            const loadingElement = document.getElementById('loading');
+            const effectBlendSlider = document.getElementById('effectBlend');
+            const effectBlendValue = document.getElementById('effectBlendValue');
+            const remapUVsCheckbox = document.getElementById('remapUVs');
+            const normalizeOffsetCheckbox = document.getElementById('normalizeOffset');
+            const windStrengthSlider = document.getElementById('windStrength');
+            const windStrengthValue = document.getElementById('windStrengthValue');
+            const windSpeedSlider = document.getElementById('windSpeed');
+            const windSpeedValue = document.getElementById('windSpeedValue');
+            
+            // Update value displays
+            effectBlendSlider.addEventListener('input', function() {
+                effectBlendValue.textContent = parseFloat(this.value).toFixed(2);
+                if (foliageMaterial) {
+                    foliageMaterial.uniforms.u_effectBlend.value = parseFloat(this.value);
+                }
             });
-            // Sparkles floating
-            sparkles.rotation.y += 0.01;
-            renderer.render(scene, camera);
-        }
-        animate();
-
-        // Handle window resize
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+            
+            windStrengthSlider.addEventListener('input', function() {
+                windStrengthValue.textContent = parseFloat(this.value).toFixed(2);
+                if (foliageMaterial) {
+                    foliageMaterial.uniforms.u_windStrength.value = parseFloat(this.value);
+                }
+            });
+            
+            windSpeedSlider.addEventListener('input', function() {
+                windSpeedValue.textContent = parseFloat(this.value).toFixed(2);
+                if (foliageMaterial) {
+                    foliageMaterial.uniforms.u_windSpeed.value = parseFloat(this.value);
+                }
+            });
+            
+            remapUVsCheckbox.addEventListener('change', function() {
+                if (foliageMaterial) {
+                    foliageMaterial.uniforms.u_remap.value = this.checked ? 1.0 : 0.0;
+                }
+            });
+            
+            normalizeOffsetCheckbox.addEventListener('change', function() {
+                if (foliageMaterial) {
+                    foliageMaterial.uniforms.u_normalize.value = this.checked ? 1.0 : 0.0;
+                }
+            });
+            
+            // Initialize the scene
+            function init() {
+                // Create scene
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x87CEEB); // Sky blue
+                scene.fog = new THREE.Fog(0x87CEEB, 10, 50);
+                
+                // Create camera
+                camera = new THREE.PerspectiveCamera(
+                    60, 
+                    window.innerWidth / window.innerHeight, 
+                    0.1, 
+                    1000
+                );
+                camera.position.set(5, 3, 5);
+                
+                // Create renderer
+                renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                document.getElementById('canvas-container').appendChild(renderer.domElement);
+                
+                // Add orbit controls
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                
+                // Add lights
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+                scene.add(ambientLight);
+                
+                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+                directionalLight.position.set(5, 10, 7);
+                directionalLight.castShadow = true;
+                directionalLight.shadow.mapSize.width = 2048;
+                directionalLight.shadow.mapSize.height = 2048;
+                scene.add(directionalLight);
+                
+                // Add ground
+                const groundGeometry = new THREE.PlaneGeometry(50, 50);
+                const groundMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x3d5a3d,
+                    roughness: 0.8 
+                });
+                const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+                ground.rotation.x = -Math.PI / 2;
+                ground.receiveShadow = true;
+                scene.add(ground);
+                
+                // Create custom foliage material
+                createFoliageMaterial();
+                
+                // Create tree
+                createTree();
+                
+                // Add some additional trees in the distance
+                for (let i = 0; i < 5; i++) {
+                    const angle = (i / 5) * Math.PI * 2;
+                    const radius = 15 + Math.random() * 10;
+                    const x = Math.cos(angle) * radius;
+                    const z = Math.sin(angle) * radius;
+                    createTreeAt(x, 0, z, 0.5 + Math.random() * 0.5);
+                }
+                
+                // Handle window resize
+                window.addEventListener('resize', onWindowResize);
+                
+                // Hide loading text
+                loadingElement.style.display = 'none';
+                
+                // Start animation loop
+                animate();
+            }
+            
+            // Create the custom foliage material
+            function createFoliageMaterial() {
+                // Vertex shader code
+                const vertexShader = `
+                    uniform float u_effectBlend;
+                    uniform float u_remap;
+                    uniform float u_normalize;
+                    uniform float u_windStrength;
+                    uniform float u_windSpeed;
+                    uniform float u_time;
+                    
+                    varying vec2 v_uvs;
+                    
+                    float inverseLerp(float v, float minValue, float maxValue) {
+                        return (v - minValue) / (maxValue - minValue);
+                    }
+                    
+                    float remap(float v, float prevMin, float prevMax, float newMin, float newMax) {
+                        float t = inverseLerp(v, prevMin, prevMax);
+                        return mix(newMin, newMax, t);
+                    }
+                    
+                    void main() {
+                        v_uvs = uv;
+                        
+                        vec2 vertexOffset = vec2(
+                            remap(uv.x, 0.0, 1.0, -u_remap, 1.0),
+                            remap(uv.y, 0.0, 1.0, -u_remap, 1.0)
+                        );
+                        
+                        vertexOffset *= vec2(-1.0, 1.0);
+                        
+                        if (u_remap == 1.0) {
+                            vertexOffset = mix(vertexOffset, normalize(vertexOffset), u_normalize);
+                        }
+                        
+                        // Apply wind effect
+                        float wind = sin(u_time * u_windSpeed + position.x * 2.0 + position.y * 3.0) * u_windStrength * 0.1;
+                        vertexOffset.x += wind;
+                        
+                        vec4 worldViewPosition = modelViewMatrix * vec4(position, 1.0);
+                        
+                        worldViewPosition += vec4(mix(vec3(0.0), vec3(vertexOffset, 1.0), u_effectBlend), 0.0);
+                        
+                        gl_Position = projectionMatrix * worldViewPosition;
+                    }
+                `;
+                
+                // Fragment shader code
+                const fragmentShader = `
+                    uniform sampler2D u_alphaMap;
+                    varying vec2 v_uvs;
+                    
+                    void main() {
+                        vec4 texColor = texture2D(u_alphaMap, v_uvs);
+                        
+                        if (texColor.a < 0.5) {
+                            discard;
+                        }
+                        
+                        gl_FragColor = vec4(texColor.rgb, 1.0);
+                    }
+                `;
+                
+                // Create a simple alpha map texture programmatically
+                // In a real scenario, you'd load an actual foliage texture
+                const canvas = document.createElement('canvas');
+                canvas.width = 256;
+                canvas.height = 256;
+                const ctx = canvas.getContext('2d');
+                
+                // Draw a circle gradient for alpha
+                const gradient = ctx.createRadialGradient(
+                    128, 128, 0,
+                    128, 128, 128
+                );
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+                gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.8)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 256, 256);
+                
+                // Add some noise for texture
+                const imageData = ctx.getImageData(0, 0, 256, 256);
+                const data = imageData.data;
+                for (let i = 0; i < data.length; i += 4) {
+                    // Add some random variation
+                    const noise = Math.random() * 30;
+                    data[i] = Math.min(255, data[i] + noise);
+                    data[i + 1] = Math.min(255, data[i + 1] + noise);
+                    data[i + 2] = Math.min(255, data[i + 2] + noise);
+                }
+                ctx.putImageData(imageData, 0, 0);
+                
+                const alphaMap = new THREE.CanvasTexture(canvas);
+                
+                // Create shader material
+                foliageMaterial = new THREE.ShaderMaterial({
+                    uniforms: {
+                        u_effectBlend: { value: 1.0 },
+                        u_remap: { value: 1.0 },
+                        u_normalize: { value: 1.0 },
+                        u_windStrength: { value: 0.5 },
+                        u_windSpeed: { value: 0.3 },
+                        u_time: { value: 0.0 },
+                        u_alphaMap: { value: alphaMap }
+                    },
+                    vertexShader: vertexShader,
+                    fragmentShader: fragmentShader,
+                    transparent: true,
+                    side: THREE.DoubleSide
+                });
+            }
+            
+            // Create a tree at a specific position
+            function createTree() {
+                // Create tree group
+                treeGroup = new THREE.Group();
+                
+                // Create trunk
+                const trunkGeometry = new THREE.CylinderGeometry(0.3, 0.5, 3, 8);
+                const trunkMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x8B4513,
+                    roughness: 1.0
+                });
+                const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+                trunk.castShadow = true;
+                trunk.receiveShadow = true;
+                trunk.position.y = 1.5;
+                treeGroup.add(trunk);
+                
+                // Create foliage (multiple layers for fluffiness)
+                const foliageLayers = 5;
+                const layerHeight = 0.8;
+                const baseRadius = 2;
+                
+                for (let i = 0; i < foliageLayers; i++) {
+                    const layerScale = 1 - (i / foliageLayers) * 0.5;
+                    const radius = baseRadius * layerScale;
+                    const height = 3 + i * layerHeight;
+                    
+                    // Create foliage cluster
+                    const foliageCluster = new THREE.Group();
+                    
+                    // Create several quads for each layer
+                    const quadsPerLayer = 8;
+                    for (let j = 0; j < quadsPerLayer; j++) {
+                        const angle = (j / quadsPerLayer) * Math.PI * 2;
+                        
+                        const foliageGeometry = new THREE.PlaneGeometry(radius, radius);
+                        const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
+                        
+                        foliage.position.set(
+                            Math.cos(angle) * radius * 0.3,
+                            0,
+                            Math.sin(angle) * radius * 0.3
+                        );
+                        
+                        // Slight random rotation for variety
+                        foliage.rotation.y = angle + (Math.random() - 0.5) * 0.5;
+                        foliage.rotation.x = Math.PI / 2; // Make it horizontal
+                        
+                        foliageCluster.add(foliage);
+                    }
+                    
+                    foliageCluster.position.y = height;
+                    treeGroup.add(foliageCluster);
+                }
+                
+                treeGroup.position.set(0, 0, 0);
+                treeGroup.castShadow = true;
+                scene.add(treeGroup);
+            }
+            
+            // Create a tree at a specific position with scale
+            function createTreeAt(x, y, z, scale) {
+                const treeClone = treeGroup.clone();
+                treeClone.position.set(x, y, z);
+                treeClone.scale.set(scale, scale, scale);
+                scene.add(treeClone);
+                return treeClone;
+            }
+            
+            // Handle window resize
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                const deltaTime = clock.getDelta();
+                const elapsedTime = clock.getElapsedTime();
+                
+                // Update time uniform for wind animation
+                if (foliageMaterial) {
+                    foliageMaterial.uniforms.u_time.value = elapsedTime;
+                }
+                
+                // Rotate the main tree slowly
+                if (treeGroup) {
+                    treeGroup.rotation.y += 0.1 * deltaTime;
+                }
+                
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            
+            // Start the application
+            init();
         });
     </script>
 </body>
