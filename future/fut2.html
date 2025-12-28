@@ -3,512 +3,694 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fluffy Tree - Three.js</title>
+    <title>Magical Ghibli Tree | Kodama Forest</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
     <style>
-        * {
+        body {
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #fff;
+            background: #0a1a0f;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
-            height: 100vh;
         }
         
-        #container {
-            position: relative;
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a1a0f;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 1s;
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(200, 255, 200, 0.3);
+            border-top: 5px solid #a8ffa8;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        #webcam-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 10;
+            border: 2px solid rgba(168, 255, 168, 0.3);
+            box-shadow: 0 0 15px rgba(168, 255, 168, 0.2);
+        }
+        
+        #webcam {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
         }
         
-        #info {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
+        #instruction {
+            position: fixed;
+            bottom: 180px;
+            right: 20px;
+            width: 200px;
+            background: rgba(0, 20, 10, 0.7);
             border-radius: 10px;
-            max-width: 400px;
+            padding: 15px;
+            color: #c1ffc1;
+            font-size: 14px;
             z-index: 10;
-            backdrop-filter: blur(5px);
+            border: 1px solid rgba(168, 255, 168, 0.2);
         }
         
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            color: #4CAF50;
-        }
-        
-        p {
-            margin-bottom: 15px;
-            line-height: 1.5;
-            opacity: 0.9;
-        }
-        
-        .controls {
-            margin-top: 20px;
-        }
-        
-        .control-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        input[type="range"] {
-            width: 100%;
-            margin-bottom: 5px;
-        }
-        
-        .value-display {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            text-align: right;
-        }
-        
-        .checkbox {
+        #instruction h3 {
+            margin-top: 0;
+            color: #a8ffa8;
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
         }
         
-        .checkbox input {
-            margin-right: 10px;
+        #instruction h3 i {
+            margin-right: 8px;
         }
         
-        #canvas-container {
+        .hand-icon {
+            font-size: 18px;
+            margin: 0 5px;
+        }
+        
+        #tree-container {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
         }
         
-        canvas {
-            display: block;
-        }
-        
-        .loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.5rem;
-            color: #4CAF50;
-        }
-        
-        #stats {
-            position: absolute;
+        #ui {
+            position: fixed;
             top: 20px;
-            right: 20px;
+            left: 20px;
             z-index: 10;
+            background: rgba(0, 20, 10, 0.7);
+            border-radius: 10px;
+            padding: 15px;
+            color: #c1ffc1;
+            max-width: 300px;
+            border: 1px solid rgba(168, 255, 168, 0.2);
         }
         
-        @media (max-width: 768px) {
-            #info {
-                max-width: 300px;
-                padding: 15px;
-            }
-            
-            h1 {
-                font-size: 1.5rem;
-            }
+        #ui h1 {
+            margin-top: 0;
+            color: #a8ffa8;
+            font-size: 24px;
+        }
+        
+        .firefly-count {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .firefly-icon {
+            color: #ffffa0;
+            margin-right: 8px;
+            animation: twinkle 2s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        .gesture-indicator {
+            width: 100%;
+            height: 10px;
+            background: rgba(168, 255, 168, 0.1);
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .gesture-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #0a1a0f, #a8ffa8);
+            border-radius: 5px;
+            transition: width 0.3s;
+        }
+        
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <div id="info">
-            <h1>Fluffy Tree with Three.js</h1>
-            <p>This implementation shows the fluffy tree effect using custom GLSL shaders. The foliage uses a vertex shader to create a billboard-like effect that always faces the camera.</p>
-            
-            <div class="controls">
-                <div class="control-group">
-                    <label for="effectBlend">Effect Blend</label>
-                    <input type="range" id="effectBlend" min="0" max="1" step="0.01" value="1">
-                    <div class="value-display" id="effectBlendValue">1.00</div>
-                </div>
-                
-                <div class="checkbox">
-                    <input type="checkbox" id="remapUVs" checked>
-                    <label for="remapUVs">Remap UVs</label>
-                </div>
-                
-                <div class="checkbox">
-                    <input type="checkbox" id="normalizeOffset" checked>
-                    <label for="normalizeOffset">Normalize Offset</label>
-                </div>
-                
-                <div class="control-group">
-                    <label for="windStrength">Wind Strength</label>
-                    <input type="range" id="windStrength" min="0" max="2" step="0.01" value="0.5">
-                    <div class="value-display" id="windStrengthValue">0.50</div>
-                </div>
-                
-                <div class="control-group">
-                    <label for="windSpeed">Wind Speed</label>
-                    <input type="range" id="windSpeed" min="0" max="2" step="0.01" value="0.3">
-                    <div class="value-display" id="windSpeedValue">0.30</div>
-                </div>
+    <!-- Loading Screen -->
+    <div id="loading">
+        <div class="spinner"></div>
+        <h2 style="color: #a8ffa8; margin-bottom: 10px;">Entering the Ghibli Forest</h2>
+        <p style="color: #c1ffc1; max-width: 400px; text-align: center;">
+            Loading the magical tree and preparing the kodama spirits...
+        </p>
+    </div>
+    
+    <!-- Main 3D Tree Container -->
+    <div id="tree-container"></div>
+    
+    <!-- UI Panel -->
+    <div id="ui">
+        <h1>Magical Ghibli Tree</h1>
+        <p>Open your hands to reveal the kodama spirits hiding in the tree.</p>
+        
+        <div class="firefly-count">
+            <span class="firefly-icon">✦</span>
+            <span>Kodama Count: <span id="firefly-count">0</span></span>
+        </div>
+        
+        <div style="margin-top: 15px;">
+            <div>Hand Gesture Detection:</div>
+            <div class="gesture-indicator">
+                <div id="gesture-fill" class="gesture-fill"></div>
             </div>
         </div>
         
-        <div id="canvas-container"></div>
-        
-        <div class="loading" id="loading">Loading fluffy tree...</div>
+        <div style="margin-top: 15px; font-size: 12px; color: #90ee90;">
+            <i>Tip: Move your hands closer together to zoom in on the tree</i>
+        </div>
+    </div>
+    
+    <!-- Webcam and Hand Tracking -->
+    <div id="webcam-container">
+        <video id="webcam" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+    </div>
+    
+    <div id="instruction">
+        <h3><i>👋</i> Hand Controls</h3>
+        <p>• <span class="hand-icon">👐</span> Open hands to summon kodama</p>
+        <p>• <span class="hand-icon">🤲</span> Bring hands together to zoom</p>
+        <p>• <span class="hand-icon">✋</span> Raise hand to brighten fireflies</p>
     </div>
 
-    <!-- Three.js and related libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
-    
     <script>
-        // Wait for DOM to load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Main variables
-            let scene, camera, renderer, controls;
-            let treeGroup, foliageMaterial;
-            let clock = new THREE.Clock();
+        // Initialize variables
+        let scene, camera, renderer, tree, fireflies = [];
+        let handDetected = false;
+        let lastGestureTime = 0;
+        let fireflyCount = 0;
+        let targetCameraZ = 15;
+        let currentCameraZ = 15;
+        let originalCameraZ = 15;
+        let targetFireflyBrightness = 1;
+        let currentFireflyBrightness = 1;
+        
+        // Initialize Three.js scene
+        function initThreeJS() {
+            // Create scene
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x0a1a0f, 10, 25);
             
-            // UI elements
-            const loadingElement = document.getElementById('loading');
-            const effectBlendSlider = document.getElementById('effectBlend');
-            const effectBlendValue = document.getElementById('effectBlendValue');
-            const remapUVsCheckbox = document.getElementById('remapUVs');
-            const normalizeOffsetCheckbox = document.getElementById('normalizeOffset');
-            const windStrengthSlider = document.getElementById('windStrength');
-            const windStrengthValue = document.getElementById('windStrengthValue');
-            const windSpeedSlider = document.getElementById('windSpeed');
-            const windSpeedValue = document.getElementById('windSpeedValue');
+            // Create camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = currentCameraZ;
+            camera.position.y = 3;
             
-            // Update value displays
-            effectBlendSlider.addEventListener('input', function() {
-                effectBlendValue.textContent = parseFloat(this.value).toFixed(2);
-                if (foliageMaterial) {
-                    foliageMaterial.uniforms.u_effectBlend.value = parseFloat(this.value);
-                }
-            });
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x0a1a0f, 1);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.getElementById('tree-container').appendChild(renderer.domElement);
             
-            windStrengthSlider.addEventListener('input', function() {
-                windStrengthValue.textContent = parseFloat(this.value).toFixed(2);
-                if (foliageMaterial) {
-                    foliageMaterial.uniforms.u_windStrength.value = parseFloat(this.value);
-                }
-            });
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0xa8ffa8, 0.3);
+            scene.add(ambientLight);
             
-            windSpeedSlider.addEventListener('input', function() {
-                windSpeedValue.textContent = parseFloat(this.value).toFixed(2);
-                if (foliageMaterial) {
-                    foliageMaterial.uniforms.u_windSpeed.value = parseFloat(this.value);
-                }
-            });
+            const directionalLight = new THREE.DirectionalLight(0xffffa0, 0.5);
+            directionalLight.position.set(5, 10, 7);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
             
-            remapUVsCheckbox.addEventListener('change', function() {
-                if (foliageMaterial) {
-                    foliageMaterial.uniforms.u_remap.value = this.checked ? 1.0 : 0.0;
-                }
-            });
+            // Add moonlight (blueish light from above)
+            const moonLight = new THREE.DirectionalLight(0x88ccff, 0.2);
+            moonLight.position.set(0, 20, 5);
+            scene.add(moonLight);
             
-            normalizeOffsetCheckbox.addEventListener('change', function() {
-                if (foliageMaterial) {
-                    foliageMaterial.uniforms.u_normalize.value = this.checked ? 1.0 : 0.0;
-                }
-            });
+            // Create the magical Ghibli tree
+            createMagicalTree();
             
-            // Initialize the scene
-            function init() {
-                // Create scene
-                scene = new THREE.Scene();
-                scene.background = new THREE.Color(0x87CEEB); // Sky blue
-                scene.fog = new THREE.Fog(0x87CEEB, 10, 50);
-                
-                // Create camera
-                camera = new THREE.PerspectiveCamera(
-                    60, 
-                    window.innerWidth / window.innerHeight, 
-                    0.1, 
-                    1000
-                );
-                camera.position.set(5, 3, 5);
-                
-                // Create renderer
-                renderer = new THREE.WebGLRenderer({ antialias: true });
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                renderer.shadowMap.enabled = true;
-                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-                document.getElementById('canvas-container').appendChild(renderer.domElement);
-                
-                // Add orbit controls
-                controls = new THREE.OrbitControls(camera, renderer.domElement);
-                controls.enableDamping = true;
-                controls.dampingFactor = 0.05;
-                
-                // Add lights
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-                scene.add(ambientLight);
-                
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-                directionalLight.position.set(5, 10, 7);
-                directionalLight.castShadow = true;
-                directionalLight.shadow.mapSize.width = 2048;
-                directionalLight.shadow.mapSize.height = 2048;
-                scene.add(directionalLight);
-                
-                // Add ground
-                const groundGeometry = new THREE.PlaneGeometry(50, 50);
-                const groundMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x3d5a3d,
-                    roughness: 0.8 
-                });
-                const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-                ground.rotation.x = -Math.PI / 2;
-                ground.receiveShadow = true;
-                scene.add(ground);
-                
-                // Create custom foliage material
-                createFoliageMaterial();
-                
-                // Create tree
-                createTree();
-                
-                // Add some additional trees in the distance
-                for (let i = 0; i < 5; i++) {
-                    const angle = (i / 5) * Math.PI * 2;
-                    const radius = 15 + Math.random() * 10;
-                    const x = Math.cos(angle) * radius;
-                    const z = Math.sin(angle) * radius;
-                    createTreeAt(x, 0, z, 0.5 + Math.random() * 0.5);
-                }
-                
-                // Handle window resize
-                window.addEventListener('resize', onWindowResize);
-                
-                // Hide loading text
-                loadingElement.style.display = 'none';
-                
-                // Start animation loop
-                animate();
-            }
-            
-            // Create the custom foliage material
-            function createFoliageMaterial() {
-                // Vertex shader code
-                const vertexShader = `
-                    uniform float u_effectBlend;
-                    uniform float u_remap;
-                    uniform float u_normalize;
-                    uniform float u_windStrength;
-                    uniform float u_windSpeed;
-                    uniform float u_time;
-                    
-                    varying vec2 v_uvs;
-                    
-                    float inverseLerp(float v, float minValue, float maxValue) {
-                        return (v - minValue) / (maxValue - minValue);
-                    }
-                    
-                    float remap(float v, float prevMin, float prevMax, float newMin, float newMax) {
-                        float t = inverseLerp(v, prevMin, prevMax);
-                        return mix(newMin, newMax, t);
-                    }
-                    
-                    void main() {
-                        v_uvs = uv;
-                        
-                        vec2 vertexOffset = vec2(
-                            remap(uv.x, 0.0, 1.0, -u_remap, 1.0),
-                            remap(uv.y, 0.0, 1.0, -u_remap, 1.0)
-                        );
-                        
-                        vertexOffset *= vec2(-1.0, 1.0);
-                        
-                        if (u_remap == 1.0) {
-                            vertexOffset = mix(vertexOffset, normalize(vertexOffset), u_normalize);
-                        }
-                        
-                        // Apply wind effect
-                        float wind = sin(u_time * u_windSpeed + position.x * 2.0 + position.y * 3.0) * u_windStrength * 0.1;
-                        vertexOffset.x += wind;
-                        
-                        vec4 worldViewPosition = modelViewMatrix * vec4(position, 1.0);
-                        
-                        worldViewPosition += vec4(mix(vec3(0.0), vec3(vertexOffset, 1.0), u_effectBlend), 0.0);
-                        
-                        gl_Position = projectionMatrix * worldViewPosition;
-                    }
-                `;
-                
-                // Fragment shader code
-                const fragmentShader = `
-                    uniform sampler2D u_alphaMap;
-                    varying vec2 v_uvs;
-                    
-                    void main() {
-                        vec4 texColor = texture2D(u_alphaMap, v_uvs);
-                        
-                        if (texColor.a < 0.5) {
-                            discard;
-                        }
-                        
-                        gl_FragColor = vec4(texColor.rgb, 1.0);
-                    }
-                `;
-                
-                // Create a simple alpha map texture programmatically
-                // In a real scenario, you'd load an actual foliage texture
-                const canvas = document.createElement('canvas');
-                canvas.width = 256;
-                canvas.height = 256;
-                const ctx = canvas.getContext('2d');
-                
-                // Draw a circle gradient for alpha
-                const gradient = ctx.createRadialGradient(
-                    128, 128, 0,
-                    128, 128, 128
-                );
-                gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-                gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.8)');
-                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                
-                ctx.fillStyle = gradient;
-                ctx.fillRect(0, 0, 256, 256);
-                
-                // Add some noise for texture
-                const imageData = ctx.getImageData(0, 0, 256, 256);
-                const data = imageData.data;
-                for (let i = 0; i < data.length; i += 4) {
-                    // Add some random variation
-                    const noise = Math.random() * 30;
-                    data[i] = Math.min(255, data[i] + noise);
-                    data[i + 1] = Math.min(255, data[i + 1] + noise);
-                    data[i + 2] = Math.min(255, data[i + 2] + noise);
-                }
-                ctx.putImageData(imageData, 0, 0);
-                
-                const alphaMap = new THREE.CanvasTexture(canvas);
-                
-                // Create shader material
-                foliageMaterial = new THREE.ShaderMaterial({
-                    uniforms: {
-                        u_effectBlend: { value: 1.0 },
-                        u_remap: { value: 1.0 },
-                        u_normalize: { value: 1.0 },
-                        u_windStrength: { value: 0.5 },
-                        u_windSpeed: { value: 0.3 },
-                        u_time: { value: 0.0 },
-                        u_alphaMap: { value: alphaMap }
-                    },
-                    vertexShader: vertexShader,
-                    fragmentShader: fragmentShader,
-                    transparent: true,
-                    side: THREE.DoubleSide
-                });
-            }
-            
-            // Create a tree at a specific position
-            function createTree() {
-                // Create tree group
-                treeGroup = new THREE.Group();
-                
-                // Create trunk
-                const trunkGeometry = new THREE.CylinderGeometry(0.3, 0.5, 3, 8);
-                const trunkMaterial = new THREE.MeshStandardMaterial({ 
-                    color: 0x8B4513,
-                    roughness: 1.0
-                });
-                const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-                trunk.castShadow = true;
-                trunk.receiveShadow = true;
-                trunk.position.y = 1.5;
-                treeGroup.add(trunk);
-                
-                // Create foliage (multiple layers for fluffiness)
-                const foliageLayers = 5;
-                const layerHeight = 0.8;
-                const baseRadius = 2;
-                
-                for (let i = 0; i < foliageLayers; i++) {
-                    const layerScale = 1 - (i / foliageLayers) * 0.5;
-                    const radius = baseRadius * layerScale;
-                    const height = 3 + i * layerHeight;
-                    
-                    // Create foliage cluster
-                    const foliageCluster = new THREE.Group();
-                    
-                    // Create several quads for each layer
-                    const quadsPerLayer = 8;
-                    for (let j = 0; j < quadsPerLayer; j++) {
-                        const angle = (j / quadsPerLayer) * Math.PI * 2;
-                        
-                        const foliageGeometry = new THREE.PlaneGeometry(radius, radius);
-                        const foliage = new THREE.Mesh(foliageGeometry, foliageMaterial);
-                        
-                        foliage.position.set(
-                            Math.cos(angle) * radius * 0.3,
-                            0,
-                            Math.sin(angle) * radius * 0.3
-                        );
-                        
-                        // Slight random rotation for variety
-                        foliage.rotation.y = angle + (Math.random() - 0.5) * 0.5;
-                        foliage.rotation.x = Math.PI / 2; // Make it horizontal
-                        
-                        foliageCluster.add(foliage);
-                    }
-                    
-                    foliageCluster.position.y = height;
-                    treeGroup.add(foliageCluster);
-                }
-                
-                treeGroup.position.set(0, 0, 0);
-                treeGroup.castShadow = true;
-                scene.add(treeGroup);
-            }
-            
-            // Create a tree at a specific position with scale
-            function createTreeAt(x, y, z, scale) {
-                const treeClone = treeGroup.clone();
-                treeClone.position.set(x, y, z);
-                treeClone.scale.set(scale, scale, scale);
-                scene.add(treeClone);
-                return treeClone;
-            }
+            // Create initial fireflies
+            createFireflies(15);
             
             // Handle window resize
-            function onWindowResize() {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
+            window.addEventListener('resize', onWindowResize);
+            
+            // Hide loading screen after a delay
+            setTimeout(() => {
+                document.getElementById('loading').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loading').classList.add('hidden');
+                }, 1000);
+            }, 2000);
+        }
+        
+        // Create a magical Ghibli-style willow tree
+        function createMagicalTree() {
+            const treeGroup = new THREE.Group();
+            
+            // Tree trunk (twisted and organic)
+            const trunkGeometry = new THREE.CylinderGeometry(0.8, 1.2, 8, 8);
+            const trunkMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x4a3627,
+                shininess: 5
+            });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            trunk.castShadow = true;
+            trunk.receiveShadow = true;
+            trunk.position.y = 4;
+            treeGroup.add(trunk);
+            
+            // Add texture to trunk
+            const trunkDetailGeometry = new THREE.CylinderGeometry(0.85, 0.9, 8, 8);
+            const trunkDetailMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x5a4637,
+                shininess: 10,
+                transparent: true,
+                opacity: 0.7
+            });
+            const trunkDetail = new THREE.Mesh(trunkDetailGeometry, trunkDetailMaterial);
+            trunkDetail.position.y = 4;
+            treeGroup.add(trunkDetail);
+            
+            // Create willow-like drooping branches
+            const branchCount = 12;
+            for (let i = 0; i < branchCount; i++) {
+                const angle = (i / branchCount) * Math.PI * 2;
+                const radius = 2;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                
+                // Main branch
+                const branchLength = 4 + Math.random() * 3;
+                const branchGeometry = new THREE.CylinderGeometry(0.15, 0.3, branchLength, 6);
+                const branchMaterial = new THREE.MeshPhongMaterial({ color: 0x5a4637 });
+                const branch = new THREE.Mesh(branchGeometry, branchMaterial);
+                
+                // Position and rotate branch
+                branch.position.set(x, 7, z);
+                branch.rotation.z = -Math.PI / 4 - Math.random() * 0.3;
+                branch.rotation.y = angle;
+                branch.castShadow = true;
+                treeGroup.add(branch);
+                
+                // Create sub-branches (willow leaves effect)
+                const subBranchCount = 8 + Math.floor(Math.random() * 6);
+                for (let j = 0; j < subBranchCount; j++) {
+                    const subBranchLength = 1.5 + Math.random() * 1.5;
+                    const subBranchGeometry = new THREE.CylinderGeometry(0.05, 0.1, subBranchLength, 4);
+                    const subBranchMaterial = new THREE.MeshPhongMaterial({ color: 0x6a5647 });
+                    const subBranch = new THREE.Mesh(subBranchGeometry, subBranchMaterial);
+                    
+                    const subBranchPosition = j / subBranchCount;
+                    subBranch.position.y = -subBranchLength/2 - branchLength * subBranchPosition;
+                    subBranch.rotation.z = -Math.PI / 8 - Math.random() * 0.2;
+                    
+                    branch.add(subBranch);
+                    
+                    // Create leaves at the end of sub-branches
+                    const leafGeometry = new THREE.SphereGeometry(0.3, 4, 4);
+                    const leafMaterial = new THREE.MeshPhongMaterial({ 
+                        color: 0x88cc88,
+                        transparent: true,
+                        opacity: 0.8
+                    });
+                    const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+                    leaf.position.y = -subBranchLength;
+                    leaf.scale.y = 2;
+                    subBranch.add(leaf);
+                }
             }
             
-            // Animation loop
-            function animate() {
-                requestAnimationFrame(animate);
+            // Add glowing mushrooms at the base (Ghibli style)
+            const mushroomCount = 6;
+            for (let i = 0; i < mushroomCount; i++) {
+                const angle = (i / mushroomCount) * Math.PI * 2;
+                const radius = 1.5;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
                 
-                const deltaTime = clock.getDelta();
-                const elapsedTime = clock.getElapsedTime();
+                // Mushroom stem
+                const stemGeometry = new THREE.CylinderGeometry(0.1, 0.15, 0.4, 6);
+                const stemMaterial = new THREE.MeshPhongMaterial({ color: 0xf0e6d2 });
+                const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+                stem.position.set(x, 0.2, z);
+                treeGroup.add(stem);
                 
-                // Update time uniform for wind animation
-                if (foliageMaterial) {
-                    foliageMaterial.uniforms.u_time.value = elapsedTime;
-                }
-                
-                // Rotate the main tree slowly
-                if (treeGroup) {
-                    treeGroup.rotation.y += 0.1 * deltaTime;
-                }
-                
-                controls.update();
-                renderer.render(scene, camera);
+                // Mushroom cap
+                const capGeometry = new THREE.ConeGeometry(0.3, 0.2, 6);
+                const capMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0xffaaaa,
+                    emissive: 0x331111,
+                    emissiveIntensity: 0.3
+                });
+                const cap = new THREE.Mesh(capGeometry, capMaterial);
+                cap.position.set(x, 0.5, z);
+                treeGroup.add(cap);
             }
             
-            // Start the application
-            init();
+            // Position tree
+            treeGroup.position.y = -3;
+            scene.add(treeGroup);
+            tree = treeGroup;
+            
+            // Add soft glow to the tree
+            const pointLight = new THREE.PointLight(0xa8ffa8, 0.3, 10);
+            pointLight.position.set(0, 5, 0);
+            treeGroup.add(pointLight);
+        }
+        
+        // Create fireflies (kodama spirits)
+        function createFireflies(count) {
+            const fireflyGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+            const fireflyMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0xa8ffa8,
+                transparent: true,
+                opacity: 0.7
+            });
+            
+            for (let i = 0; i < count; i++) {
+                const firefly = new THREE.Mesh(fireflyGeometry, fireflyMaterial.clone());
+                
+                // Random position around the tree
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 2 + Math.random() * 4;
+                const height = 2 + Math.random() * 6;
+                
+                firefly.position.x = Math.cos(angle) * radius;
+                firefly.position.y = height;
+                firefly.position.z = Math.sin(angle) * radius;
+                
+                // Store original position for animation
+                firefly.userData = {
+                    originalX: firefly.position.x,
+                    originalY: firefly.position.y,
+                    originalZ: firefly.position.z,
+                    speed: 0.5 + Math.random() * 1,
+                    angle: Math.random() * Math.PI * 2,
+                    radius: 0.2 + Math.random() * 0.5,
+                    heightOffset: Math.random() * 0.3,
+                    timeOffset: Math.random() * Math.PI * 2,
+                    visible: false,
+                    brightness: 1
+                };
+                
+                // Initially hide fireflies
+                firefly.visible = false;
+                
+                scene.add(firefly);
+                fireflies.push(firefly);
+            }
+            
+            updateFireflyCount();
+        }
+        
+        // Update firefly count display
+        function updateFireflyCount() {
+            const visibleFireflies = fireflies.filter(f => f.visible).length;
+            fireflyCount = visibleFireflies;
+            document.getElementById('firefly-count').textContent = visibleFireflies;
+        }
+        
+        // Animate fireflies
+        function animateFireflies() {
+            const time = Date.now() * 0.001;
+            
+            fireflies.forEach(firefly => {
+                if (firefly.visible) {
+                    // Gentle floating animation
+                    firefly.position.x = firefly.userData.originalX + 
+                        Math.cos(time * firefly.userData.speed + firefly.userData.timeOffset) * firefly.userData.radius;
+                    firefly.position.y = firefly.userData.originalY + 
+                        Math.sin(time * firefly.userData.speed * 1.3 + firefly.userData.timeOffset) * firefly.userData.heightOffset;
+                    firefly.position.z = firefly.userData.originalZ + 
+                        Math.sin(time * firefly.userData.speed * 0.7 + firefly.userData.timeOffset) * firefly.userData.radius;
+                    
+                    // Pulsing brightness
+                    const pulse = 0.7 + 0.3 * Math.sin(time * 2 + firefly.userData.timeOffset);
+                    firefly.material.opacity = 0.6 * pulse * currentFireflyBrightness;
+                    firefly.material.color.setHSL(0.3, 0.8, 0.7 * currentFireflyBrightness);
+                    
+                    // Scale with pulse
+                    const scale = 0.8 + 0.4 * Math.sin(time * 3 + firefly.userData.timeOffset);
+                    firefly.scale.setScalar(scale);
+                }
+            });
+        }
+        
+        // Show fireflies (kodama) when hands are open
+        function showFireflies(count) {
+            let shown = 0;
+            
+            for (let i = 0; i < fireflies.length; i++) {
+                if (shown >= count) break;
+                
+                if (!fireflies[i].visible) {
+                    fireflies[i].visible = true;
+                    shown++;
+                }
+            }
+            
+            updateFireflyCount();
+        }
+        
+        // Hide fireflies
+        function hideFireflies() {
+            fireflies.forEach(firefly => {
+                firefly.visible = false;
+            });
+            updateFireflyCount();
+        }
+        
+        // Handle window resize
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Smooth camera movement
+            currentCameraZ += (targetCameraZ - currentCameraZ) * 0.05;
+            camera.position.z = currentCameraZ;
+            
+            // Smooth brightness adjustment
+            currentFireflyBrightness += (targetFireflyBrightness - currentFireflyBrightness) * 0.05;
+            
+            // Rotate tree slowly
+            if (tree) {
+                tree.rotation.y += 0.001;
+            }
+            
+            // Animate fireflies
+            animateFireflies();
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Initialize MediaPipe Hand Tracking
+        function initHandTracking() {
+            const videoElement = document.getElementById('webcam');
+            const canvasElement = document.getElementById('canvas');
+            const canvasCtx = canvasElement.getContext('2d');
+            
+            // Configure hand tracking
+            const hands = new Hands({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                }
+            });
+            
+            hands.setOptions({
+                maxNumHands: 2,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+            
+            hands.onResults((results) => {
+                canvasCtx.save();
+                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
+                
+                // Draw hand landmarks
+                if (results.multiHandLandmarks) {
+                    for (const landmarks of results.multiHandLandmarks) {
+                        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+                            color: '#A8FFA8',
+                            lineWidth: 2
+                        });
+                        drawLandmarks(canvasCtx, landmarks, {
+                            color: '#C1FFC1',
+                            lineWidth: 1,
+                            radius: 3
+                        });
+                    }
+                    
+                    // Process hand gestures
+                    processHandGestures(results);
+                    handDetected = true;
+                } else {
+                    handDetected = false;
+                    // Gradually hide fireflies when no hands detected
+                    if (fireflyCount > 0 && Date.now() - lastGestureTime > 3000) {
+                        hideFireflies();
+                    }
+                }
+                
+                canvasCtx.restore();
+            });
+            
+            // Start camera
+            const camera = new Camera(videoElement, {
+                onFrame: async () => {
+                    await hands.send({ image: videoElement });
+                },
+                width: 320,
+                height: 240
+            });
+            
+            camera.start();
+        }
+        
+        // Process hand gestures
+        function processHandGestures(results) {
+            const hands = results.multiHandLandmarks;
+            if (!hands || hands.length === 0) return;
+            
+            // Get current time
+            const now = Date.now();
+            
+            // Check for open hands (summon kodama)
+            if (hands.length >= 1) {
+                const hand = hands[0];
+                const fingersUp = countFingersUp(hand);
+                
+                // Update gesture indicator
+                const gestureFill = document.getElementById('gesture-fill');
+                gestureFill.style.width = `${fingersUp * 20}%`;
+                
+                // If all fingers are up (open hand)
+                if (fingersUp >= 4 && now - lastGestureTime > 1000) {
+                    showFireflies(10 + Math.floor(Math.random() * 10));
+                    lastGestureTime = now;
+                    
+                    // Brighten fireflies
+                    targetFireflyBrightness = 1.5;
+                    setTimeout(() => {
+                        targetFireflyBrightness = 1;
+                    }, 1000);
+                }
+                
+                // If hand is raised (brighten fireflies)
+                const wristY = hand[0].y * 240;
+                if (wristY < 80 && now - lastGestureTime > 500) {
+                    targetFireflyBrightness = 2;
+                    lastGestureTime = now;
+                }
+            }
+            
+            // Check for two hands (zoom gesture)
+            if (hands.length >= 2) {
+                const hand1 = hands[0];
+                const hand2 = hands[1];
+                
+                // Calculate distance between hands (using wrist landmarks)
+                const hand1Wrist = hand1[0];
+                const hand2Wrist = hand2[0];
+                
+                const dx = hand1Wrist.x - hand2Wrist.x;
+                const dy = hand1Wrist.y - hand2Wrist.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Map distance to zoom level (closer hands = zoom in)
+                const zoomFactor = 1 - Math.min(distance * 3, 0.7);
+                targetCameraZ = originalCameraZ * zoomFactor;
+                
+                // If hands are very close, show more fireflies
+                if (distance < 0.15 && now - lastGestureTime > 1500) {
+                    showFireflies(5);
+                    lastGestureTime = now;
+                }
+            } else {
+                // Gradually return to original zoom
+                targetCameraZ += (originalCameraZ - targetCameraZ) * 0.05;
+            }
+        }
+        
+        // Count how many fingers are up
+        function countFingersUp(handLandmarks) {
+            // Simplified finger detection
+            const fingerTips = [4, 8, 12, 16, 20]; // Thumb, index, middle, ring, pinky
+            const fingerPips = [2, 6, 10, 14, 18]; // Joints before tips
+            
+            let count = 0;
+            
+            for (let i = 0; i < 5; i++) {
+                // For thumb, check x position (different for left/right hand)
+                if (i === 0) {
+                    // Simplified thumb check
+                    if (handLandmarks[fingerTips[i]].y < handLandmarks[fingerPips[i]].y) {
+                        count++;
+                    }
+                } else {
+                    // For other fingers, check if tip is above the pip joint
+                    if (handLandmarks[fingerTips[i]].y < handLandmarks[fingerPips[i]].y) {
+                        count++;
+                    }
+                }
+            }
+            
+            return count;
+        }
+        
+        // Initialize everything when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            initThreeJS();
+            initHandTracking();
+            animate();
         });
     </script>
 </body>
