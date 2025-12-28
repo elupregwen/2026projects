@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magical Ghibli Tree | Kodama Forest</title>
+    <title>Magical Ghibli Willow Tree | Kodama Forest</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
@@ -14,7 +14,7 @@
         body {
             margin: 0;
             padding: 0;
-            background: #0a1a0f;
+            background: linear-gradient(to bottom, #0a1a0f 0%, #1a3a2a 50%, #0a1a0f 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
         }
@@ -81,13 +81,14 @@
             bottom: 180px;
             right: 20px;
             width: 200px;
-            background: rgba(0, 20, 10, 0.7);
+            background: rgba(0, 20, 10, 0.8);
             border-radius: 10px;
             padding: 15px;
             color: #c1ffc1;
             font-size: 14px;
             z-index: 10;
-            border: 1px solid rgba(168, 255, 168, 0.2);
+            border: 1px solid rgba(168, 255, 168, 0.3);
+            backdrop-filter: blur(5px);
         }
         
         #instruction h3 {
@@ -119,18 +120,20 @@
             top: 20px;
             left: 20px;
             z-index: 10;
-            background: rgba(0, 20, 10, 0.7);
+            background: rgba(0, 20, 10, 0.8);
             border-radius: 10px;
             padding: 15px;
             color: #c1ffc1;
             max-width: 300px;
-            border: 1px solid rgba(168, 255, 168, 0.2);
+            border: 1px solid rgba(168, 255, 168, 0.3);
+            backdrop-filter: blur(5px);
         }
         
         #ui h1 {
             margin-top: 0;
             color: #a8ffa8;
             font-size: 24px;
+            text-shadow: 0 0 10px rgba(168, 255, 168, 0.5);
         }
         
         .firefly-count {
@@ -143,11 +146,12 @@
             color: #ffffa0;
             margin-right: 8px;
             animation: twinkle 2s infinite;
+            text-shadow: 0 0 8px #ffffa0;
         }
         
         @keyframes twinkle {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
+            0%, 100% { opacity: 0.7; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
         }
         
         .gesture-indicator {
@@ -165,10 +169,26 @@
             background: linear-gradient(to right, #0a1a0f, #a8ffa8);
             border-radius: 5px;
             transition: width 0.3s;
+            box-shadow: 0 0 5px #a8ffa8;
         }
         
         .hidden {
             display: none !important;
+        }
+        
+        /* Floating particles in background */
+        .floating-particle {
+            position: absolute;
+            background: rgba(168, 255, 168, 0.2);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        /* Ghibli title styling */
+        .ghibli-title {
+            font-family: 'Brush Script MT', cursive;
+            color: #ffffe0;
+            text-shadow: 0 0 15px #a8ffa8;
         }
     </style>
 </head>
@@ -176,9 +196,9 @@
     <!-- Loading Screen -->
     <div id="loading">
         <div class="spinner"></div>
-        <h2 style="color: #a8ffa8; margin-bottom: 10px;">Entering the Ghibli Forest</h2>
+        <h2 style="color: #a8ffa8; margin-bottom: 10px; text-shadow: 0 0 10px #a8ffa8;">Entering the Ghibli Forest</h2>
         <p style="color: #c1ffc1; max-width: 400px; text-align: center;">
-            Loading the magical tree and preparing the kodama spirits...
+            Loading the magical willow tree and preparing the kodama spirits...
         </p>
     </div>
     
@@ -187,8 +207,8 @@
     
     <!-- UI Panel -->
     <div id="ui">
-        <h1>Magical Ghibli Tree</h1>
-        <p>Open your hands to reveal the kodama spirits hiding in the tree.</p>
+        <h1 class="ghibli-title">Magical Ghibli Willow</h1>
+        <p>Open your hands to reveal the kodama spirits hiding in the willow.</p>
         
         <div class="firefly-count">
             <span class="firefly-icon">✦</span>
@@ -203,7 +223,7 @@
         </div>
         
         <div style="margin-top: 15px; font-size: 12px; color: #90ee90;">
-            <i>Tip: Move your hands closer together to zoom in on the tree</i>
+            <i>Tip: Move your hands closer together to zoom in on the willow</i>
         </div>
     </div>
     
@@ -226,22 +246,24 @@
         let handDetected = false;
         let lastGestureTime = 0;
         let fireflyCount = 0;
-        let targetCameraZ = 15;
-        let currentCameraZ = 15;
-        let originalCameraZ = 15;
+        let targetCameraZ = 20;
+        let currentCameraZ = 20;
+        let originalCameraZ = 20;
         let targetFireflyBrightness = 1;
         let currentFireflyBrightness = 1;
+        let floatingParticles = [];
+        let willowParticles = [];
         
         // Initialize Three.js scene
         function initThreeJS() {
             // Create scene
             scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x0a1a0f, 10, 25);
+            scene.fog = new THREE.FogExp2(0x0a1a0f, 0.03);
             
             // Create camera
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.z = currentCameraZ;
-            camera.position.y = 3;
+            camera.position.y = 5;
             
             // Create renderer
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -256,20 +278,29 @@
             scene.add(ambientLight);
             
             const directionalLight = new THREE.DirectionalLight(0xffffa0, 0.5);
-            directionalLight.position.set(5, 10, 7);
+            directionalLight.position.set(5, 15, 10);
             directionalLight.castShadow = true;
             scene.add(directionalLight);
             
             // Add moonlight (blueish light from above)
-            const moonLight = new THREE.DirectionalLight(0x88ccff, 0.2);
-            moonLight.position.set(0, 20, 5);
+            const moonLight = new THREE.DirectionalLight(0x88ccff, 0.3);
+            moonLight.position.set(0, 25, 5);
             scene.add(moonLight);
             
-            // Create the magical Ghibli tree
-            createMagicalTree();
+            // Add magical glowing orbs floating around
+            createMagicalOrbs(8);
+            
+            // Create the magical Ghibli willow tree
+            createMagicalWillowTree();
             
             // Create initial fireflies
-            createFireflies(15);
+            createFireflies(20);
+            
+            // Create floating particles in the background
+            createFloatingParticles();
+            
+            // Create falling willow particles
+            createWillowParticles();
             
             // Handle window resize
             window.addEventListener('resize', onWindowResize);
@@ -283,154 +314,537 @@
             }, 2000);
         }
         
-        // Create a magical Ghibli-style willow tree
-        function createMagicalTree() {
+        // Create magical floating orbs (like Ghibli spirit orbs)
+        function createMagicalOrbs(count) {
+            for (let i = 0; i < count; i++) {
+                const orbGeometry = new THREE.SphereGeometry(0.15 + Math.random() * 0.2, 16, 16);
+                const orbMaterial = new THREE.MeshPhongMaterial({
+                    color: new THREE.Color(Math.random() * 0.3 + 0.2, 0.9, Math.random() * 0.3 + 0.2),
+                    emissive: new THREE.Color(Math.random() * 0.1, 0.7, Math.random() * 0.1),
+                    emissiveIntensity: 0.6,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                
+                const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+                
+                // Random position around the tree
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 10 + Math.random() * 8;
+                const height = 3 + Math.random() * 10;
+                
+                orb.position.x = Math.cos(angle) * radius;
+                orb.position.y = height;
+                orb.position.z = Math.sin(angle) * radius;
+                
+                // Store animation properties
+                orb.userData = {
+                    originalX: orb.position.x,
+                    originalY: orb.position.y,
+                    originalZ: orb.position.z,
+                    speed: 0.05 + Math.random() * 0.1,
+                    angle: Math.random() * Math.PI * 2,
+                    radius: 1.5 + Math.random() * 2,
+                    heightOffset: Math.random() * 1.2,
+                    timeOffset: Math.random() * Math.PI * 2
+                };
+                
+                scene.add(orb);
+            }
+        }
+        
+        // Create floating particles in the background
+        function createFloatingParticles() {
+            for (let i = 0; i < 60; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'floating-particle';
+                
+                // Random size and position
+                const size = Math.random() * 5 + 3;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                
+                // Random color (soft greens and yellows)
+                const hue = 90 + Math.random() * 40;
+                particle.style.backgroundColor = `hsla(${hue}, 80%, 70%, ${0.1 + Math.random() * 0.3})`;
+                particle.style.boxShadow = `0 0 ${size}px hsla(${hue}, 80%, 70%, 0.5)`;
+                
+                // Animation properties
+                particle.userData = {
+                    speedX: (Math.random() - 0.5) * 0.3,
+                    speedY: (Math.random() - 0.5) * 0.3,
+                    floatSpeed: 0.3 + Math.random() * 0.7,
+                    rotation: Math.random() * 360
+                };
+                
+                document.body.appendChild(particle);
+                floatingParticles.push(particle);
+            }
+        }
+        
+        // Create falling willow particles (like floating seeds/leaves)
+        function createWillowParticles() {
+            const particleCount = 100;
+            
+            // Create particle system
+            const particleGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            
+            for (let i = 0; i < particleCount; i++) {
+                // Random position under the willow canopy
+                const i3 = i * 3;
+                positions[i3] = (Math.random() - 0.5) * 25;
+                positions[i3 + 1] = 10 + Math.random() * 15;
+                positions[i3 + 2] = (Math.random() - 0.5) * 25;
+                
+                // Random green/yellow colors
+                colors[i3] = 0.3 + Math.random() * 0.4;
+                colors[i3 + 1] = 0.7 + Math.random() * 0.3;
+                colors[i3 + 2] = 0.2 + Math.random() * 0.3;
+            }
+            
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 0.15,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending
+            });
+            
+            const particles = new THREE.Points(particleGeometry, particleMaterial);
+            particles.userData = {
+                originalPositions: positions.slice(),
+                speeds: new Array(particleCount).fill(0).map(() => ({
+                    x: (Math.random() - 0.5) * 0.02,
+                    y: -0.01 - Math.random() * 0.03,
+                    z: (Math.random() - 0.5) * 0.02,
+                    rotation: Math.random() * Math.PI * 2,
+                    rotationSpeed: (Math.random() - 0.5) * 0.02
+                }))
+            };
+            
+            scene.add(particles);
+            willowParticles.push(particles);
+        }
+        
+        // Animate floating particles
+        function animateFloatingParticles() {
+            const time = Date.now() * 0.001;
+            
+            floatingParticles.forEach(particle => {
+                const x = parseFloat(particle.style.left);
+                const y = parseFloat(particle.style.top);
+                
+                // Gentle floating motion
+                const newX = x + Math.sin(time * particle.userData.floatSpeed) * 0.3;
+                const newY = y + Math.cos(time * particle.userData.floatSpeed * 0.7) * 0.3;
+                
+                // Wrap around screen edges
+                particle.style.left = `${(newX + 100) % 100}vw`;
+                particle.style.top = `${(newY + 100) % 100}vh`;
+                
+                // Pulsing opacity and rotation
+                const pulse = 0.5 + 0.5 * Math.sin(time * 2 + particle.userData.floatSpeed * 10);
+                particle.style.opacity = pulse * 0.4;
+                particle.style.transform = `rotate(${particle.userData.rotation}deg)`;
+                particle.userData.rotation += 0.2;
+            });
+        }
+        
+        // Animate willow particles
+        function animateWillowParticles() {
+            const time = Date.now() * 0.001;
+            
+            willowParticles.forEach(particles => {
+                const positions = particles.geometry.attributes.position.array;
+                const originalPositions = particles.userData.originalPositions;
+                const speeds = particles.userData.speeds;
+                
+                for (let i = 0; i < positions.length / 3; i++) {
+                    const i3 = i * 3;
+                    
+                    // Update position with gentle falling motion
+                    positions[i3] = originalPositions[i3] + Math.sin(time * 0.5 + i) * 2;
+                    positions[i3 + 1] += speeds[i].y;
+                    positions[i3 + 2] = originalPositions[i3 + 2] + Math.cos(time * 0.3 + i) * 2;
+                    
+                    // Reset particles that fall below ground
+                    if (positions[i3 + 1] < -5) {
+                        positions[i3 + 1] = 25;
+                        positions[i3] = (Math.random() - 0.5) * 25;
+                        positions[i3 + 2] = (Math.random() - 0.5) * 25;
+                    }
+                }
+                
+                particles.geometry.attributes.position.needsUpdate = true;
+            });
+        }
+        
+        // Create a magical Ghibli-style fluffy willow tree
+        function createMagicalWillowTree() {
             const treeGroup = new THREE.Group();
             
-            // Tree trunk (twisted and organic)
-            const trunkGeometry = new THREE.CylinderGeometry(0.8, 1.2, 8, 8);
+            // Tree trunk - thicker at bottom, twisted
+            const trunkHeight = 12;
+            const trunkGeometry = new THREE.CylinderGeometry(1.2, 2.0, trunkHeight, 12);
+            
+            // Create trunk material with bark texture
             const trunkMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0x4a3627,
-                shininess: 5
+                color: 0x6a4537,
+                shininess: 10,
+                bumpScale: 0.1
             });
+            
             const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
             trunk.castShadow = true;
             trunk.receiveShadow = true;
-            trunk.position.y = 4;
+            trunk.position.y = trunkHeight/2 - 2;
+            
+            // Add organic twist to trunk
+            trunk.rotation.z = Math.PI / 16;
             treeGroup.add(trunk);
             
-            // Add texture to trunk
-            const trunkDetailGeometry = new THREE.CylinderGeometry(0.85, 0.9, 8, 8);
-            const trunkDetailMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0x5a4637,
-                shininess: 10,
+            // Add moss patches to trunk
+            const mossGeometry = new THREE.SphereGeometry(1.3, 8, 6, 0, Math.PI * 2, 0, Math.PI / 2);
+            const mossMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x5a9a5a,
                 transparent: true,
-                opacity: 0.7
+                opacity: 0.8,
+                emissive: 0x1a3a1a,
+                emissiveIntensity: 0.1
             });
-            const trunkDetail = new THREE.Mesh(trunkDetailGeometry, trunkDetailMaterial);
-            trunkDetail.position.y = 4;
-            treeGroup.add(trunkDetail);
             
-            // Create willow-like drooping branches
-            const branchCount = 12;
-            for (let i = 0; i < branchCount; i++) {
-                const angle = (i / branchCount) * Math.PI * 2;
-                const radius = 2;
-                const x = Math.cos(angle) * radius;
-                const z = Math.sin(angle) * radius;
-                
-                // Main branch
-                const branchLength = 4 + Math.random() * 3;
-                const branchGeometry = new THREE.CylinderGeometry(0.15, 0.3, branchLength, 6);
-                const branchMaterial = new THREE.MeshPhongMaterial({ color: 0x5a4637 });
-                const branch = new THREE.Mesh(branchGeometry, branchMaterial);
-                
-                // Position and rotate branch
-                branch.position.set(x, 7, z);
-                branch.rotation.z = -Math.PI / 4 - Math.random() * 0.3;
-                branch.rotation.y = angle;
-                branch.castShadow = true;
-                treeGroup.add(branch);
-                
-                // Create sub-branches (willow leaves effect)
-                const subBranchCount = 8 + Math.floor(Math.random() * 6);
-                for (let j = 0; j < subBranchCount; j++) {
-                    const subBranchLength = 1.5 + Math.random() * 1.5;
-                    const subBranchGeometry = new THREE.CylinderGeometry(0.05, 0.1, subBranchLength, 4);
-                    const subBranchMaterial = new THREE.MeshPhongMaterial({ color: 0x6a5647 });
-                    const subBranch = new THREE.Mesh(subBranchGeometry, subBranchMaterial);
-                    
-                    const subBranchPosition = j / subBranchCount;
-                    subBranch.position.y = -subBranchLength/2 - branchLength * subBranchPosition;
-                    subBranch.rotation.z = -Math.PI / 8 - Math.random() * 0.2;
-                    
-                    branch.add(subBranch);
-                    
-                    // Create leaves at the end of sub-branches
-                    const leafGeometry = new THREE.SphereGeometry(0.3, 4, 4);
-                    const leafMaterial = new THREE.MeshPhongMaterial({ 
-                        color: 0x88cc88,
-                        transparent: true,
-                        opacity: 0.8
-                    });
-                    const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
-                    leaf.position.y = -subBranchLength;
-                    leaf.scale.y = 2;
-                    subBranch.add(leaf);
-                }
+            for (let i = 0; i < 7; i++) {
+                const moss = new THREE.Mesh(mossGeometry, mossMaterial);
+                moss.position.set(
+                    (Math.random() - 0.5) * 1.0,
+                    (Math.random() * 8) - 1,
+                    (Math.random() - 0.5) * 1.0
+                );
+                moss.scale.set(0.6 + Math.random() * 0.4, 0.4 + Math.random() * 0.3, 0.6 + Math.random() * 0.4);
+                trunk.add(moss);
             }
             
-            // Add glowing mushrooms at the base (Ghibli style)
-            const mushroomCount = 6;
-            for (let i = 0; i < mushroomCount; i++) {
-                const angle = (i / mushroomCount) * Math.PI * 2;
-                const radius = 1.5;
-                const x = Math.cos(angle) * radius;
-                const z = Math.sin(angle) * radius;
-                
-                // Mushroom stem
-                const stemGeometry = new THREE.CylinderGeometry(0.1, 0.15, 0.4, 6);
-                const stemMaterial = new THREE.MeshPhongMaterial({ color: 0xf0e6d2 });
-                const stem = new THREE.Mesh(stemGeometry, stemMaterial);
-                stem.position.set(x, 0.2, z);
-                treeGroup.add(stem);
-                
-                // Mushroom cap
-                const capGeometry = new THREE.ConeGeometry(0.3, 0.2, 6);
-                const capMaterial = new THREE.MeshPhongMaterial({ 
-                    color: 0xffaaaa,
-                    emissive: 0x331111,
-                    emissiveIntensity: 0.3
-                });
-                const cap = new THREE.Mesh(capGeometry, capMaterial);
-                cap.position.set(x, 0.5, z);
-                treeGroup.add(cap);
-            }
+            // Create main branches that droop down (willow style)
+            createWillowBranches(treeGroup, trunkHeight);
+            
+            // Create fluffy willow canopy
+            createFluffyWillowCanopy(treeGroup, trunkHeight);
+            
+            // Add roots at the base
+            createWillowRoots(treeGroup);
+            
+            // Add magical elements at the base
+            createMagicalBaseElements(treeGroup);
             
             // Position tree
-            treeGroup.position.y = -3;
+            treeGroup.position.y = -5;
             scene.add(treeGroup);
             tree = treeGroup;
             
-            // Add soft glow to the tree
-            const pointLight = new THREE.PointLight(0xa8ffa8, 0.3, 10);
-            pointLight.position.set(0, 5, 0);
+            // Add soft magical glow to the tree
+            const pointLight = new THREE.PointLight(0x88ff88, 0.6, 20);
+            pointLight.position.set(0, 8, 0);
             treeGroup.add(pointLight);
+            
+            // Add multiple colored lights within the canopy
+            for (let i = 0; i < 5; i++) {
+                const canopyLight = new THREE.PointLight(
+                    new THREE.Color().setHSL(0.3 + Math.random() * 0.1, 0.8, 0.7),
+                    0.3,
+                    5 + Math.random() * 3
+                );
+                canopyLight.position.set(
+                    (Math.random() - 0.5) * 6,
+                    4 + Math.random() * 6,
+                    (Math.random() - 0.5) * 6
+                );
+                treeGroup.add(canopyLight);
+            }
+        }
+        
+        // Create willow branches that droop down
+        function createWillowBranches(treeGroup, trunkHeight) {
+            const branchCount = 16;
+            
+            for (let i = 0; i < branchCount; i++) {
+                const angle = (i / branchCount) * Math.PI * 2;
+                const radius = 1.0 + Math.random() * 0.8;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                
+                // Main drooping branch
+                const branchLength = 8 + Math.random() * 6;
+                const branchGeometry = new THREE.CylinderGeometry(0.15, 0.3, branchLength, 8);
+                
+                // Create gradient material for branch
+                const branchMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0x8a6647,
+                    shininess: 30
+                });
+                
+                const branch = new THREE.Mesh(branchGeometry, branchMaterial);
+                
+                // Position at top of trunk and droop down
+                branch.position.set(x, trunkHeight - 3, z);
+                branch.rotation.z = -Math.PI / 2 - Math.random() * 0.3; // Droop downwards
+                branch.rotation.y = angle + (Math.random() - 0.5) * 0.3;
+                branch.castShadow = true;
+                treeGroup.add(branch);
+                
+                // Add sub-branches along the main branch
+                const subBranchCount = 5 + Math.floor(Math.random() * 8);
+                for (let j = 0; j < subBranchCount; j++) {
+                    const subBranchLength = 3 + Math.random() * 4;
+                    const subBranchGeometry = new THREE.CylinderGeometry(0.05, 0.12, subBranchLength, 6);
+                    const subBranchMaterial = new THREE.MeshPhongMaterial({ color: 0x7a5647 });
+                    const subBranch = new THREE.Mesh(subBranchGeometry, subBranchMaterial);
+                    
+                    const positionAlongBranch = 0.1 + (j / subBranchCount) * 0.8;
+                    subBranch.position.y = -branchLength * positionAlongBranch;
+                    
+                    // Sub-branches also droop
+                    subBranch.rotation.z = -Math.PI / 2 - Math.random() * 0.4;
+                    
+                    branch.add(subBranch);
+                    
+                    // Add fluffy leaf clusters to sub-branches
+                    createFluffyLeafCluster(subBranch, subBranchLength);
+                }
+            }
+        }
+        
+        // Create fluffy leaf clusters (willow "fluff")
+        function createFluffyLeafCluster(branch, branchLength) {
+            const clusterCount = 4 + Math.floor(Math.random() * 6);
+            const clusterGroup = new THREE.Group();
+            
+            for (let c = 0; c < clusterCount; c++) {
+                // Create fluffy cluster using multiple spheres
+                const fluffCount = 5 + Math.floor(Math.random() * 8);
+                
+                for (let f = 0; f < fluffCount; f++) {
+                    const fluffSize = 0.2 + Math.random() * 0.3;
+                    const fluffGeometry = new THREE.SphereGeometry(fluffSize, 6, 6);
+                    
+                    // Soft green color with variation
+                    const hue = 0.25 + Math.random() * 0.15;
+                    const fluffMaterial = new THREE.MeshPhongMaterial({
+                        color: new THREE.Color().setHSL(hue, 0.7, 0.5 + Math.random() * 0.3),
+                        transparent: true,
+                        opacity: 0.8 + Math.random() * 0.2,
+                        shininess: 10
+                    });
+                    
+                    const fluff = new THREE.Mesh(fluffGeometry, fluffMaterial);
+                    
+                    // Position fluff in a cluster
+                    const clusterRadius = fluffSize * 3;
+                    fluff.position.set(
+                        (Math.random() - 0.5) * clusterRadius,
+                        -branchLength + (Math.random() * 0.5),
+                        (Math.random() - 0.5) * clusterRadius
+                    );
+                    
+                    clusterGroup.add(fluff);
+                }
+            }
+            
+            // Position cluster at end of branch
+            clusterGroup.position.y = -branchLength;
+            branch.add(clusterGroup);
+            
+            // Add tiny glowing orbs within the fluff
+            const orbCount = 2 + Math.floor(Math.random() * 3);
+            for (let o = 0; o < orbCount; o++) {
+                const orbGeometry = new THREE.SphereGeometry(0.08, 5, 5);
+                const orbMaterial = new THREE.MeshPhongMaterial({
+                    color: new THREE.Color().setHSL(0.3, 0.9, 0.8),
+                    emissive: new THREE.Color().setHSL(0.3, 0.7, 0.4),
+                    emissiveIntensity: 0.5,
+                    transparent: true,
+                    opacity: 0.9
+                });
+                
+                const orb = new THREE.Mesh(orbGeometry, orbMaterial);
+                orb.position.set(
+                    (Math.random() - 0.5) * 0.5,
+                    (Math.random() - 0.5) * 0.5,
+                    (Math.random() - 0.5) * 0.5
+                );
+                
+                clusterGroup.add(orb);
+            }
+        }
+        
+        // Create overall fluffy willow canopy
+        function createFluffyWillowCanopy(treeGroup, trunkHeight) {
+            const canopyGroup = new THREE.Group();
+            
+            // Create multiple layers of fluffiness
+            const layerCount = 4;
+            const maxRadius = 8;
+            
+            for (let layer = 0; layer < layerCount; layer++) {
+                const layerRadius = maxRadius * (1 - layer / layerCount);
+                const layerHeight = trunkHeight - 1 - layer * 2;
+                const fluffCount = 20 + layer * 10;
+                
+                for (let i = 0; i < fluffCount; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.random() * layerRadius;
+                    const x = Math.cos(angle) * distance;
+                    const z = Math.sin(angle) * distance;
+                    
+                    // Create fluffy cluster
+                    const fluffSize = 0.4 + Math.random() * 0.6;
+                    const fluffGeometry = new THREE.SphereGeometry(fluffSize, 7, 7);
+                    
+                    // Varying green colors
+                    const hue = 0.2 + Math.random() * 0.2;
+                    const saturation = 0.6 + Math.random() * 0.3;
+                    const lightness = 0.4 + Math.random() * 0.3;
+                    
+                    const fluffMaterial = new THREE.MeshPhongMaterial({
+                        color: new THREE.Color().setHSL(hue, saturation, lightness),
+                        transparent: true,
+                        opacity: 0.7 + Math.random() * 0.3,
+                        shininess: 5
+                    });
+                    
+                    const fluff = new THREE.Mesh(fluffGeometry, fluffMaterial);
+                    fluff.position.set(x, layerHeight + (Math.random() - 0.5) * 3, z);
+                    
+                    // Slightly flatten the fluff
+                    fluff.scale.y = 0.8 + Math.random() * 0.4;
+                    
+                    canopyGroup.add(fluff);
+                }
+            }
+            
+            treeGroup.add(canopyGroup);
+        }
+        
+        // Create willow roots
+        function createWillowRoots(treeGroup) {
+            const rootCount = 10;
+            
+            for (let i = 0; i < rootCount; i++) {
+                const angle = (i / rootCount) * Math.PI * 2;
+                const rootLength = 2 + Math.random() * 1.5;
+                const rootGeometry = new THREE.CylinderGeometry(0.25, 0.5, rootLength, 6);
+                const rootMaterial = new THREE.MeshPhongMaterial({ color: 0x5a3527 });
+                const root = new THREE.Mesh(rootGeometry, rootMaterial);
+                
+                const rootAngle = angle + (Math.random() - 0.5) * 0.5;
+                root.position.set(
+                    Math.cos(rootAngle) * 1.8,
+                    rootLength/2 - 2,
+                    Math.sin(rootAngle) * 1.8
+                );
+                
+                root.rotation.z = Math.PI / 4 + (Math.random() - 0.5) * 0.2;
+                root.rotation.y = rootAngle;
+                
+                treeGroup.add(root);
+            }
+        }
+        
+        // Create magical elements at the base of the willow
+        function createMagicalBaseElements(treeGroup) {
+            // Create glowing crystals/rocks
+            const crystalCount = 9;
+            
+            for (let i = 0; i < crystalCount; i++) {
+                const angle = (i / crystalCount) * Math.PI * 2;
+                const radius = 3 + Math.random() * 2;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                
+                // Crystal geometry
+                const crystalHeight = 0.3 + Math.random() * 0.4;
+                const crystalGeometry = new THREE.ConeGeometry(
+                    0.2 + Math.random() * 0.2,
+                    crystalHeight,
+                    4 + Math.floor(Math.random() * 4)
+                );
+                
+                // Glowing crystal material
+                const crystalMaterial = new THREE.MeshPhongMaterial({
+                    color: new THREE.Color().setHSL(0.3 + Math.random() * 0.2, 0.8, 0.6),
+                    emissive: new THREE.Color().setHSL(0.3 + Math.random() * 0.2, 0.7, 0.3),
+                    emissiveIntensity: 0.4,
+                    transparent: true,
+                    opacity: 0.8,
+                    shininess: 100
+                });
+                
+                const crystal = new THREE.Mesh(crystalGeometry, crystalMaterial);
+                crystal.position.set(x, crystalHeight/2, z);
+                crystal.rotation.y = Math.random() * Math.PI * 2;
+                
+                treeGroup.add(crystal);
+            }
+            
+            // Add a soft glowing ground circle under the tree
+            const groundGlowGeometry = new THREE.CircleGeometry(6, 32);
+            const groundGlowMaterial = new THREE.MeshBasicMaterial({
+                color: 0x88ff88,
+                transparent: true,
+                opacity: 0.05,
+                side: THREE.DoubleSide
+            });
+            
+            const groundGlow = new THREE.Mesh(groundGlowGeometry, groundGlowMaterial);
+            groundGlow.rotation.x = -Math.PI / 2;
+            groundGlow.position.y = 0.1;
+            
+            treeGroup.add(groundGlow);
         }
         
         // Create fireflies (kodama spirits)
         function createFireflies(count) {
-            const fireflyGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-            const fireflyMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0xa8ffa8,
-                transparent: true,
-                opacity: 0.7
-            });
+            const fireflyGeometry = new THREE.SphereGeometry(0.08, 6, 6);
             
             for (let i = 0; i < count; i++) {
-                const firefly = new THREE.Mesh(fireflyGeometry, fireflyMaterial.clone());
+                // Create firefly with glowing material
+                const fireflyMaterial = new THREE.MeshBasicMaterial({ 
+                    color: new THREE.Color().setHSL(0.25 + Math.random() * 0.2, 0.9, 0.7),
+                    transparent: true,
+                    opacity: 0.9
+                });
                 
-                // Random position around the tree
+                const firefly = new THREE.Mesh(fireflyGeometry, fireflyMaterial);
+                
+                // Position within the willow canopy area
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 2 + Math.random() * 4;
-                const height = 2 + Math.random() * 6;
+                const radius = 3 + Math.random() * 7;
+                const height = 2 + Math.random() * 10;
                 
                 firefly.position.x = Math.cos(angle) * radius;
                 firefly.position.y = height;
                 firefly.position.z = Math.sin(angle) * radius;
                 
-                // Store original position for animation
+                // Store animation data
                 firefly.userData = {
                     originalX: firefly.position.x,
                     originalY: firefly.position.y,
                     originalZ: firefly.position.z,
-                    speed: 0.5 + Math.random() * 1,
+                    speed: 0.2 + Math.random() * 0.6,
                     angle: Math.random() * Math.PI * 2,
-                    radius: 0.2 + Math.random() * 0.5,
-                    heightOffset: Math.random() * 0.3,
+                    radius: 0.4 + Math.random() * 1.0,
+                    heightOffset: Math.random() * 0.6,
                     timeOffset: Math.random() * Math.PI * 2,
                     visible: false,
-                    brightness: 1
+                    brightness: 1,
+                    hue: 0.25 + Math.random() * 0.2,
+                    wobbleSpeed: 0.5 + Math.random() * 1.0
                 };
                 
                 // Initially hide fireflies
@@ -456,27 +870,40 @@
             
             fireflies.forEach(firefly => {
                 if (firefly.visible) {
-                    // Gentle floating animation
+                    // Gentle floating animation within the willow
                     firefly.position.x = firefly.userData.originalX + 
-                        Math.cos(time * firefly.userData.speed + firefly.userData.timeOffset) * firefly.userData.radius;
+                        Math.cos(time * firefly.userData.speed + firefly.userData.timeOffset) * firefly.userData.radius +
+                        Math.sin(time * firefly.userData.wobbleSpeed) * 0.2;
+                    
                     firefly.position.y = firefly.userData.originalY + 
-                        Math.sin(time * firefly.userData.speed * 1.3 + firefly.userData.timeOffset) * firefly.userData.heightOffset;
+                        Math.sin(time * firefly.userData.speed * 1.3 + firefly.userData.timeOffset) * firefly.userData.heightOffset +
+                        Math.cos(time * 0.7 + firefly.userData.timeOffset) * 0.3;
+                    
                     firefly.position.z = firefly.userData.originalZ + 
-                        Math.sin(time * firefly.userData.speed * 0.7 + firefly.userData.timeOffset) * firefly.userData.radius;
+                        Math.sin(time * firefly.userData.speed * 0.8 + firefly.userData.timeOffset) * firefly.userData.radius +
+                        Math.cos(time * firefly.userData.wobbleSpeed * 1.2) * 0.2;
                     
                     // Pulsing brightness
-                    const pulse = 0.7 + 0.3 * Math.sin(time * 2 + firefly.userData.timeOffset);
-                    firefly.material.opacity = 0.6 * pulse * currentFireflyBrightness;
-                    firefly.material.color.setHSL(0.3, 0.8, 0.7 * currentFireflyBrightness);
+                    const pulse = 0.6 + 0.4 * Math.sin(time * 3 + firefly.userData.timeOffset);
+                    firefly.material.opacity = 0.8 * pulse * currentFireflyBrightness;
+                    firefly.material.color.setHSL(
+                        firefly.userData.hue, 
+                        0.9, 
+                        0.7 * pulse * currentFireflyBrightness
+                    );
                     
                     // Scale with pulse
-                    const scale = 0.8 + 0.4 * Math.sin(time * 3 + firefly.userData.timeOffset);
+                    const scale = 0.8 + 0.4 * Math.sin(time * 4 + firefly.userData.timeOffset);
                     firefly.scale.setScalar(scale);
+                    
+                    // Gentle rotation
+                    firefly.rotation.y += 0.01;
+                    firefly.rotation.x = Math.sin(time * 0.5 + firefly.userData.timeOffset) * 0.1;
                 }
             });
         }
         
-        // Show fireflies (kodama) when hands are open
+        // Show fireflies
         function showFireflies(count) {
             let shown = 0;
             
@@ -485,6 +912,11 @@
                 
                 if (!fireflies[i].visible) {
                     fireflies[i].visible = true;
+                    
+                    // Entrance animation - start small and grow
+                    fireflies[i].scale.setScalar(0.1);
+                    fireflies[i].userData.entranceTime = Date.now();
+                    
                     shown++;
                 }
             }
@@ -518,15 +950,72 @@
             // Smooth brightness adjustment
             currentFireflyBrightness += (targetFireflyBrightness - currentFireflyBrightness) * 0.05;
             
-            // Rotate tree slowly
+            // Animate the willow tree - gentle swaying
             if (tree) {
+                const time = Date.now() * 0.001;
                 tree.rotation.y += 0.001;
+                tree.rotation.z = Math.sin(time * 0.2) * 0.01;
+                tree.rotation.x = Math.sin(time * 0.15) * 0.005;
+                
+                // Slight scale pulsing for magical effect
+                const pulse = 1 + Math.sin(time * 0.5) * 0.001;
+                tree.scale.setScalar(pulse);
             }
+            
+            // Animate floating orbs
+            animateOrbs();
             
             // Animate fireflies
             animateFireflies();
             
+            // Animate floating particles
+            animateFloatingParticles();
+            
+            // Animate willow particles
+            animateWillowParticles();
+            
+            // Animate entrance of new fireflies
+            const currentTime = Date.now();
+            fireflies.forEach(firefly => {
+                if (firefly.userData.entranceTime) {
+                    const elapsed = currentTime - firefly.userData.entranceTime;
+                    if (elapsed < 600) {
+                        const scale = 0.1 + (elapsed / 600) * 0.9;
+                        firefly.scale.setScalar(scale);
+                    } else {
+                        firefly.userData.entranceTime = null;
+                    }
+                }
+            });
+            
             renderer.render(scene, camera);
+        }
+        
+        // Animate floating orbs
+        function animateOrbs() {
+            const time = Date.now() * 0.001;
+            
+            scene.children.forEach(child => {
+                if (child.userData && child.userData.speed) {
+                    // Gentle floating animation for orbs
+                    child.position.x = child.userData.originalX + 
+                        Math.cos(time * child.userData.speed + child.userData.timeOffset) * child.userData.radius;
+                    
+                    child.position.y = child.userData.originalY + 
+                        Math.sin(time * child.userData.speed * 1.5 + child.userData.timeOffset) * child.userData.heightOffset;
+                    
+                    child.position.z = child.userData.originalZ + 
+                        Math.sin(time * child.userData.speed * 0.9 + child.userData.timeOffset) * child.userData.radius * 0.7;
+                    
+                    // Gentle rotation
+                    child.rotation.y += 0.005;
+                    child.rotation.x = Math.sin(time * 0.3 + child.userData.timeOffset) * 0.1;
+                    
+                    // Subtle pulsing
+                    const pulse = 0.8 + 0.2 * Math.sin(time * 2 + child.userData.timeOffset);
+                    child.scale.setScalar(pulse);
+                }
+            });
         }
         
         // Initialize MediaPipe Hand Tracking
@@ -575,7 +1064,7 @@
                 } else {
                     handDetected = false;
                     // Gradually hide fireflies when no hands detected
-                    if (fireflyCount > 0 && Date.now() - lastGestureTime > 3000) {
+                    if (fireflyCount > 0 && Date.now() - lastGestureTime > 5000) {
                         hideFireflies();
                     }
                 }
@@ -614,21 +1103,24 @@
                 
                 // If all fingers are up (open hand)
                 if (fingersUp >= 4 && now - lastGestureTime > 1000) {
-                    showFireflies(10 + Math.floor(Math.random() * 10));
+                    showFireflies(10 + Math.floor(Math.random() * 15));
                     lastGestureTime = now;
                     
                     // Brighten fireflies
-                    targetFireflyBrightness = 1.5;
+                    targetFireflyBrightness = 1.8;
                     setTimeout(() => {
                         targetFireflyBrightness = 1;
-                    }, 1000);
+                    }, 1500);
                 }
                 
                 // If hand is raised (brighten fireflies)
                 const wristY = hand[0].y * 240;
                 if (wristY < 80 && now - lastGestureTime > 500) {
-                    targetFireflyBrightness = 2;
+                    targetFireflyBrightness = 2.2;
                     lastGestureTime = now;
+                    
+                    // Also show some fireflies
+                    showFireflies(4);
                 }
             }
             
@@ -651,7 +1143,7 @@
                 
                 // If hands are very close, show more fireflies
                 if (distance < 0.15 && now - lastGestureTime > 1500) {
-                    showFireflies(5);
+                    showFireflies(6);
                     lastGestureTime = now;
                 }
             } else {
