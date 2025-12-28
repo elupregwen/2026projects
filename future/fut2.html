@@ -3,96 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Living Ghibli Tree</title>
+    <title>Ghibli Willow Tree</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background: #0a0e27;
+            background: linear-gradient(to bottom, #0a1a0f 0%, #1a3a2a 50%, #0a1a0f 100%);
         }
         canvas {
             display: block;
         }
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #a8ffa8;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-shadow: 0 0 10px #a8ffa8;
+            z-index: 100;
+            opacity: 1;
+            transition: opacity 1s;
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
+    <div id="loading">Entering the Ghibli Forest...</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
         let scene, camera, renderer, tree = {}, time = 0;
         
-        const GHIBLI_WOOD_LIGHT = 0xD2B48C;
-        const GHIBLI_WOOD = 0xA67C52;
-        const GHIBLI_WOOD_DARK = 0x6B4F2A;
-        const GHIBLI_LEAF_LIGHT = 0xA8D5A2;
-        const GHIBLI_LEAF_MED = 0x7FB77E;
-        const GHIBLI_LEAF_DARK = 0x4F7F5A;
-        const GHIBLI_MOSS = 0x6B8E4E;
-        const GHIBLI_GRASS = 0x9BCF82;
-        const GHIBLI_FIELD = 0xBFD9A4;
-        const GHIBLI_EARTH = 0x8B6F47;
+        // Ghibli Willow Color Palette - Softer, more magical
+        const GHIBLI_WOOD_LIGHT = 0xD4B483;  // Softer light wood
+        const GHIBLI_WOOD = 0xA67C52;       // Warm brown
+        const GHIBLI_WOOD_DARK = 0x6B4F2A;  // Dark bark
+        
+        // Willow leaf colors - various shades of soft green
+        const GHIBLI_WILLOW_LIGHT = 0xB8E2B8;  // Very light green
+        const GHIBLI_WILLOW_MED = 0x8CCB8C;    // Medium willow green
+        const GHIBLI_WILLOW_DARK = 0x5A9F5A;   // Darker green
+        const GHIBLI_WILLOW_TIP = 0xE8F8E8;    // Light tips
+        
+        // Moss and ground colors
+        const GHIBLI_MOSS = 0x6B8E6E;         // Soft moss green
+        const GHIBLI_GRASS = 0x9BCF9C;        // Lighter grass
+        const GHIBLI_FIELD = 0xC4E8C4;        // Soft field green
+        const GHIBLI_EARTH = 0x8B6F47;        // Earth brown
+        
+        // Magical glow colors
+        const GHIBLI_GLOW_PINK = 0xFF9EB5;    // Soft pink glow
+        const GHIBLI_GLOW_GREEN = 0xA8FFA8;   // Soft green glow
+        const GHIBLI_GLOW_BLUE = 0x88CCFF;    // Soft blue glow
+        const GHIBLI_GLOW_YELLOW = 0xFFF8A8;  // Soft yellow glow
         
         function init() {
             scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0xCFE9FF, 1000, 10000);
+            scene.fog = new THREE.Fog(0x0a1a0f, 50, 200);
             
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 12, 35);
+            camera.position.set(0, 15, 35);
             
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             document.body.appendChild(renderer.domElement);
             
             setupLighting();
-            createLivingTree();
-            createMagicalEffects();
+            createLivingWillowTree();
+            createMagicalWillowEffects();
             
             window.addEventListener('resize', onResize);
+            
+            // Hide loading screen after a delay
+            setTimeout(() => {
+                document.getElementById('loading').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loading').classList.add('hidden');
+                }, 1000);
+            }, 1500);
+            
             animate();
         }
         
         function setupLighting() {
-            const ambient = new THREE.AmbientLight(0x1a1a3e, 0.3);
+            // Ambient light - soft greenish
+            const ambient = new THREE.AmbientLight(0x88cc88, 0.3);
             scene.add(ambient);
             
-            const moonLight = new THREE.DirectionalLight(0xb8c5d6, 1.5);
+            // Moonlight - soft blue
+            const moonLight = new THREE.DirectionalLight(0x88ccff, 0.8);
             moonLight.position.set(15, 25, 20);
+            moonLight.castShadow = true;
+            moonLight.shadow.mapSize.width = 2048;
+            moonLight.shadow.mapSize.height = 2048;
             scene.add(moonLight);
             
-            const blueMoon = new THREE.DirectionalLight(0x4a5f8c, 0.8);
+            // Secondary moonlight
+            const blueMoon = new THREE.DirectionalLight(0x4a8cc8, 0.5);
             blueMoon.position.set(-20, 20, 15);
             scene.add(blueMoon);
             
-            const magicGlow = new THREE.PointLight(0xFF6B9D, 5, 60);
-            magicGlow.position.set(0, 18, 0);
-            scene.add(magicGlow);
-            tree.magicGlow = magicGlow;
+            // Magical tree glow - soft green
+            const treeGlow = new THREE.PointLight(GHIBLI_GLOW_GREEN, 4, 60);
+            treeGlow.position.set(0, 18, 0);
+            scene.add(treeGlow);
+            tree.treeGlow = treeGlow;
             
-            const greenGlow = new THREE.PointLight(0x7ED957, 4, 45);
-            greenGlow.position.set(0, 10, 0);
-            scene.add(greenGlow);
-            tree.greenGlow = greenGlow;
+            // Willow canopy glow - softer
+            const willowGlow = new THREE.PointLight(GHIBLI_GLOW_YELLOW, 3, 45);
+            willowGlow.position.set(0, 10, 0);
+            scene.add(willowGlow);
+            tree.willowGlow = willowGlow;
             
-            const tealGlow = new THREE.PointLight(0x4ECDC4, 3.5, 40);
-            tealGlow.position.set(0, 15, 0);
-            scene.add(tealGlow);
-            tree.tealGlow = tealGlow;
+            // Magical spirit glow
+            const spiritGlow = new THREE.PointLight(GHIBLI_GLOW_PINK, 2.5, 40);
+            spiritGlow.position.set(0, 15, 0);
+            scene.add(spiritGlow);
+            tree.spiritGlow = spiritGlow;
         }
         
-        function createLivingTree() {
+        function createLivingWillowTree() {
             tree.trunk = [];
             tree.branches = [];
+            tree.willowStrands = [];  // New: willow hanging strands
             tree.leaves = [];
             tree.grass = [];
             
-            createGround();
-            createOrganicTrunk();
-            createBranchNetwork();
-            createBreathingCanopy();
+            createWillowGround();
+            createWillowTrunk();
+            createWeepingBranches();
+            createFlowingWillowStrands();
+            createWillowLeafClusters();
         }
         
-        function createGround() {
-            const groundGeo = new THREE.CircleGeometry(18, 32);
+        function createWillowGround() {
+            // Ground circle
+            const groundGeo = new THREE.CircleGeometry(25, 32);
             const groundMat = new THREE.MeshStandardMaterial({ 
                 color: GHIBLI_FIELD,
                 flatShading: true,
@@ -101,22 +152,40 @@
             const ground = new THREE.Mesh(groundGeo, groundMat);
             ground.rotation.x = -Math.PI / 2;
             ground.position.y = 0;
+            ground.receiveShadow = true;
             scene.add(ground);
             
-            for (let i = 0; i < 1200; i++) {
+            // Magical ground glow
+            const glowGeo = new THREE.CircleGeometry(20, 32);
+            const glowMat = new THREE.MeshBasicMaterial({
+                color: GHIBLI_GLOW_GREEN,
+                transparent: true,
+                opacity: 0.03,
+                side: THREE.DoubleSide
+            });
+            const glow = new THREE.Mesh(glowGeo, glowMat);
+            glow.rotation.x = -Math.PI / 2;
+            glow.position.y = 0.1;
+            scene.add(glow);
+            
+            // Grass blades - more sparse and willow-like
+            for (let i = 0; i < 800; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 2 + Math.random() * 14;
+                const radius = 3 + Math.random() * 18;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
                 
-                const height = 0.15 + Math.random() * 0.4;
-                const geo = new THREE.ConeGeometry(0.025, height, 3);
+                const height = 0.2 + Math.random() * 0.6;
+                const geo = new THREE.CylinderGeometry(0.02, 0.04, height, 4);
+                
                 const greenVariation = Math.random();
                 let grassColor;
-                if (greenVariation < 0.5) {
+                if (greenVariation < 0.4) {
                     grassColor = GHIBLI_GRASS;
-                } else {
+                } else if (greenVariation < 0.7) {
                     grassColor = GHIBLI_FIELD;
+                } else {
+                    grassColor = GHIBLI_WILLOW_MED;
                 }
                 const mat = new THREE.MeshStandardMaterial({ 
                     color: grassColor,
@@ -124,40 +193,69 @@
                     emissive: grassColor,
                     emissiveIntensity: 0.1
                 });
+                
                 const blade = new THREE.Mesh(geo, mat);
                 blade.position.set(x, height / 2, z);
-                blade.rotation.z = (Math.random() - 0.5) * 0.4;
+                blade.rotation.z = (Math.random() - 0.5) * 0.3;
                 blade.rotation.y = Math.random() * Math.PI * 2;
                 
                 blade.userData = {
                     baseRotZ: blade.rotation.z,
                     offset: Math.random() * Math.PI * 2,
-                    speed: 0.4 + Math.random() * 0.6,
-                    amp: 0.1 + Math.random() * 0.15
+                    speed: 0.3 + Math.random() * 0.4,
+                    amp: 0.08 + Math.random() * 0.1
                 };
                 
                 scene.add(blade);
                 tree.grass.push(blade);
             }
+            
+            // Add some magical mushrooms around the base
+            for (let i = 0; i < 20; i++) {
+                const angle = (i / 20) * Math.PI * 2;
+                const radius = 4 + Math.random() * 3;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                
+                // Mushroom stem
+                const stemHeight = 0.4 + Math.random() * 0.3;
+                const stemGeo = new THREE.CylinderGeometry(0.1, 0.15, stemHeight, 6);
+                const stemMat = new THREE.MeshStandardMaterial({ 
+                    color: 0xf0e6d2 
+                });
+                const stem = new THREE.Mesh(stemGeo, stemMat);
+                stem.position.set(x, stemHeight/2, z);
+                scene.add(stem);
+                
+                // Mushroom cap
+                const capGeo = new THREE.ConeGeometry(0.3, 0.2, 6);
+                const capMat = new THREE.MeshStandardMaterial({
+                    color: new THREE.Color().setHSL(Math.random() * 0.1, 0.9, 0.7),
+                    emissive: new THREE.Color().setHSL(Math.random() * 0.1, 0.7, 0.3),
+                    emissiveIntensity: 0.4
+                });
+                const cap = new THREE.Mesh(capGeo, capMat);
+                cap.position.set(x, stemHeight + 0.1, z);
+                scene.add(cap);
+            }
         }
         
-        function createOrganicTrunk() {
-            const trunkHeight = 10;
-            const segments = 25;
+        function createWillowTrunk() {
+            const trunkHeight = 14;
+            const segments = 28;
             
             for (let i = 0; i < segments; i++) {
                 const t = i / segments;
-                const baseRadius = 0.9;
-                const taper = 1 - t * 0.6;
-                const bulge = Math.sin(t * Math.PI * 2) * 0.4;
+                const baseRadius = 1.2;
+                const taper = 1 - t * 0.7;
+                const bulge = Math.sin(t * Math.PI * 3) * 0.3;
                 const radius = baseRadius * taper + bulge;
                 
-                const spiralTwist = t * Math.PI * 3;
-                const wavyTwist = Math.sin(t * Math.PI * 4) * 0.5;
-                const bend = Math.cos(t * Math.PI * 2) * 0.6;
+                const spiralTwist = t * Math.PI * 2.5;
+                const wavyTwist = Math.sin(t * Math.PI * 3) * 0.4;
                 
                 const height = trunkHeight / segments;
-                const geo = new THREE.CylinderGeometry(radius, radius + 0.06, height, 12);
+                const geo = new THREE.CylinderGeometry(radius, radius + 0.08, height, 12);
                 
                 const woodVariation = Math.random();
                 let barkColor;
@@ -176,11 +274,11 @@
                 
                 const seg = new THREE.Mesh(geo, mat);
                 seg.position.y = i * height + height / 2;
-                seg.position.x = bend * t + Math.sin(t * Math.PI * 6) * 0.3;
-                seg.position.z = Math.cos(t * Math.PI * 3) * 0.4;
+                seg.position.x = Math.sin(t * Math.PI * 5) * 0.2;
+                seg.position.z = Math.cos(t * Math.PI * 2.5) * 0.3;
                 seg.rotation.y = spiralTwist + wavyTwist;
-                seg.rotation.z = Math.sin(i * 0.8) * 0.12;
-                seg.rotation.x = Math.cos(i * 0.5) * 0.08;
+                seg.rotation.z = Math.sin(i * 0.7) * 0.08;
+                seg.castShadow = true;
                 
                 seg.userData = {
                     baseY: seg.position.y,
@@ -188,219 +286,290 @@
                     baseZ: seg.position.z,
                     baseRotY: seg.rotation.y,
                     baseRotZ: seg.rotation.z,
-                    baseRotX: seg.rotation.x,
-                    offset: i * 0.5,
-                    breatheAmp: 0.02 + Math.random() * 0.015,
-                    breatheSpeed: 0.7 + Math.random() * 0.5
+                    offset: i * 0.4,
+                    breatheAmp: 0.015 + Math.random() * 0.01,
+                    breatheSpeed: 0.5 + Math.random() * 0.4
                 };
                 
                 scene.add(seg);
                 tree.trunk.push(seg);
                 
-                if (i > 3 && i % 3 === 0) {
-                    const knotSize = radius * (0.4 + Math.random() * 0.4);
-                    const knotGeo = new THREE.SphereGeometry(knotSize, 8, 8);
-                    const knot = new THREE.Mesh(knotGeo, mat);
-                    knot.position.copy(seg.position);
-                    knot.position.x += radius * 0.9 * Math.cos(i);
-                    knot.position.z += radius * 0.9 * Math.sin(i);
-                    knot.rotation.z = Math.random() * Math.PI;
-                    scene.add(knot);
-                    tree.trunk.push(knot);
+                // Add moss patches on trunk
+                if (i > 5 && i % 4 === 0) {
+                    const mossSize = radius * (0.3 + Math.random() * 0.3);
+                    const mossGeo = new THREE.SphereGeometry(mossSize, 6, 4);
+                    const mossMat = new THREE.MeshStandardMaterial({ 
+                        color: GHIBLI_MOSS,
+                        flatShading: true
+                    });
+                    const moss = new THREE.Mesh(mossGeo, mossMat);
+                    moss.position.copy(seg.position);
+                    moss.position.x += radius * 0.8 * Math.cos(i);
+                    moss.position.z += radius * 0.8 * Math.sin(i);
+                    scene.add(moss);
                 }
             }
         }
         
-        function createBranchNetwork() {
-            const mainBranches = 16;
+        function createWeepingBranches() {
+            const mainBranches = 18;
             for (let i = 0; i < mainBranches; i++) {
                 const angle = (i / mainBranches) * Math.PI * 2;
-                const startHeight = 6 + Math.random() * 2.5;
-                const length = 3 + Math.random() * 1.5;
-                createOrganicBranch(angle, startHeight, 0, length, 0.25);
+                const startHeight = 8 + Math.random() * 3;
+                const length = 8 + Math.random() * 4;  // Longer for weeping effect
+                createWillowBranch(angle, startHeight, 0, length, 0.3);
             }
         }
         
-        function createOrganicBranch(angle, startY, generation, length, thickness) {
-            if (generation > 3 || length < 0.8) return;
+        function createWillowBranch(angle, startY, generation, length, thickness) {
+            if (generation > 2 || length < 1.5) return;
             
             const points = [];
-            const segments = 12;
-            const curvature = 0.3 + Math.random() * 0.5;
-            const twist = (Math.random() - 0.5) * 0.8;
+            const segments = 16;
+            const curvature = 1.2 + Math.random() * 0.6;  // More curvature for weeping
+            const twist = (Math.random() - 0.5) * 0.6;
             
             for (let i = 0; i <= segments; i++) {
                 const t = i / segments;
                 const radius = 0.5 + t * length;
-                const lift = Math.pow(t, 0.6) * (2 + Math.random() * 1);
+                const lift = Math.pow(t, 0.7) * (1 + Math.random() * 0.8);
                 const naturalBend = Math.sin(t * Math.PI) * curvature;
-                const waviness = Math.sin(t * Math.PI * 3) * 0.2;
+                const waviness = Math.sin(t * Math.PI * 2.5) * 0.15;
                 
+                // Weeping willow branches curve downward
                 points.push(new THREE.Vector3(
                     Math.cos(angle + twist * t) * radius + naturalBend,
-                    startY + lift - t * 0.5,
+                    startY - lift * 2,  // Negative for weeping
                     Math.sin(angle + twist * t) * radius + waviness
                 ));
             }
             
             const curve = new THREE.CatmullRomCurve3(points);
-            const geo = new THREE.TubeGeometry(curve, segments, thickness - generation * 0.05, 8, false);
+            const geo = new THREE.TubeGeometry(curve, segments, thickness - generation * 0.08, 8, false);
             const mat = new THREE.MeshStandardMaterial({ 
-                color: GHIBLI_WOOD_DARK,
+                color: GHIBLI_WOOD,
                 flatShading: true,
                 roughness: 0.9
             });
             const branch = new THREE.Mesh(geo, mat);
+            branch.castShadow = true;
             
             branch.userData = {
                 curve: curve,
                 offset: Math.random() * Math.PI * 2,
-                breatheSpeed: 0.4 + Math.random() * 0.3,
-                breatheAmp: 0.02 + Math.random() * 0.02
+                breatheSpeed: 0.3 + Math.random() * 0.25,
+                breatheAmp: 0.015 + Math.random() * 0.015
             };
             
             scene.add(branch);
             tree.branches.push(branch);
             
-            if (generation < 3) {
-                const subBranches = 2 + Math.floor(Math.random() * 3);
-                for (let i = 0; i < subBranches; i++) {
-                    const splitT = 0.5 + Math.random() * 0.4;
-                    const splitPoint = curve.getPointAt(splitT);
-                    const newAngle = angle + (Math.random() - 0.5) * 1.8;
-                    const newLength = length * (0.5 + Math.random() * 0.3);
-                    createOrganicBranch(newAngle, splitPoint.y, generation + 1, newLength, thickness * 0.7);
-                }
+            // Create sub-branches (willow strands) along this branch
+            const strandCount = 4 + Math.floor(Math.random() * 6);
+            for (let s = 0; s < strandCount; s++) {
+                const splitT = 0.3 + Math.random() * 0.6;
+                const splitPoint = curve.getPointAt(splitT);
+                createWillowStrand(splitPoint, angle + (Math.random() - 0.5) * 1.2);
             }
-        }
-        
-        function createBreathingCanopy() {
-            const layers = 18;
-            const clustersPerLayer = 50;
             
-            for (let layer = 0; layer < layers; layer++) {
-                const layerT = layer / layers;
-                const baseY = 9 + layer * 0.9;
-                const layerRadius = 9 * (1 - layerT * 0.3) * (0.95 + Math.sin(layerT * Math.PI) * 0.15);
-                
-                for (let i = 0; i < clustersPerLayer; i++) {
-                    const angle = (i / clustersPerLayer) * Math.PI * 2 + layer * 0.8;
-                    const radiusVariation = 0.5 + Math.random() * 0.8;
-                    const r = layerRadius * radiusVariation;
-                    const x = Math.cos(angle) * r;
-                    const z = Math.sin(angle) * r;
-                    const y = baseY + (Math.random() - 0.5) * 1.5;
-                    
-                    const puffCount = 8 + Math.floor(Math.random() * 6);
-                    for (let p = 0; p < puffCount; p++) {
-                        const puffSize = 0.5 + Math.random() * 0.8;
-                        const geo = new THREE.SphereGeometry(puffSize, 8, 8);
-                        
-                        const colorChoice = Math.random();
-                        let leafColor;
-                        if (colorChoice < 0.35) {
-                            leafColor = new THREE.Color(GHIBLI_LEAF_LIGHT);
-                        } else if (colorChoice < 0.7) {
-                            leafColor = new THREE.Color(GHIBLI_LEAF_MED);
-                        } else if (colorChoice < 0.9) {
-                            leafColor = new THREE.Color(GHIBLI_LEAF_DARK);
-                        } else {
-                            leafColor = new THREE.Color(GHIBLI_MOSS);
-                        }
-                        
-                        const mat = new THREE.MeshStandardMaterial({ 
-                            color: leafColor,
-                            flatShading: true,
-                            roughness: 0.75,
-                            emissive: leafColor,
-                            emissiveIntensity: 0.5
-                        });
-                        
-                        const leaf = new THREE.Mesh(geo, mat);
-                        leaf.position.set(
-                            x + (Math.random() - 0.5) * 2.2,
-                            y + (Math.random() - 0.5) * 1.5,
-                            z + (Math.random() - 0.5) * 2.2
-                        );
-                        
-                        const scaleVariation = 0.8 + Math.random() * 0.7;
-                        leaf.scale.set(
-                            scaleVariation * (0.95 + Math.random() * 0.3),
-                            scaleVariation * (1 + Math.random() * 0.4),
-                            scaleVariation * (0.95 + Math.random() * 0.3)
-                        );
-                        
-                        leaf.userData = {
-                            basePos: leaf.position.clone(),
-                            baseScale: leaf.scale.clone(),
-                            offset: Math.random() * Math.PI * 2,
-                            breatheSpeed: 0.6 + Math.random() * 0.9,
-                            breatheAmp: 0.3 + Math.random() * 0.4,
-                            pulseSpeed: 1 + Math.random() * 1.5,
-                            pulseAmp: 0.15 + Math.random() * 0.2
-                        };
-                        
-                        scene.add(leaf);
-                        tree.leaves.push(leaf);
-                    }
+            if (generation < 2) {
+                const subBranches = 2 + Math.floor(Math.random() * 2);
+                for (let i = 0; i < subBranches; i++) {
+                    const splitT = 0.4 + Math.random() * 0.5;
+                    const splitPoint = curve.getPointAt(splitT);
+                    const newAngle = angle + (Math.random() - 0.5) * 1.5;
+                    const newLength = length * (0.4 + Math.random() * 0.3);
+                    createWillowBranch(newAngle, splitPoint.y, generation + 1, newLength, thickness * 0.6);
                 }
             }
         }
         
-        function createMagicalEffects() {
+        function createWillowStrand(startPoint, angle) {
+            const strandLength = 5 + Math.random() * 4;
+            const segments = 12;
+            const points = [];
+            
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments;
+                const sway = Math.sin(t * Math.PI * 3) * 0.2;
+                
+                points.push(new THREE.Vector3(
+                    startPoint.x + Math.sin(angle + t * Math.PI) * 0.5 + sway,
+                    startPoint.y - t * strandLength * 0.9,
+                    startPoint.z + Math.cos(angle + t * Math.PI) * 0.5 + sway * 0.7
+                ));
+            }
+            
+            const curve = new THREE.CatmullRomCurve3(points);
+            const geo = new THREE.TubeGeometry(curve, segments, 0.05, 6, false);
+            const mat = new THREE.MeshStandardMaterial({ 
+                color: GHIBLI_WILLOW_DARK,
+                flatShading: true,
+                roughness: 0.8
+            });
+            
+            const strand = new THREE.Mesh(geo, mat);
+            strand.userData = {
+                curve: curve,
+                offset: Math.random() * Math.PI * 2,
+                swaySpeed: 0.2 + Math.random() * 0.3,
+                swayAmp: 0.1 + Math.random() * 0.2
+            };
+            
+            scene.add(strand);
+            tree.willowStrands.push(strand);
+            
+            // Add leaf clusters along the strand
+            const leafClusters = 3 + Math.floor(Math.random() * 5);
+            for (let i = 0; i < leafClusters; i++) {
+                const t = 0.1 + (i / leafClusters) * 0.9;
+                const point = curve.getPointAt(t);
+                createWillowLeafCluster(point);
+            }
+        }
+        
+        function createWillowLeafCluster(position) {
+            const clusterCount = 6 + Math.floor(Math.random() * 8);
+            
+            for (let i = 0; i < clusterCount; i++) {
+                const leafSize = 0.4 + Math.random() * 0.6;
+                const geo = new THREE.SphereGeometry(leafSize, 6, 6);
+                
+                const colorChoice = Math.random();
+                let leafColor;
+                if (colorChoice < 0.3) {
+                    leafColor = new THREE.Color(GHIBLI_WILLOW_LIGHT);
+                } else if (colorChoice < 0.6) {
+                    leafColor = new THREE.Color(GHIBLI_WILLOW_MED);
+                } else if (colorChoice < 0.85) {
+                    leafColor = new THREE.Color(GHIBLI_WILLOW_DARK);
+                } else {
+                    leafColor = new THREE.Color(GHIBLI_WILLOW_TIP);
+                }
+                
+                const mat = new THREE.MeshStandardMaterial({ 
+                    color: leafColor,
+                    flatShading: true,
+                    roughness: 0.7,
+                    emissive: leafColor,
+                    emissiveIntensity: 0.3
+                });
+                
+                const leaf = new THREE.Mesh(geo, mat);
+                leaf.position.set(
+                    position.x + (Math.random() - 0.5) * 1.5,
+                    position.y + (Math.random() - 0.5) * 1.2,
+                    position.z + (Math.random() - 0.5) * 1.5
+                );
+                
+                const scaleVariation = 0.7 + Math.random() * 0.6;
+                leaf.scale.set(
+                    scaleVariation,
+                    scaleVariation * 0.8,
+                    scaleVariation
+                );
+                
+                leaf.userData = {
+                    basePos: leaf.position.clone(),
+                    baseScale: leaf.scale.clone(),
+                    offset: Math.random() * Math.PI * 2,
+                    swaySpeed: 0.4 + Math.random() * 0.5,
+                    swayAmp: 0.2 + Math.random() * 0.3,
+                    pulseSpeed: 0.8 + Math.random() * 1.2,
+                    pulseAmp: 0.1 + Math.random() * 0.15
+                };
+                
+                leaf.castShadow = true;
+                scene.add(leaf);
+                tree.leaves.push(leaf);
+            }
+        }
+        
+        function createFlowingWillowStrands() {
+            // Additional flowing strands for more willow effect
+            for (let i = 0; i < 30; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const startHeight = 4 + Math.random() * 8;
+                const startPoint = new THREE.Vector3(
+                    Math.cos(angle) * 2,
+                    startHeight,
+                    Math.sin(angle) * 2
+                );
+                createWillowStrand(startPoint, angle);
+            }
+        }
+        
+        function createWillowLeafClusters() {
+            // Additional leaf clusters in the canopy
+            const clusters = 60;
+            
+            for (let i = 0; i < clusters; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 3 + Math.random() * 10;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                const y = 5 + Math.random() * 12;
+                
+                createWillowLeafCluster(new THREE.Vector3(x, y, z));
+            }
+        }
+        
+        function createMagicalWillowEffects() {
             tree.particles = [];
             tree.fireflies = [];
+            tree.floatingLeaves = [];
             
-            for (let i = 0; i < 150; i++) {
-                const geo = new THREE.SphereGeometry(0.08, 8, 8);
+            // Magical floating particles
+            for (let i = 0; i < 120; i++) {
+                const geo = new THREE.SphereGeometry(0.06, 6, 6);
                 const colorChoice = Math.random();
                 let particleColor;
                 if (colorChoice < 0.4) {
-                    particleColor = 0xFFE66D;
+                    particleColor = GHIBLI_GLOW_YELLOW;
                 } else if (colorChoice < 0.7) {
-                    particleColor = 0xFF6B9D;
+                    particleColor = GHIBLI_GLOW_GREEN;
                 } else {
-                    particleColor = 0x7ED957;
+                    particleColor = GHIBLI_GLOW_PINK;
                 }
                 const mat = new THREE.MeshBasicMaterial({ 
                     color: particleColor,
                     transparent: true,
-                    opacity: 0.8
+                    opacity: 0.7
                 });
                 const particle = new THREE.Mesh(geo, mat);
                 
                 particle.position.set(
-                    (Math.random() - 0.5) * 25,
-                    Math.random() * 18,
-                    (Math.random() - 0.5) * 25
+                    (Math.random() - 0.5) * 30,
+                    Math.random() * 20,
+                    (Math.random() - 0.5) * 30
                 );
                 
                 particle.userData = {
                     vel: new THREE.Vector3(
-                        (Math.random() - 0.5) * 0.015,
-                        0.008 + Math.random() * 0.025,
-                        (Math.random() - 0.5) * 0.015
+                        (Math.random() - 0.5) * 0.01,
+                        0.005 + Math.random() * 0.02,
+                        (Math.random() - 0.5) * 0.01
                     ),
                     offset: Math.random() * Math.PI * 2,
-                    baseOpacity: 0.4 + Math.random() * 0.4
+                    baseOpacity: 0.3 + Math.random() * 0.4,
+                    pulseSpeed: 2 + Math.random() * 3
                 };
                 
                 scene.add(particle);
                 tree.particles.push(particle);
             }
             
-            for (let i = 0; i < 200; i++) {
-                const geo = new THREE.SphereGeometry(0.12, 8, 8);
+            // Fireflies
+            for (let i = 0; i < 150; i++) {
+                const geo = new THREE.SphereGeometry(0.1, 8, 8);
                 const colorChoice = Math.random();
                 let fireflyColor;
-                if (colorChoice < 0.3) {
-                    fireflyColor = 0xffee88;
-                } else if (colorChoice < 0.6) {
-                    fireflyColor = 0xffd700;
-                } else if (colorChoice < 0.85) {
-                    fireflyColor = 0xffa500;
+                if (colorChoice < 0.4) {
+                    fireflyColor = GHIBLI_GLOW_YELLOW;
+                } else if (colorChoice < 0.7) {
+                    fireflyColor = 0xa8ffa8;
                 } else {
-                    fireflyColor = 0x7ED957;
+                    fireflyColor = 0xffd8a8;
                 }
                 const mat = new THREE.MeshBasicMaterial({ 
                     color: fireflyColor,
@@ -409,26 +578,63 @@
                 const firefly = new THREE.Mesh(geo, mat);
                 
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 2 + Math.random() * 12;
+                const radius = 2 + Math.random() * 15;
                 
                 firefly.position.set(
                     Math.cos(angle) * radius,
-                    Math.random() * 20,
+                    Math.random() * 18,
                     Math.sin(angle) * radius
                 );
                 
                 firefly.userData = {
                     angle: angle,
                     radius: radius,
-                    speed: 0.1 + Math.random() * 0.2,
+                    speed: 0.08 + Math.random() * 0.15,
                     yOffset: Math.random() * Math.PI * 2,
-                    ySpeed: 0.2 + Math.random() * 0.25,
-                    pulseSpeed: 1.5 + Math.random() * 2,
-                    verticalDrift: (Math.random() - 0.5) * 0.02
+                    ySpeed: 0.15 + Math.random() * 0.2,
+                    pulseSpeed: 1.2 + Math.random() * 1.8,
+                    verticalDrift: (Math.random() - 0.5) * 0.015
                 };
                 
                 scene.add(firefly);
                 tree.fireflies.push(firefly);
+            }
+            
+            // Floating willow leaves
+            for (let i = 0; i < 80; i++) {
+                const geo = new THREE.PlaneGeometry(0.3, 0.5);
+                const mat = new THREE.MeshBasicMaterial({
+                    color: new THREE.Color().setHSL(0.3 + Math.random() * 0.1, 0.7, 0.5),
+                    transparent: true,
+                    opacity: 0.7,
+                    side: THREE.DoubleSide
+                });
+                
+                const leaf = new THREE.Mesh(geo, mat);
+                
+                leaf.position.set(
+                    (Math.random() - 0.5) * 25,
+                    5 + Math.random() * 15,
+                    (Math.random() - 0.5) * 25
+                );
+                
+                leaf.rotation.x = Math.random() * Math.PI;
+                leaf.rotation.y = Math.random() * Math.PI;
+                leaf.rotation.z = Math.random() * Math.PI;
+                
+                leaf.userData = {
+                    speed: 0.015 + Math.random() * 0.02,
+                    rotationSpeed: {
+                        x: (Math.random() - 0.5) * 0.015,
+                        y: (Math.random() - 0.5) * 0.015,
+                        z: (Math.random() - 0.5) * 0.015
+                    },
+                    sway: Math.random() * Math.PI * 2,
+                    swayAmount: 0.4 + Math.random() * 0.8
+                };
+                
+                scene.add(leaf);
+                tree.floatingLeaves.push(leaf);
             }
         }
         
@@ -436,34 +642,42 @@
             requestAnimationFrame(animate);
             time += 0.016;
             
-            const breathe = Math.sin(time * 0.6) * 0.5 + 0.5;
+            const breathe = Math.sin(time * 0.5) * 0.5 + 0.5;
             
+            // Animate trunk
             tree.trunk.forEach(seg => {
                 if (seg.userData.breatheSpeed) {
                     const breath = Math.sin(time * seg.userData.breatheSpeed + seg.userData.offset);
                     const breathPulse = breath * seg.userData.breatheAmp;
                     
                     seg.rotation.z = seg.userData.baseRotZ + breathPulse;
-                    seg.rotation.y = seg.userData.baseRotY + Math.cos(time * 0.4 + seg.userData.offset) * 0.015;
-                    seg.position.x = seg.userData.baseX + Math.sin(time * 0.3 + seg.userData.offset) * 0.03;
+                    seg.rotation.y = seg.userData.baseRotY + Math.cos(time * 0.3 + seg.userData.offset) * 0.01;
                     
-                    const scale = 1 + breathPulse * 2;
-                    seg.scale.set(scale, 1 + breathPulse * 0.5, scale);
+                    const scale = 1 + breathPulse * 1.5;
+                    seg.scale.set(scale, 1 + breathPulse * 0.3, scale);
                 }
             });
             
+            // Animate branches
             tree.branches.forEach(branch => {
                 const breath = Math.sin(time * branch.userData.breatheSpeed + branch.userData.offset);
                 branch.rotation.x = breath * branch.userData.breatheAmp;
-                branch.rotation.z = Math.cos(time * branch.userData.breatheSpeed * 0.6 + branch.userData.offset) * branch.userData.breatheAmp * 0.7;
+                branch.rotation.z = Math.cos(time * branch.userData.breatheSpeed * 0.5 + branch.userData.offset) * branch.userData.breatheAmp * 0.5;
             });
             
+            // Animate willow strands
+            tree.willowStrands.forEach(strand => {
+                const sway = Math.sin(time * strand.userData.swaySpeed + strand.userData.offset) * strand.userData.swayAmp;
+                strand.rotation.x = sway;
+                strand.rotation.z = Math.cos(time * strand.userData.swaySpeed * 0.7 + strand.userData.offset) * strand.userData.swayAmp * 0.3;
+            });
+            
+            // Animate leaves
             tree.leaves.forEach((leaf, i) => {
                 const d = leaf.userData;
-                const breath = Math.sin(time * d.breatheSpeed + d.offset);
-                const swayX = breath * d.breatheAmp;
-                const swayY = Math.cos(time * d.breatheSpeed * 0.7 + d.offset) * d.breatheAmp * 0.7;
-                const swayZ = Math.sin(time * d.breatheSpeed * 0.9 + d.offset + 1.5) * d.breatheAmp;
+                const swayX = Math.sin(time * d.swaySpeed + d.offset) * d.swayAmp;
+                const swayY = Math.cos(time * d.swaySpeed * 0.6 + d.offset) * d.swayAmp * 0.5;
+                const swayZ = Math.sin(time * d.swaySpeed * 0.8 + d.offset + 1.2) * d.swayAmp * 0.3;
                 
                 leaf.position.x = d.basePos.x + swayX;
                 leaf.position.y = d.basePos.y + swayY;
@@ -474,58 +688,84 @@
                 leaf.scale.y = d.baseScale.y * pulse;
                 leaf.scale.z = d.baseScale.z * pulse;
                 
-                const glow = 0.5 + Math.sin(time * 0.5 + d.offset) * 0.25;
+                const glow = 0.3 + Math.sin(time * 0.4 + d.offset) * 0.2;
                 leaf.material.emissiveIntensity = glow;
+                
+                leaf.rotation.y += 0.01;
             });
             
+            // Animate grass
             tree.grass.forEach(blade => {
                 const sway = Math.sin(time * blade.userData.speed + blade.userData.offset) * blade.userData.amp;
                 blade.rotation.z = blade.userData.baseRotZ + sway;
             });
             
+            // Animate particles
             tree.particles.forEach(p => {
                 p.position.add(p.userData.vel);
                 
-                if (p.position.y > 20) p.position.y = -1;
-                if (Math.abs(p.position.x) > 15) p.userData.vel.x *= -1;
-                if (Math.abs(p.position.z) > 15) p.userData.vel.z *= -1;
+                if (p.position.y > 25) p.position.y = -5;
+                if (Math.abs(p.position.x) > 18) p.userData.vel.x *= -1;
+                if (Math.abs(p.position.z) > 18) p.userData.vel.z *= -1;
                 
-                const opacity = p.userData.baseOpacity * (0.4 + Math.sin(time * 3 + p.userData.offset) * 0.6);
+                const opacity = p.userData.baseOpacity * (0.5 + Math.sin(time * p.userData.pulseSpeed + p.userData.offset) * 0.5);
                 p.material.opacity = opacity;
+                
+                p.rotation.y += 0.02;
             });
             
+            // Animate fireflies
             tree.fireflies.forEach(f => {
                 const d = f.userData;
                 d.angle += d.speed * 0.016;
                 f.position.x = Math.cos(d.angle) * d.radius;
                 f.position.z = Math.sin(d.angle) * d.radius;
-                f.position.y += Math.sin(time * d.ySpeed + d.yOffset) * 0.04 + d.verticalDrift;
+                f.position.y += Math.sin(time * d.ySpeed + d.yOffset) * 0.03 + d.verticalDrift;
                 
-                if (f.position.y > 22) f.position.y = 0;
-                if (f.position.y < 0) f.position.y = 22;
+                if (f.position.y > 20) f.position.y = 2;
+                if (f.position.y < 2) f.position.y = 20;
                 
-                const glow = 0.3 + Math.sin(time * d.pulseSpeed + d.angle) * 0.7;
+                const glow = 0.4 + Math.sin(time * d.pulseSpeed + d.angle) * 0.6;
                 f.material.opacity = glow;
-                f.scale.setScalar(0.8 + glow * 0.6);
+                f.scale.setScalar(0.7 + glow * 0.5);
             });
             
-            if (tree.magicGlow) {
-                tree.magicGlow.intensity = 5 + Math.sin(time * 0.9) * 1.5;
+            // Animate floating leaves
+            tree.floatingLeaves.forEach(leaf => {
+                leaf.position.y -= leaf.userData.speed;
+                leaf.position.x += Math.sin(time + leaf.userData.sway) * 0.008 * leaf.userData.swayAmount;
+                leaf.position.z += Math.cos(time * 0.6 + leaf.userData.sway) * 0.008 * leaf.userData.swayAmount;
+                
+                leaf.rotation.x += leaf.userData.rotationSpeed.x;
+                leaf.rotation.y += leaf.userData.rotationSpeed.y;
+                leaf.rotation.z += leaf.userData.rotationSpeed.z;
+                
+                if (leaf.position.y < -5) {
+                    leaf.position.y = 20;
+                    leaf.position.x = (Math.random() - 0.5) * 25;
+                    leaf.position.z = (Math.random() - 0.5) * 25;
+                }
+            });
+            
+            // Animate lights
+            if (tree.treeGlow) {
+                tree.treeGlow.intensity = 4 + Math.sin(time * 0.8) * 1.2;
             }
             
-            if (tree.greenGlow) {
-                tree.greenGlow.intensity = 4 + breathe * 2;
+            if (tree.willowGlow) {
+                tree.willowGlow.intensity = 3 + breathe * 1.5;
             }
             
-            if (tree.tealGlow) {
-                tree.tealGlow.intensity = 3.5 + Math.cos(time * 0.7) * 1.2;
+            if (tree.spiritGlow) {
+                tree.spiritGlow.intensity = 2.5 + Math.cos(time * 0.6) * 1;
             }
             
-            const camAngle = time * 0.03;
+            // Gentle camera movement
+            const camAngle = time * 0.02;
             camera.position.x = Math.cos(camAngle) * 35;
             camera.position.z = Math.sin(camAngle) * 35;
-            camera.position.y = 12 + Math.sin(time * 0.2) * 2;
-            camera.lookAt(0, 10, 0);
+            camera.position.y = 15 + Math.sin(time * 0.15) * 1.5;
+            camera.lookAt(0, 12, 0);
             
             renderer.render(scene, camera);
         }
