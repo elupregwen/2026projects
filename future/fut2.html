@@ -3,19 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enchanted Ghibli Tree | Spirit Forest</title>
+    <title>Fluffy Ghibli Tree | Magical Forest</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
     <style>
         body {
             margin: 0;
             padding: 0;
             background: #0a1a0f;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
         
         #loading {
@@ -36,7 +33,7 @@
         .spinner {
             width: 60px;
             height: 60px;
-            border: 5px solid rgba(200, 255, 200, 0.3);
+            border: 5px solid rgba(168, 255, 168, 0.2);
             border-top: 5px solid #a8ffa8;
             border-radius: 50%;
             animation: spin 1.5s linear infinite;
@@ -48,32 +45,35 @@
             100% { transform: rotate(360deg); }
         }
         
-        .loader-text {
+        .loading-text {
             color: #a8ffa8;
             font-size: 24px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             text-align: center;
         }
         
-        .dot-fade {
-            display: flex;
-            gap: 10px;
+        .loading-subtext {
+            color: #88cc88;
+            font-size: 16px;
+            max-width: 400px;
+            text-align: center;
+            margin-bottom: 20px;
         }
         
-        .dot {
-            width: 10px;
-            height: 10px;
+        .progress-bar {
+            width: 300px;
+            height: 4px;
+            background: rgba(168, 255, 168, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            width: 0%;
             background: #a8ffa8;
-            border-radius: 50%;
-            animation: dotPulse 1.5s infinite;
-        }
-        
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-        
-        @keyframes dotPulse {
-            0%, 100% { opacity: 0.3; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.2); }
+            border-radius: 2px;
+            transition: width 0.3s;
         }
         
         #tree-container {
@@ -84,222 +84,108 @@
             height: 100%;
         }
         
-        #gesture-ui {
+        #ui {
             position: fixed;
             bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(10, 30, 20, 0.85);
-            border-radius: 20px;
-            padding: 15px 25px;
-            color: #c1ffc1;
-            z-index: 10;
-            border: 2px solid rgba(168, 255, 168, 0.3);
-            backdrop-filter: blur(10px);
-            display: flex;
-            gap: 30px;
-        }
-        
-        .gesture-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .gesture-icon {
-            font-size: 28px;
-            width: 60px;
-            height: 60px;
-            background: rgba(168, 255, 168, 0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-        
-        .gesture-active {
-            background: rgba(168, 255, 168, 0.3);
-            box-shadow: 0 0 20px rgba(168, 255, 168, 0.5);
-            transform: scale(1.1);
-        }
-        
-        .gesture-label {
-            font-size: 14px;
+            left: 20px;
             color: #a8ffa8;
-        }
-        
-        #magic-meter {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 200px;
-            background: rgba(10, 30, 20, 0.85);
-            border-radius: 15px;
-            padding: 15px;
-            color: #c1ffc1;
             z-index: 10;
-            border: 2px solid rgba(168, 255, 168, 0.3);
-            backdrop-filter: blur(10px);
+            background: rgba(10, 30, 20, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(168, 255, 168, 0.2);
+            backdrop-filter: blur(5px);
+            max-width: 300px;
         }
         
-        .meter-title {
+        .ui-title {
+            font-size: 20px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
-            color: #a8ffa8;
         }
         
-        .meter-bar {
-            width: 100%;
-            height: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 5px;
-            overflow: hidden;
-        }
-        
-        .meter-fill {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(to right, #0a1a0f, #a8ffa8, #ffffa0);
-            border-radius: 5px;
-            transition: width 0.5s;
-        }
-        
-        .meter-text {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 5px;
-            font-size: 12px;
-        }
-        
-        #particle-count {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(10, 30, 20, 0.85);
-            border-radius: 15px;
-            padding: 15px;
-            color: #c1ffc1;
-            z-index: 10;
-            border: 2px solid rgba(168, 255, 168, 0.3);
-            backdrop-filter: blur(10px);
-        }
-        
-        .count-display {
+        .leaf-count {
             font-size: 32px;
             color: #ffffa0;
             text-align: center;
-            margin-bottom: 5px;
+            margin: 10px 0;
         }
         
-        .count-label {
-            font-size: 14px;
-            color: #a8ffa8;
-            text-align: center;
+        .leaf-icon {
+            animation: float 3s infinite ease-in-out;
+            display: inline-block;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
         }
         
         .hidden {
             display: none !important;
-        }
-        
-        @media (max-width: 768px) {
-            #gesture-ui {
-                gap: 15px;
-                padding: 10px 15px;
-            }
-            
-            .gesture-icon {
-                width: 50px;
-                height: 50px;
-                font-size: 24px;
-            }
-            
-            .gesture-label {
-                font-size: 12px;
-            }
         }
     </style>
 </head>
 <body>
     <!-- Loading Screen -->
     <div id="loading">
-        <div class="loader-text">Entering the Spirit Forest</div>
+        <div class="loading-text">Growing Magical Tree</div>
+        <div class="loading-subtext">Planting fluffy leaves and preparing magical atmosphere...</div>
         <div class="spinner"></div>
-        <div class="dot-fade">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
+        <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill"></div>
         </div>
     </div>
     
-    <!-- Main 3D Tree Container -->
+    <!-- 3D Tree Container -->
     <div id="tree-container"></div>
     
-    <!-- Particle Count Display -->
-    <div id="particle-count">
-        <div class="count-display">0</div>
-        <div class="count-label">Kodama Spirits</div>
-    </div>
-    
-    <!-- Magic Meter -->
-    <div id="magic-meter">
-        <div class="meter-title">
-            <span>✨</span>
-            <span>Forest Magic</span>
+    <!-- UI Panel -->
+    <div id="ui" class="hidden">
+        <div class="ui-title">
+            <span>🌳</span>
+            <span>Fluffy Ghibli Tree</span>
         </div>
-        <div class="meter-bar">
-            <div id="meter-fill" class="meter-fill"></div>
-        </div>
-        <div class="meter-text">
-            <span>Calm</span>
-            <span>Enchanted</span>
-        </div>
-    </div>
-    
-    <!-- Gesture UI -->
-    <div id="gesture-ui">
-        <div class="gesture-item">
-            <div id="palm-icon" class="gesture-icon">🖐️</div>
-            <div class="gesture-label">Summon Spirits</div>
-        </div>
-        <div class="gesture-item">
-            <div id="fist-icon" class="gesture-icon">✊</div>
-            <div class="gesture-label">Hide Spirits</div>
-        </div>
-        <div class="gesture-item">
-            <div id="peace-icon" class="gesture-icon">✌️</div>
-            <div class="gesture-label">Magic Bloom</div>
+        <div>A magical tree overflowing with <span id="leaf-count" class="leaf-count">0</span> fluffy leaves</div>
+        <div style="margin-top: 10px; font-size: 14px; color: #88cc88;">
+            Each leaf carries a bit of forest magic
         </div>
     </div>
 
     <script>
-        // Initialize variables
+        // Initialize Three.js
         let scene, camera, renderer, tree;
-        let magicParticles = [];
-        let spiritParticles = [];
-        let glowingOrbs = [];
-        let floatingLeaves = [];
-        let activeGestures = { palm: false, fist: false, peace: false };
-        let magicLevel = 0;
-        let spiritCount = 0;
-        let bloomActive = false;
-        let bloomTime = 0;
+        let leaves = [];
+        let magicalParticles = [];
+        let leafCount = 0;
+        
+        // Progress tracking
+        let loadProgress = 0;
+        const progressFill = document.getElementById('progress-fill');
+        
+        function updateProgress(percent) {
+            loadProgress = percent;
+            progressFill.style.width = percent + '%';
+        }
         
         // Initialize Three.js scene
         function initThreeJS() {
-            // Create scene with Ghibli-style atmosphere
-            scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x0a1a0f, 0.08);
+            updateProgress(10);
             
-            // Create camera with gentle angle
+            // Create scene with Ghibli atmosphere
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x0a1a0f, 5, 25);
+            
+            // Create camera
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 4, 12);
+            camera.position.set(0, 3, 10);
             camera.lookAt(0, 2, 0);
             
-            // Create renderer with enhanced effects
+            updateProgress(20);
+            
+            // Create renderer
             renderer = new THREE.WebGLRenderer({ 
                 antialias: true, 
                 alpha: true,
@@ -309,361 +195,359 @@
             renderer.setClearColor(0x0a1a0f, 1);
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            renderer.outputEncoding = THREE.sRGBEncoding;
             document.getElementById('tree-container').appendChild(renderer.domElement);
             
-            // Enhanced Ghibli-style lighting
-            // Moonlight (soft blue)
+            updateProgress(30);
+            
+            // Create magical lighting
+            // Moonlight (soft blue from top-left)
             const moonLight = new THREE.DirectionalLight(0x88aaff, 0.4);
-            moonLight.position.set(-10, 20, 10);
+            moonLight.position.set(-10, 20, 5);
             moonLight.castShadow = true;
-            moonLight.shadow.mapSize.width = 2048;
-            moonLight.shadow.mapSize.height = 2048;
+            moonLight.shadow.camera.left = -20;
+            moonLight.shadow.camera.right = 20;
+            moonLight.shadow.camera.top = 20;
+            moonLight.shadow.camera.bottom = -20;
             scene.add(moonLight);
             
-            // Magical tree glow (soft green)
-            const treeGlow = new THREE.PointLight(0xa8ffa8, 0.6, 20);
-            treeGlow.position.set(0, 5, 0);
+            // Warm glow from the tree
+            const treeGlow = new THREE.PointLight(0xffffa0, 0.6, 15);
+            treeGlow.position.set(0, 3, 0);
             scene.add(treeGlow);
             
-            // Ambient mystical light
-            const ambientGlow = new THREE.AmbientLight(0x88cc88, 0.3);
-            scene.add(ambientGlow);
+            // Ambient forest light
+            const ambientLight = new THREE.AmbientLight(0x88cc88, 0.3);
+            scene.add(ambientLight);
             
-            // Create the enchanted Ghibli tree
-            createEnchantedTree();
+            updateProgress(40);
             
-            // Create floating particles
-            createMagicParticles(50);
-            createFloatingLeaves(30);
+            // Create magical ground
+            createMagicalGround();
+            updateProgress(50);
+            
+            // Create the fluffy Ghibli tree
+            createFluffyTree();
+            updateProgress(80);
+            
+            // Create floating magical particles
+            createMagicalParticles();
+            updateProgress(90);
             
             // Handle window resize
             window.addEventListener('resize', onWindowResize);
+            
+            updateProgress(100);
             
             // Hide loading screen
             setTimeout(() => {
                 document.getElementById('loading').style.opacity = '0';
                 setTimeout(() => {
                     document.getElementById('loading').classList.add('hidden');
+                    document.getElementById('ui').classList.remove('hidden');
                 }, 1000);
-            }, 2500);
+            }, 1000);
         }
         
-        // Create an enchanting Ghibli-style tree
-        function createEnchantedTree() {
+        // Create magical ground
+        function createMagicalGround() {
+            // Mossy ground
+            const groundGeometry = new THREE.CircleGeometry(15, 64);
+            const groundMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x1e3a2e,
+                shininess: 10
+            });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            
+            // Add magical flowers and grass
+            for (let i = 0; i < 50; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * 12;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                
+                // Create small patch of grass/flowers
+                const patchSize = 0.5 + Math.random() * 0.5;
+                const patchGeometry = new THREE.ConeGeometry(patchSize, 0.3, 4);
+                const patchMaterial = new THREE.MeshPhongMaterial({
+                    color: Math.random() > 0.7 ? 0xffaacc : 0x88cc88,
+                    transparent: true,
+                    opacity: 0.7
+                });
+                const patch = new THREE.Mesh(patchGeometry, patchMaterial);
+                patch.position.set(x, 0.15, z);
+                patch.rotation.x = Math.PI;
+                scene.add(patch);
+            }
+        }
+        
+        // Create the main fluffy tree
+        function createFluffyTree() {
             const treeGroup = new THREE.Group();
             
-            // Main trunk with magical spiral
-            const trunkGeometry = new THREE.CylinderGeometry(1.2, 1.8, 10, 10);
-            const trunkMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0x5a3a27,
-                shininess: 30,
-                specular: 0x886644
-            });
-            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-            trunk.castShadow = true;
-            trunk.receiveShadow = true;
-            trunk.position.y = 5;
+            // Create fluffy canopy using multiple layered spheres
+            createFluffyCanopy(treeGroup);
             
-            // Add magical spiral details to trunk
-            const spiralGeometry = new THREE.TorusGeometry(1.3, 0.1, 8, 30, Math.PI * 1.5);
-            const spiralMaterial = new THREE.MeshBasicMaterial({ 
-                color: 0xa8ffa8,
-                transparent: true,
-                opacity: 0.6
-            });
+            // Create textured trunk
+            createTreeTrunk(treeGroup);
             
-            for (let i = 0; i < 4; i++) {
-                const spiral = new THREE.Mesh(spiralGeometry, spiralMaterial.clone());
-                spiral.position.y = i * 2;
-                spiral.rotation.x = Math.PI / 2;
-                trunk.add(spiral);
-            }
-            
-            treeGroup.add(trunk);
-            
-            // Create magical canopy with multiple layers
-            const canopyLayers = 5;
-            for (let layer = 0; layer < canopyLayers; layer++) {
-                const layerRadius = 6 - layer * 0.8;
-                const layerHeight = 8 + layer * 1.5;
-                const branchCount = 8 + layer * 2;
-                
-                for (let i = 0; i < branchCount; i++) {
-                    const angle = (i / branchCount) * Math.PI * 2;
-                    const branchLength = 3 + Math.random() * 2;
-                    
-                    // Curved branches
-                    const curve = new THREE.CatmullRomCurve3([
-                        new THREE.Vector3(0, 0, 0),
-                        new THREE.Vector3(
-                            Math.cos(angle) * layerRadius * 0.3,
-                            branchLength * 0.3,
-                            Math.sin(angle) * layerRadius * 0.3
-                        ),
-                        new THREE.Vector3(
-                            Math.cos(angle) * layerRadius,
-                            branchLength,
-                            Math.sin(angle) * layerRadius
-                        )
-                    ]);
-                    
-                    const tubeGeometry = new THREE.TubeGeometry(curve, 20, 0.15 - layer * 0.02, 8, false);
-                    const branchMaterial = new THREE.MeshPhongMaterial({ 
-                        color: 0x6a4a37,
-                        shininess: 20
-                    });
-                    const branch = new THREE.Mesh(tubeGeometry, branchMaterial);
-                    branch.position.y = layerHeight;
-                    branch.castShadow = true;
-                    treeGroup.add(branch);
-                    
-                    // Add magical leaves at branch ends
-                    addMagicalLeaves(branch, curve.getPointAt(1), layer);
-                }
-            }
-            
-            // Add glowing mushrooms around base
-            createMagicalMushrooms(treeGroup, 8);
-            
-            // Add floating crystals in the canopy
-            createFloatingCrystals(treeGroup, 6);
-            
-            // Add magical ground details
-            createMagicalGround(treeGroup);
+            // Add some hanging vines or branches
+            createHangingElements(treeGroup);
             
             // Position tree
-            treeGroup.position.y = -3;
+            treeGroup.position.y = -1;
             scene.add(treeGroup);
             tree = treeGroup;
             
-            // Add pulsing core light inside tree
-            const coreLight = new THREE.PointLight(0xffffa0, 0.8, 5);
-            coreLight.position.set(0, 5, 0);
-            treeGroup.add(coreLight);
-            
-            // Animate core light
-            function animateCoreLight() {
-                const time = Date.now() * 0.001;
-                coreLight.intensity = 0.5 + Math.sin(time * 2) * 0.3;
-                requestAnimationFrame(animateCoreLight);
-            }
-            animateCoreLight();
+            updateLeafCount();
         }
         
-        // Add magical leaves to branches
-        function addMagicalLeaves(branch, position, layer) {
-            const leafCount = 5 + Math.floor(Math.random() * 8);
+        // Create fluffy canopy with thousands of leaves
+        function createFluffyCanopy(treeGroup) {
+            const canopyGroup = new THREE.Group();
             
-            for (let i = 0; i < leafCount; i++) {
-                const leafSize = 0.3 + Math.random() * 0.2;
-                const leafGeometry = new THREE.SphereGeometry(leafSize, 6, 6);
+            // Base canopy shape (multiple layered spheres)
+            const layers = 5;
+            for (let layer = 0; layer < layers; layer++) {
+                const layerRadius = 3 - layer * 0.4;
+                const layerHeight = 4 + layer * 0.8;
+                const layerLeafCount = 200 + layer * 100;
                 
-                // Ghibli-style gradient leaf colors
-                const colors = [
-                    new THREE.Color(0x88cc88),
-                    new THREE.Color(0xa8ffa8),
-                    new THREE.Color(0x88ee88)
-                ];
-                const leafColor = colors[Math.floor(Math.random() * colors.length)];
+                for (let i = 0; i < layerLeafCount; i++) {
+                    // Create individual leaf
+                    const leaf = createSingleLeaf();
+                    
+                    // Position leaf on sphere surface
+                    const phi = Math.acos(-1 + (2 * i) / layerLeafCount);
+                    const theta = Math.sqrt(layerLeafCount * Math.PI) * phi;
+                    
+                    const x = layerRadius * Math.cos(theta) * Math.sin(phi);
+                    const y = layerHeight + layerRadius * Math.cos(phi);
+                    const z = layerRadius * Math.sin(theta) * Math.sin(phi);
+                    
+                    leaf.position.set(x, y, z);
+                    
+                    // Random rotation
+                    leaf.rotation.set(
+                        Math.random() * Math.PI,
+                        Math.random() * Math.PI,
+                        Math.random() * Math.PI
+                    );
+                    
+                    // Random scale
+                    const scale = 0.3 + Math.random() * 0.4;
+                    leaf.scale.set(scale, scale, scale);
+                    
+                    canopyGroup.add(leaf);
+                    leaves.push(leaf);
+                    leafCount++;
+                }
+            }
+            
+            // Add some extra fluffy volume on top
+            const topFluffCount = 300;
+            for (let i = 0; i < topFluffCount; i++) {
+                const leaf = createSingleLeaf();
                 
-                const leafMaterial = new THREE.MeshPhongMaterial({ 
-                    color: leafColor,
-                    transparent: true,
-                    opacity: 0.8 - layer * 0.1,
-                    shininess: 50,
-                    specular: 0x88ff88
-                });
-                
-                const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
-                
-                // Position leaves around branch end
+                // Random position in dome shape on top
+                const radius = Math.random() * 2.5;
                 const angle = Math.random() * Math.PI * 2;
-                const distance = 0.5 + Math.random() * 0.8;
+                const height = 7 + Math.random() * 1.5;
+                
                 leaf.position.set(
-                    position.x + Math.cos(angle) * distance,
-                    position.y + Math.random() * 0.5,
-                    position.z + Math.sin(angle) * distance
+                    Math.cos(angle) * radius,
+                    height,
+                    Math.sin(angle) * radius
                 );
                 
-                // Slight rotation
+                // Random rotation and scale
                 leaf.rotation.set(
                     Math.random() * Math.PI,
                     Math.random() * Math.PI,
                     Math.random() * Math.PI
                 );
                 
-                leaf.castShadow = true;
-                branch.add(leaf);
+                const scale = 0.4 + Math.random() * 0.3;
+                leaf.scale.set(scale, scale, scale);
                 
-                // Store animation data
-                leaf.userData = {
-                    originalY: leaf.position.y,
-                    speed: 0.5 + Math.random() * 1,
-                    timeOffset: Math.random() * Math.PI * 2
-                };
-                
-                // Add to floating leaves array for animation
-                floatingLeaves.push(leaf);
+                canopyGroup.add(leaf);
+                leaves.push(leaf);
+                leafCount++;
             }
-        }
-        
-        // Create magical mushrooms
-        function createMagicalMushrooms(treeGroup, count) {
-            for (let i = 0; i < count; i++) {
-                const angle = (i / count) * Math.PI * 2;
-                const radius = 3 + Math.random() * 1.5;
-                const x = Math.cos(angle) * radius;
-                const z = Math.sin(angle) * radius;
-                
-                // Mushroom stem
-                const stemHeight = 0.4 + Math.random() * 0.3;
-                const stemGeometry = new THREE.CylinderGeometry(0.1, 0.15, stemHeight, 6);
-                const stemMaterial = new THREE.MeshPhongMaterial({ 
-                    color: 0xf0e6d2,
-                    emissive: 0x333322,
-                    emissiveIntensity: 0.2
-                });
-                const stem = new THREE.Mesh(stemGeometry, stemMaterial);
-                stem.position.set(x, stemHeight/2, z);
-                treeGroup.add(stem);
-                
-                // Magical mushroom cap
-                const capSize = 0.4 + Math.random() * 0.2;
-                const capGeometry = new THREE.ConeGeometry(capSize, 0.2, 6);
-                const capMaterial = new THREE.MeshPhongMaterial({ 
-                    color: 0xff8888,
-                    emissive: 0xff4444,
-                    emissiveIntensity: 0.3 + Math.random() * 0.3,
-                    shininess: 100
-                });
-                const cap = new THREE.Mesh(capGeometry, capMaterial);
-                cap.position.set(x, stemHeight + 0.1, z);
-                cap.rotation.x = Math.PI;
-                treeGroup.add(cap);
-                
-                // Add small glow light
-                const glowLight = new THREE.PointLight(0xffaaaa, 0.3, 2);
-                glowLight.position.set(x, stemHeight + 0.1, z);
-                treeGroup.add(glowLight);
-            }
-        }
-        
-        // Create floating crystals
-        function createFloatingCrystals(treeGroup, count) {
-            for (let i = 0; i < count; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const radius = 2 + Math.random() * 3;
-                const height = 3 + Math.random() * 6;
-                
-                // Crystal geometry
-                const crystalGeometry = new THREE.ConeGeometry(0.1, 0.3, 4);
-                const crystalMaterial = new THREE.MeshPhongMaterial({
-                    color: 0xa8ffff,
-                    transparent: true,
-                    opacity: 0.7,
-                    shininess: 100,
-                    specular: 0xffffff
-                });
-                
-                const crystal = new THREE.Mesh(crystalGeometry, crystalMaterial);
-                crystal.position.set(
-                    Math.cos(angle) * radius,
-                    height,
-                    Math.sin(angle) * radius
-                );
-                
-                // Random rotation
-                crystal.rotation.set(
-                    Math.random() * Math.PI,
-                    Math.random() * Math.PI,
-                    Math.random() * Math.PI
-                );
-                
-                treeGroup.add(crystal);
-                
-                // Store animation data
-                crystal.userData = {
-                    originalY: height,
-                    speed: 0.3 + Math.random() * 0.5,
-                    timeOffset: Math.random() * Math.PI * 2,
-                    rotationSpeed: 0.01 + Math.random() * 0.02
-                };
-                
-                glowingOrbs.push(crystal);
-            }
-        }
-        
-        // Create magical ground
-        function createMagicalGround(treeGroup) {
-            // Mossy ground
-            const groundGeometry = new THREE.CircleGeometry(8, 32);
-            const groundMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0x2a4a2a,
-                shininess: 10
-            });
-            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-            ground.rotation.x = -Math.PI / 2;
-            ground.receiveShadow = true;
-            treeGroup.add(ground);
             
-            // Add magical flowers
-            for (let i = 0; i < 15; i++) {
-                const angle = Math.random() * Math.PI * 2;
-                const radius = 2 + Math.random() * 5;
-                const x = Math.cos(angle) * radius;
-                const z = Math.sin(angle) * radius;
+            treeGroup.add(canopyGroup);
+        }
+        
+        // Create a single fluffy leaf
+        function createSingleLeaf() {
+            // Create leaf shape (like a rounded teardrop)
+            const leafShape = new THREE.Shape();
+            leafShape.moveTo(0, 0.5);
+            leafShape.quadraticCurveTo(0.3, 0.5, 0.3, 0);
+            leafShape.quadraticCurveTo(0.3, -0.5, 0, -0.5);
+            leafShape.quadraticCurveTo(-0.3, -0.5, -0.3, 0);
+            leafShape.quadraticCurveTo(-0.3, 0.5, 0, 0.5);
+            
+            const leafGeometry = new THREE.ShapeGeometry(leafShape);
+            
+            // Ghibli-style leaf colors (variations of green)
+            const leafColors = [
+                0x88cc88,  // Soft green
+                0xa8ffa8,  // Light green
+                0x98dd98,  // Medium green
+                0x78bb78   // Darker green
+            ];
+            
+            const leafColor = leafColors[Math.floor(Math.random() * leafColors.length)];
+            
+            const leafMaterial = new THREE.MeshPhongMaterial({
+                color: leafColor,
+                transparent: true,
+                opacity: 0.8 + Math.random() * 0.2,
+                side: THREE.DoubleSide,
+                shininess: 30,
+                specular: 0x88ff88
+            });
+            
+            const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+            leaf.castShadow = true;
+            leaf.receiveShadow = false;
+            
+            // Store animation data
+            leaf.userData = {
+                originalPos: leaf.position.clone(),
+                originalScale: leaf.scale.clone(),
+                floatSpeed: 0.5 + Math.random() * 1,
+                floatAmount: 0.05 + Math.random() * 0.1,
+                rotationSpeed: 0.002 + Math.random() * 0.003,
+                timeOffset: Math.random() * Math.PI * 2,
+                windInfluence: 0.1 + Math.random() * 0.3
+            };
+            
+            return leaf;
+        }
+        
+        // Create tree trunk with texture
+        function createTreeTrunk(treeGroup) {
+            // Main trunk
+            const trunkHeight = 6;
+            const trunkRadiusTop = 0.8;
+            const trunkRadiusBottom = 1.2;
+            
+            const trunkGeometry = new THREE.CylinderGeometry(
+                trunkRadiusTop, 
+                trunkRadiusBottom, 
+                trunkHeight, 
+                10
+            );
+            
+            // Create bark texture with displacement
+            const trunkMaterial = new THREE.MeshPhongMaterial({
+                color: 0x5a3a27,
+                shininess: 10,
+                flatShading: false
+            });
+            
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            trunk.castShadow = true;
+            trunk.receiveShadow = true;
+            trunk.position.y = trunkHeight / 2;
+            
+            // Add some root details
+            const rootCount = 5;
+            for (let i = 0; i < rootCount; i++) {
+                const angle = (i / rootCount) * Math.PI * 2;
+                const rootLength = 1 + Math.random() * 0.5;
                 
-                // Flower stem
-                const stemGeometry = new THREE.CylinderGeometry(0.02, 0.03, 0.3, 4);
-                const stemMaterial = new THREE.MeshPhongMaterial({ color: 0x88cc88 });
-                const stem = new THREE.Mesh(stemGeometry, stemMaterial);
-                stem.position.set(x, 0.15, z);
-                treeGroup.add(stem);
+                const rootGeometry = new THREE.CylinderGeometry(0.2, 0.4, rootLength, 6);
+                const rootMaterial = new THREE.MeshPhongMaterial({ color: 0x4a2a17 });
+                const root = new THREE.Mesh(rootGeometry, rootMaterial);
                 
-                // Flower petals
-                const petalGeometry = new THREE.SphereGeometry(0.08, 5, 5);
-                const petalMaterial = new THREE.MeshPhongMaterial({ 
-                    color: Math.random() > 0.5 ? 0xffaacc : 0xaaaaff,
+                root.position.set(
+                    Math.cos(angle) * 0.8,
+                    rootLength / 2,
+                    Math.sin(angle) * 0.8
+                );
+                
+                root.rotation.z = Math.PI / 6;
+                root.rotation.y = angle;
+                
+                trunk.add(root);
+            }
+            
+            treeGroup.add(trunk);
+        }
+        
+        // Create hanging elements (vines, moss, etc.)
+        function createHangingElements(treeGroup) {
+            // Create hanging vines
+            const vineCount = 8;
+            for (let i = 0; i < vineCount; i++) {
+                const angle = (i / vineCount) * Math.PI * 2;
+                const vineLength = 2 + Math.random() * 2;
+                
+                // Create curved vine
+                const curve = new THREE.CatmullRomCurve3([
+                    new THREE.Vector3(Math.cos(angle) * 2, 5, Math.sin(angle) * 2),
+                    new THREE.Vector3(Math.cos(angle) * 2.5, 3, Math.sin(angle) * 2.5),
+                    new THREE.Vector3(Math.cos(angle) * 2, 1, Math.sin(angle) * 2)
+                ]);
+                
+                const vineGeometry = new THREE.TubeGeometry(curve, 20, 0.05, 8, false);
+                const vineMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0x4a7a3a,
                     transparent: true,
-                    opacity: 0.8
+                    opacity: 0.7
                 });
                 
-                for (let p = 0; p < 5; p++) {
-                    const petalAngle = (p / 5) * Math.PI * 2;
-                    const petal = new THREE.Mesh(petalGeometry, petalMaterial.clone());
-                    petal.position.set(
-                        x + Math.cos(petalAngle) * 0.1,
-                        0.35,
-                        z + Math.sin(petalAngle) * 0.1
+                const vine = new THREE.Mesh(vineGeometry, vineMaterial);
+                treeGroup.add(vine);
+                
+                // Add hanging moss/leaves on vines
+                const mossCount = 10 + Math.floor(Math.random() * 10);
+                for (let j = 0; j < mossCount; j++) {
+                    const mossPoint = curve.getPoint(j / mossCount);
+                    const moss = createSingleLeaf();
+                    
+                    moss.scale.setScalar(0.2 + Math.random() * 0.1);
+                    moss.position.copy(mossPoint);
+                    moss.rotation.set(
+                        Math.random() * Math.PI,
+                        Math.random() * Math.PI,
+                        Math.random() * Math.PI
                     );
-                    petal.scale.y = 2;
-                    treeGroup.add(petal);
+                    
+                    treeGroup.add(moss);
+                    leaves.push(moss);
+                    leafCount++;
                 }
             }
         }
         
-        // Create floating magic particles
-        function createMagicParticles(count) {
-            const particleGeometry = new THREE.SphereGeometry(0.05, 4, 4);
+        // Create magical floating particles
+        function createMagicalParticles() {
+            const particleCount = 100;
             
-            for (let i = 0; i < count; i++) {
-                // Create particle with Ghibli-style colors
-                const colors = [0xa8ffa8, 0xffffa0, 0xffa8ff, 0xa8ffff];
-                const color = colors[Math.floor(Math.random() * colors.length)];
+            for (let i = 0; i < particleCount; i++) {
+                // Create small glowing particle
+                const particleGeometry = new THREE.SphereGeometry(0.05, 4, 4);
+                const particleColors = [0xa8ffa8, 0xffffa0, 0xffa8a8];
+                const particleColor = particleColors[Math.floor(Math.random() * particleColors.length)];
                 
                 const particleMaterial = new THREE.MeshBasicMaterial({
-                    color: color,
+                    color: particleColor,
                     transparent: true,
                     opacity: 0.6
                 });
                 
                 const particle = new THREE.Mesh(particleGeometry, particleMaterial);
                 
-                // Random position in sphere around tree
-                const radius = 5 + Math.random() * 4;
+                // Random position around tree
                 const angle = Math.random() * Math.PI * 2;
-                const height = Math.random() * 8 + 2;
+                const radius = 4 + Math.random() * 3;
+                const height = Math.random() * 8;
                 
                 particle.position.set(
                     Math.cos(angle) * radius,
@@ -674,262 +558,77 @@
                 // Store animation data
                 particle.userData = {
                     originalPos: particle.position.clone(),
-                    speed: 0.2 + Math.random() * 0.4,
-                    timeOffset: Math.random() * Math.PI * 2,
+                    speed: 0.2 + Math.random() * 0.3,
                     floatRadius: 0.5 + Math.random() * 1,
-                    floatSpeed: 0.5 + Math.random() * 1
-                };
-                
-                scene.add(particle);
-                magicParticles.push(particle);
-            }
-        }
-        
-        // Create floating leaves
-        function createFloatingLeaves(count) {
-            const leafGeometry = new THREE.PlaneGeometry(0.2, 0.3);
-            
-            for (let i = 0; i < count; i++) {
-                const leafMaterial = new THREE.MeshBasicMaterial({
-                    color: 0x88cc88,
-                    transparent: true,
-                    opacity: 0.7,
-                    side: THREE.DoubleSide
-                });
-                
-                const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
-                
-                // Random starting position
-                leaf.position.set(
-                    (Math.random() - 0.5) * 10,
-                    Math.random() * 8 + 2,
-                    (Math.random() - 0.5) * 10
-                );
-                
-                // Random rotation
-                leaf.rotation.set(
-                    Math.random() * Math.PI,
-                    Math.random() * Math.PI,
-                    Math.random() * Math.PI
-                );
-                
-                // Store animation data
-                leaf.userData = {
-                    speed: 0.1 + Math.random() * 0.3,
-                    rotationSpeed: 0.01 + Math.random() * 0.02,
-                    floatHeight: 0.5 + Math.random() * 1,
                     timeOffset: Math.random() * Math.PI * 2
                 };
                 
-                scene.add(leaf);
-                floatingLeaves.push(leaf);
+                scene.add(particle);
+                magicalParticles.push(particle);
             }
         }
         
-        // Create kodama spirit particles
-        function createSpiritParticles(count) {
-            const spiritGeometry = new THREE.SphereGeometry(0.08, 6, 6);
-            
-            for (let i = 0; i < count; i++) {
-                const spiritMaterial = new THREE.MeshBasicMaterial({
-                    color: 0xa8ffa8,
-                    transparent: true,
-                    opacity: 0.8
-                });
-                
-                const spirit = new THREE.Mesh(spiritGeometry, spiritMaterial);
-                
-                // Start hidden
-                spirit.visible = false;
-                
-                // Random starting position near tree
-                const radius = 1 + Math.random() * 3;
-                const angle = Math.random() * Math.PI * 2;
-                const height = Math.random() * 6 + 2;
-                
-                spirit.position.set(
-                    Math.cos(angle) * radius,
-                    height,
-                    Math.sin(angle) * radius
-                );
-                
-                // Store animation data
-                spirit.userData = {
-                    originalPos: spirit.position.clone(),
-                    speed: 0.3 + Math.random() * 0.5,
-                    timeOffset: Math.random() * Math.PI * 2,
-                    floatRadius: 0.3 + Math.random() * 0.5,
-                    active: false,
-                    appearTime: 0
-                };
-                
-                scene.add(spirit);
-                spiritParticles.push(spirit);
-            }
-            
-            updateSpiritCount();
+        // Update leaf count display
+        function updateLeafCount() {
+            document.getElementById('leaf-count').textContent = leafCount.toLocaleString();
         }
         
-        // Update spirit count display
-        function updateSpiritCount() {
-            const activeSpirits = spiritParticles.filter(s => s.visible).length;
-            spiritCount = activeSpirits;
-            document.querySelector('.count-display').textContent = activeSpirits;
-        }
-        
-        // Summon spirits (open palm gesture)
-        function summonSpirits(count) {
-            let summoned = 0;
-            
-            for (let spirit of spiritParticles) {
-                if (summoned >= count) break;
-                
-                if (!spirit.visible) {
-                    spirit.visible = true;
-                    spirit.userData.active = true;
-                    spirit.userData.appearTime = Date.now();
-                    
-                    // Animate appearance
-                    spirit.scale.set(0, 0, 0);
-                    
-                    summoned++;
-                }
-            }
-            
-            updateSpiritCount();
-            updateMagicLevel(10);
-        }
-        
-        // Hide spirits (fist gesture)
-        function hideSpirits() {
-            spiritParticles.forEach(spirit => {
-                if (spirit.visible) {
-                    spirit.userData.active = false;
-                    
-                    // Animate disappearance
-                    const scaleDown = () => {
-                        spirit.scale.x *= 0.9;
-                        spirit.scale.y *= 0.9;
-                        spirit.scale.z *= 0.9;
-                        
-                        if (spirit.scale.x < 0.1) {
-                            spirit.visible = false;
-                            spirit.scale.set(1, 1, 1);
-                        } else {
-                            requestAnimationFrame(scaleDown);
-                        }
-                    };
-                    scaleDown();
-                }
-            });
-            
-            updateSpiritCount();
-            updateMagicLevel(-5);
-        }
-        
-        // Activate magic bloom (peace sign gesture)
-        function activateMagicBloom() {
-            bloomActive = true;
-            bloomTime = Date.now();
-            
-            // Increase particle activity
-            magicParticles.forEach(p => {
-                p.userData.speed *= 2;
-                p.material.opacity = 1;
-            });
-            
-            updateMagicLevel(20);
-            
-            // Auto deactivate after 5 seconds
-            setTimeout(() => {
-                bloomActive = false;
-                magicParticles.forEach(p => {
-                    p.userData.speed /= 2;
-                    p.material.opacity = 0.6;
-                });
-            }, 5000);
-        }
-        
-        // Update magic level
-        function updateMagicLevel(change) {
-            magicLevel = Math.max(0, Math.min(100, magicLevel + change));
-            document.getElementById('meter-fill').style.width = magicLevel + '%';
-        }
-        
-        // Animate all particles and elements
-        function animateAll() {
+        // Animate everything
+        function animateScene() {
             const time = Date.now() * 0.001;
             
-            // Animate magic particles
-            magicParticles.forEach(particle => {
+            // Animate leaves (gentle floating movement)
+            leaves.forEach(leaf => {
+                const data = leaf.userData;
+                if (!data) return;
+                
+                const t = time * data.floatSpeed + data.timeOffset;
+                
+                // Gentle floating motion
+                leaf.position.y = data.originalPos.y + Math.sin(t) * data.floatAmount;
+                leaf.position.x = data.originalPos.x + Math.sin(t * 1.3) * data.floatAmount * data.windInfluence;
+                leaf.position.z = data.originalPos.z + Math.cos(t * 0.7) * data.floatAmount * data.windInfluence;
+                
+                // Gentle rotation
+                leaf.rotation.x += data.rotationSpeed;
+                leaf.rotation.y += data.rotationSpeed * 0.7;
+                leaf.rotation.z += data.rotationSpeed * 0.3;
+                
+                // Gentle pulsing scale
+                const pulse = 1 + Math.sin(t * 2) * 0.05;
+                leaf.scale.x = data.originalScale.x * pulse;
+                leaf.scale.y = data.originalScale.y * pulse;
+                leaf.scale.z = data.originalScale.z * pulse;
+                
+                // Subtle color variation
+                const colorVariation = 0.9 + Math.sin(t * 0.5) * 0.1;
+                leaf.material.color.multiplyScalar(colorVariation);
+            });
+            
+            // Animate magical particles
+            magicalParticles.forEach(particle => {
                 const data = particle.userData;
                 const t = time * data.speed + data.timeOffset;
                 
                 particle.position.x = data.originalPos.x + Math.cos(t) * data.floatRadius;
-                particle.position.y = data.originalPos.y + Math.sin(t * 1.3) * data.floatRadius * 0.5;
-                particle.position.z = data.originalPos.z + Math.sin(t * 0.7) * data.floatRadius;
+                particle.position.y = data.originalPos.y + Math.sin(t * 1.5) * data.floatRadius * 0.5;
+                particle.position.z = data.originalPos.z + Math.sin(t * 0.8) * data.floatRadius;
                 
-                // Pulse during bloom
-                if (bloomActive) {
-                    const pulse = 0.8 + 0.4 * Math.sin(time * 5);
-                    particle.scale.setScalar(pulse);
-                }
+                // Gentle pulsing
+                const pulse = 0.8 + 0.4 * Math.sin(t * 3);
+                particle.scale.setScalar(pulse);
+                particle.material.opacity = 0.4 + 0.3 * Math.sin(t * 2);
             });
             
-            // Animate spirit particles
-            spiritParticles.forEach(spirit => {
-                if (spirit.visible) {
-                    const data = spirit.userData;
-                    const t = time * data.speed + data.timeOffset;
-                    
-                    // Float around original position
-                    spirit.position.x = data.originalPos.x + Math.cos(t) * data.floatRadius;
-                    spirit.position.y = data.originalPos.y + Math.sin(t * 1.5) * data.floatRadius * 0.3;
-                    spirit.position.z = data.originalPos.z + Math.sin(t * 0.9) * data.floatRadius;
-                    
-                    // Gentle pulsing
-                    const pulse = 0.7 + 0.3 * Math.sin(time * 3 + data.timeOffset);
-                    spirit.scale.setScalar(pulse);
-                    
-                    // Fade in animation for new spirits
-                    if (data.appearTime && Date.now() - data.appearTime < 1000) {
-                        const age = (Date.now() - data.appearTime) / 1000;
-                        spirit.scale.setScalar(age * pulse);
-                    }
-                }
-            });
-            
-            // Animate glowing crystals
-            glowingOrbs.forEach(crystal => {
-                const data = crystal.userData;
-                const t = time * data.speed + data.timeOffset;
-                
-                crystal.position.y = data.originalY + Math.sin(t) * 0.3;
-                crystal.rotation.y += data.rotationSpeed;
-                
-                // Gentle glow
-                crystal.material.opacity = 0.6 + 0.3 * Math.sin(time * 2 + data.timeOffset);
-            });
-            
-            // Animate floating leaves
-            floatingLeaves.forEach(leaf => {
-                const data = leaf.userData;
-                const t = time * data.speed + data.timeOffset;
-                
-                leaf.position.y += Math.sin(t) * 0.01;
-                leaf.rotation.x += data.rotationSpeed * 0.5;
-                leaf.rotation.y += data.rotationSpeed;
-                leaf.rotation.z += data.rotationSpeed * 0.3;
-                
-                // Drift slowly
-                leaf.position.x += Math.cos(t) * 0.005;
-                leaf.position.z += Math.sin(t) * 0.005;
-            });
-            
-            // Rotate tree slowly
+            // Gentle tree rotation
             if (tree) {
                 tree.rotation.y += 0.001;
             }
+            
+            // Gentle camera movement
+            camera.position.x = Math.sin(time * 0.1) * 0.5;
+            camera.position.z = 10 + Math.cos(time * 0.05) * 0.3;
+            camera.lookAt(0, 2, 0);
         }
         
         // Handle window resize
@@ -939,156 +638,16 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
         
-        // Animation loop
+        // Main animation loop
         function animate() {
             requestAnimationFrame(animate);
-            animateAll();
+            animateScene();
             renderer.render(scene, camera);
-        }
-        
-        // Initialize MediaPipe Hand Tracking with Simple Gestures
-        function initHandTracking() {
-            const hands = new Hands({
-                locateFile: (file) => {
-                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
-                }
-            });
-            
-            hands.setOptions({
-                maxNumHands: 1,
-                modelComplexity: 1,
-                minDetectionConfidence: 0.5,
-                minTrackingConfidence: 0.5
-            });
-            
-            // Simple gesture detection
-            hands.onResults((results) => {
-                if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                    const landmarks = results.multiHandLandmarks[0];
-                    detectSimpleGesture(landmarks);
-                }
-            });
-            
-            // Start camera
-            const camera = new Camera(document.createElement('video'), {
-                onFrame: async () => {
-                    await hands.send({ image: camera.image });
-                },
-                width: 640,
-                height: 480
-            });
-            
-            camera.start();
-            
-            // Create spirit particles after hand tracking is ready
-            setTimeout(() => createSpiritParticles(50), 1000);
-        }
-        
-        // Simple gesture detection
-        function detectSimpleGesture(landmarks) {
-            // Get key points
-            const thumbTip = landmarks[4];
-            const indexTip = landmarks[8];
-            const middleTip = landmarks[12];
-            const ringTip = landmarks[16];
-            const pinkyTip = landmarks[20];
-            
-            const wrist = landmarks[0];
-            
-            // Calculate distances for simple detection
-            const indexMiddleDist = distance(indexTip, middleTip);
-            const middleRingDist = distance(middleTip, ringTip);
-            const ringPinkyDist = distance(ringTip, pinkyTip);
-            
-            const allFingersUp = 
-                indexTip.y < wrist.y &&
-                middleTip.y < wrist.y &&
-                ringTip.y < wrist.y &&
-                pinkyTip.y < wrist.y;
-            
-            const allFingersClosed = 
-                indexTip.y > wrist.y &&
-                middleTip.y > wrist.y &&
-                ringTip.y > wrist.y &&
-                pinkyTip.y > wrist.y;
-            
-            const peaceSign = 
-                indexTip.y < wrist.y &&
-                middleTip.y < wrist.y &&
-                ringTip.y > wrist.y &&
-                pinkyTip.y > wrist.y;
-            
-            // Update active gestures with cooldown
-            const now = Date.now();
-            const gestureCooldown = 1000;
-            
-            // Open palm gesture
-            if (allFingersUp && !activeGestures.palm) {
-                activeGestures.palm = true;
-                activeGestures.fist = false;
-                activeGestures.peace = false;
-                
-                document.getElementById('palm-icon').classList.add('gesture-active');
-                document.getElementById('fist-icon').classList.remove('gesture-active');
-                document.getElementById('peace-icon').classList.remove('gesture-active');
-                
-                summonSpirits(5 + Math.floor(Math.random() * 10));
-                
-                setTimeout(() => {
-                    activeGestures.palm = false;
-                    document.getElementById('palm-icon').classList.remove('gesture-active');
-                }, gestureCooldown);
-            }
-            
-            // Fist gesture
-            if (allFingersClosed && !activeGestures.fist) {
-                activeGestures.fist = true;
-                activeGestures.palm = false;
-                activeGestures.peace = false;
-                
-                document.getElementById('fist-icon').classList.add('gesture-active');
-                document.getElementById('palm-icon').classList.remove('gesture-active');
-                document.getElementById('peace-icon').classList.remove('gesture-active');
-                
-                hideSpirits();
-                
-                setTimeout(() => {
-                    activeGestures.fist = false;
-                    document.getElementById('fist-icon').classList.remove('gesture-active');
-                }, gestureCooldown);
-            }
-            
-            // Peace sign gesture
-            if (peaceSign && !activeGestures.peace) {
-                activeGestures.peace = true;
-                activeGestures.palm = false;
-                activeGestures.fist = false;
-                
-                document.getElementById('peace-icon').classList.add('gesture-active');
-                document.getElementById('palm-icon').classList.remove('gesture-active');
-                document.getElementById('fist-icon').classList.remove('gesture-active');
-                
-                activateMagicBloom();
-                
-                setTimeout(() => {
-                    activeGestures.peace = false;
-                    document.getElementById('peace-icon').classList.remove('gesture-active');
-                }, gestureCooldown);
-            }
-        }
-        
-        // Calculate distance between two points
-        function distance(point1, point2) {
-            const dx = point1.x - point2.x;
-            const dy = point1.y - point2.y;
-            const dz = point1.z - point2.z;
-            return Math.sqrt(dx * dx + dy * dy + dz * dz);
         }
         
         // Initialize everything
         window.addEventListener('DOMContentLoaded', () => {
             initThreeJS();
-            initHandTracking();
             animate();
         });
     </script>
