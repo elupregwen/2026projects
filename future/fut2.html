@@ -277,21 +277,28 @@
         function createBreathingCanopy() {
             const layers = 18;
             const clustersPerLayer = 50;
-            
+
             for (let layer = 0; layer < layers; layer++) {
-                const layerT = layer / layers;
+                const layerT = layer / (layers - 1);
                 const baseY = 9 + layer * 0.9;
-                const layerRadius = 9 * (1 - layerT * 0.3) * (0.95 + Math.sin(layerT * Math.PI) * 0.15);
-                
-                for (let i = 0; i < clustersPerLayer; i++) {
-                    const angle = (i / clustersPerLayer) * Math.PI * 2 + layer * 0.8;
+                // tighten the radius toward the top so canopy tapers
+                const layerRadius = 9 * (1 - layerT * 0.6) * (0.95 + Math.sin(layerT * Math.PI) * 0.15);
+
+                // fewer clusters near the top -> triangular profile
+                const clustersThis = Math.max(6, Math.floor(clustersPerLayer * (1 - Math.pow(layerT, 1.8))));
+
+                for (let i = 0; i < clustersThis; i++) {
+                    const angle = (i / clustersThis) * Math.PI * 2 + layer * 0.8;
                     const radiusVariation = 0.5 + Math.random() * 0.8;
-                    const r = layerRadius * radiusVariation;
+                    // bias inner radius smaller at higher layers so top is sparse
+                    const r = layerRadius * radiusVariation * (1 - layerT * 0.5);
                     const x = Math.cos(angle) * r;
                     const z = Math.sin(angle) * r;
                     const y = baseY + (Math.random() - 0.5) * 1.5;
-                    
-                    const puffCount = 8 + Math.floor(Math.random() * 6);
+
+                    // fewer puffs per cluster at top
+                    const basePuffs = 8 + Math.floor(Math.random() * 6);
+                    const puffCount = Math.max(2, Math.floor(basePuffs * (1 - layerT * 0.75)));
                     for (let p = 0; p < puffCount; p++) {
                         const puffSize = 0.5 + Math.random() * 0.8;
                         const geo = new THREE.SphereGeometry(puffSize, 8, 8);
