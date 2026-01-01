@@ -392,45 +392,37 @@
                 tree.spirits.push(spirit);
             }
             
-            // Fireflies
-            for (let i = 0; i < 80; i++) {
-                const geo = new THREE.SphereGeometry(0.1, 8, 8);
-                const colorChoice = Math.random();
-                let fireflyColor;
-                if (colorChoice < 0.4) {
-                    fireflyColor = 0xffee88;
-                } else if (colorChoice < 0.7) {
-                    fireflyColor = 0xaaffee;
-                } else {
-                    fireflyColor = 0x88ddaa;
-                }
-                const mat = new THREE.MeshBasicMaterial({ 
-                    color: fireflyColor,
-                    transparent: true
+            // Fireflies (increased count, white color)
+            for (let i = 0; i < 220; i++) {
+                const geo = new THREE.SphereGeometry(0.09 + Math.random() * 0.06, 8, 8);
+                const mat = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.9
                 });
                 const firefly = new THREE.Mesh(geo, mat);
-                
+
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 4 + Math.random() * 10;
-                
+                const radius = 4 + Math.random() * 12;
+
                 firefly.position.set(
                     Math.cos(angle) * radius,
                     1 + Math.random() * 18,
                     Math.sin(angle) * radius
                 );
-                
+
                 firefly.userData = {
                     angle: angle,
                     radius: radius,
-                    speed: 0.08 + Math.random() * 0.15,
+                    speed: 0.06 + Math.random() * 0.18,
                     yOffset: Math.random() * Math.PI * 2,
-                    ySpeed: 0.3 + Math.random() * 0.3,
-                    pulseSpeed: 1.5 + Math.random() * 2,
-                    verticalDrift: (Math.random() - 0.5) * 0.015,
-                    maxY: 18,
-                    minY: 1
+                    ySpeed: 0.25 + Math.random() * 0.35,
+                    pulseSpeed: 1.2 + Math.random() * 2.0,
+                    verticalDrift: (Math.random() - 0.5) * 0.02,
+                    maxY: 20,
+                    minY: 0.8
                 };
-                
+
                 scene.add(firefly);
                 tree.fireflies.push(firefly);
             }
