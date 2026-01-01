@@ -94,7 +94,7 @@
         function createGround() {
             const groundGeo = new THREE.CircleGeometry(18, 32);
             const groundMat = new THREE.MeshStandardMaterial({ 
-                color: 0x2d4a2e,
+                color: GHIBLI_FIELD,
                 flatShading: true,
                 roughness: 0.95
             });
@@ -102,40 +102,66 @@
             ground.rotation.x = -Math.PI / 2;
             ground.position.y = 0;
             scene.add(ground);
-            
+
+            // add moss clumps for a forest floor feel
+            const mossMat = new THREE.MeshStandardMaterial({
+                color: GHIBLI_MOSS,
+                flatShading: true,
+                roughness: 0.9,
+                emissive: GHIBLI_MOSS,
+                emissiveIntensity: 0.04
+            });
+            for (let m = 0; m < 46; m++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = 1 + Math.random() * 15;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                const size = 0.6 + Math.random() * 2.2;
+                const geo = new THREE.SphereGeometry(size, 10, 8);
+                const moss = new THREE.Mesh(geo, mossMat);
+                moss.scale.y = 0.22;
+                moss.position.set(x, size * 0.12, z);
+                moss.rotation.y = Math.random() * Math.PI * 2;
+                scene.add(moss);
+            }
+
+            // grass blades with richer, desaturated Ghibli palette
             for (let i = 0; i < 1200; i++) {
                 const angle = Math.random() * Math.PI * 2;
                 const radius = 2 + Math.random() * 14;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
-                
-                const height = 0.15 + Math.random() * 0.4;
-                const geo = new THREE.ConeGeometry(0.025, height, 3);
+
+                const height = 0.12 + Math.random() * 0.45;
+                const geo = new THREE.ConeGeometry(0.02 + Math.random() * 0.03, height, 4);
                 const greenVariation = Math.random();
                 let grassColor;
-                if (greenVariation < 0.5) {
-                    grassColor = 0x3d5a3e;
+                if (greenVariation < 0.35) {
+                    grassColor = GHIBLI_MOSS;
+                } else if (greenVariation < 0.75) {
+                    grassColor = GHIBLI_GRASS;
                 } else {
-                    grassColor = 0x4d6a4e;
+                    grassColor = GHIBLI_FIELD;
                 }
-                const mat = new THREE.MeshStandardMaterial({ 
+                const mat = new THREE.MeshStandardMaterial({
                     color: grassColor,
                     flatShading: true,
+                    roughness: 0.92,
                     emissive: grassColor,
-                    emissiveIntensity: 0.05
+                    emissiveIntensity: 0.03
                 });
                 const blade = new THREE.Mesh(geo, mat);
-                blade.position.set(x, height / 2, z);
-                blade.rotation.z = (Math.random() - 0.5) * 0.4;
+                blade.position.set(x, height / 2 + 0.02, z);
+                blade.rotation.z = (Math.random() - 0.5) * 0.6;
                 blade.rotation.y = Math.random() * Math.PI * 2;
-                
+
                 blade.userData = {
                     baseRotZ: blade.rotation.z,
                     offset: Math.random() * Math.PI * 2,
-                    speed: 0.4 + Math.random() * 0.6,
-                    amp: 0.1 + Math.random() * 0.15
+                    speed: 0.35 + Math.random() * 0.7,
+                    amp: 0.08 + Math.random() * 0.2
                 };
-                
+
                 scene.add(blade);
                 tree.grass.push(blade);
             }
