@@ -291,20 +291,11 @@
                     const z = Math.sin(angle) * r;
                     const y = baseY + (Math.random() - 0.5) * 1.5;
                     
-                    // willow-style leaves: elongated drooping shapes using ShapeGeometry
-                    const puffCount = 12 + Math.floor(Math.random() * 10);
+                    const puffCount = 8 + Math.floor(Math.random() * 6);
                     for (let p = 0; p < puffCount; p++) {
-                        const puffSize = 0.6 + Math.random() * 0.8; // base length/scale
-
-                        // build an elongated leaf shape (centered around origin on Y)
-                        const leafShape = new THREE.Shape();
-                        leafShape.moveTo(0, 0);
-                        leafShape.bezierCurveTo(puffSize * 0.18, puffSize * 0.18, puffSize * 0.5, puffSize * 0.6, 0, puffSize * 1.6);
-                        leafShape.bezierCurveTo(-puffSize * 0.5, puffSize * 0.6, -puffSize * 0.18, puffSize * 0.18, 0, 0);
-
-                        const geo = new THREE.ShapeGeometry(leafShape, 4);
-                        geo.computeVertexNormals();
-
+                        const puffSize = 0.5 + Math.random() * 0.8;
+                        const geo = new THREE.SphereGeometry(puffSize, 8, 8);
+                        
                         const colorChoice = Math.random();
                         let leafColor;
                         if (colorChoice < 0.35) {
@@ -316,45 +307,39 @@
                         } else {
                             leafColor = new THREE.Color(GHIBLI_MOSS);
                         }
-
+                        
                         const mat = new THREE.MeshStandardMaterial({ 
                             color: leafColor,
-                            side: THREE.DoubleSide,
                             flatShading: true,
-                            roughness: 0.8,
-                            emissive: leafColor.clone().multiplyScalar(0.06),
-                            emissiveIntensity: 0.05,
-                            transparent: true,
-                            opacity: 0.95
+                            roughness: 0.75,
+                            emissive: leafColor,
+                            emissiveIntensity: 0.3
                         });
-
+                        
                         const leaf = new THREE.Mesh(geo, mat);
-
-                        // droop / orientation to mimic willow leaves
-                        leaf.rotation.x = Math.PI * 0.12 + Math.random() * 0.4; // tilt forward/down
-                        leaf.rotation.z = (Math.random() - 0.5) * 0.6;
-                        leaf.rotation.y = (Math.random() - 0.5) * 0.6;
-
-                        // place leaves slightly below the cluster center to create a hanging effect
                         leaf.position.set(
-                            x + (Math.random() - 0.5) * 1.6,
-                            y - Math.random() * 1.6,
-                            z + (Math.random() - 0.5) * 1.6
+                            x + (Math.random() - 0.5) * 2.2,
+                            y + (Math.random() - 0.5) * 1.5,
+                            z + (Math.random() - 0.5) * 2.2
                         );
-
-                        const scaleVariation = 0.6 + Math.random() * 0.9;
-                        leaf.scale.set(scaleVariation * 0.35, scaleVariation * 1.4, 1);
-
+                        
+                        const scaleVariation = 0.8 + Math.random() * 0.7;
+                        leaf.scale.set(
+                            scaleVariation * (0.95 + Math.random() * 0.3),
+                            scaleVariation * (1 + Math.random() * 0.4),
+                            scaleVariation * (0.95 + Math.random() * 0.3)
+                        );
+                        
                         leaf.userData = {
                             basePos: leaf.position.clone(),
                             baseScale: leaf.scale.clone(),
                             offset: Math.random() * Math.PI * 2,
-                            breatheSpeed: 0.5 + Math.random() * 0.8,
-                            breatheAmp: 0.08 + Math.random() * 0.06,
-                            pulseSpeed: 0.8 + Math.random() * 1.2,
-                            pulseAmp: 0.05 + Math.random() * 0.08
+                            breatheSpeed: 0.6 + Math.random() * 0.9,
+                            breatheAmp: 0.3 + Math.random() * 0.4,
+                            pulseSpeed: 1 + Math.random() * 1.5,
+                            pulseAmp: 0.15 + Math.random() * 0.2
                         };
-
+                        
                         scene.add(leaf);
                         tree.leaves.push(leaf);
                     }
