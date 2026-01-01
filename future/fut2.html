@@ -24,12 +24,13 @@
         const GHIBLI_WOOD = 0xA67C52;
         const GHIBLI_WOOD_DARK = 0x6B4F2A;
         // slightly more muted / desaturated leaf palette for Princess Mononoke vibe
-        const GHIBLI_LEAF_LIGHT = 0x9fcfa0;
-        const GHIBLI_LEAF_MED = 0x6fa66e;
-        const GHIBLI_LEAF_DARK = 0x3f6b4a;
-        const GHIBLI_MOSS = 0x6B8E4E;
-        const GHIBLI_GRASS = 0x9BCF82;
-        const GHIBLI_FIELD = 0xBFD9A4;
+        // tuned palette to match Kodama-night / Princess Mononoke tones
+        const GHIBLI_LEAF_LIGHT = 0x89c79a;
+        const GHIBLI_LEAF_MED = 0x4f8f6a;
+        const GHIBLI_LEAF_DARK = 0x2f5f44;
+        const GHIBLI_MOSS = 0x3d7f61;
+        const GHIBLI_GRASS = 0x6aa57a;
+        const GHIBLI_FIELD = 0x5f9a83;
         const GHIBLI_EARTH = 0x8B6F47;
         
         function init() {
@@ -91,6 +92,7 @@
             tree.branches = [];
             tree.leaves = [];
             tree.grass = [];
+            tree.platforms = [];
             
             createGround();
             createOrganicTrunk();
@@ -240,6 +242,21 @@
                     knot.rotation.z = Math.random() * Math.PI;
                     scene.add(knot);
                     tree.trunk.push(knot);
+                }
+                // occasionally add a flattened moss platform/ledge on the trunk
+                if (i > 4 && i % 4 === 0) {
+                    const platSize = radius * (1.4 + Math.random() * 1.0);
+                    const platGeo = new THREE.SphereGeometry(platSize, 12, 8);
+                    const platMat = new THREE.MeshStandardMaterial({ color: GHIBLI_MOSS, flatShading: true, roughness: 0.92, emissive: GHIBLI_MOSS, emissiveIntensity: 0.04 });
+                    const plat = new THREE.Mesh(platGeo, platMat);
+                    plat.scale.y = 0.22;
+                    plat.position.copy(seg.position);
+                    // offset slightly outward from trunk center
+                    plat.position.x += (Math.random() - 0.5) * (radius * 0.8);
+                    plat.position.z += (Math.random() - 0.5) * (radius * 0.8);
+                    plat.rotation.y = Math.random() * Math.PI * 2;
+                    scene.add(plat);
+                    tree.platforms.push(plat);
                 }
             }
         }
@@ -425,33 +442,46 @@
                 tree.spirits.push(spirit);
             }
             
-            // small Kodama near trunk base (one or two)
+            // Kodama placed on moss platforms if available (otherwise near trunk)
             tree.kodamas = [];
-            for (let k = 0; k < 2; k++) {
+            const kodamaCount = 4;
+            for (let k = 0; k < kodamaCount; k++) {
                 const kodama = new THREE.Group();
-                const bodyGeo = new THREE.SphereGeometry(0.18, 10, 10);
+                const bodyGeo = new THREE.SphereGeometry(0.16 + Math.random() * 0.06, 10, 10);
                 const bodyMat = new THREE.MeshStandardMaterial({
-                    color: 0xf3fff6,
-                    emissive: 0xdff7e8,
-                    roughness: 0.85
+                    color: 0xf8fff8,
+                    emissive: 0xe8f8ea,
+                    roughness: 0.9
                 });
                 const body = new THREE.Mesh(bodyGeo, bodyMat);
-                body.position.y = 0.45;
+                body.position.y = 0.42;
                 kodama.add(body);
 
                 const eyeGeo = new THREE.SphereGeometry(0.03, 6, 6);
                 const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
                 const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
                 const rightEye = leftEye.clone();
-                leftEye.position.set(-0.06, 0.52, 0.12);
-                rightEye.position.set(0.06, 0.52, 0.12);
+                leftEye.position.set(-0.055, 0.48, 0.11);
+                rightEye.position.set(0.055, 0.48, 0.11);
                 kodama.add(leftEye);
                 kodama.add(rightEye);
 
-                const x = (Math.random() - 0.5) * 2.2;
-                const z = (Math.random() - 0.5) * 2.2;
-                kodama.position.set(x, 0, z);
-                kodama.userData = { baseY: kodama.position.y, bobAmp: 0.06 + Math.random() * 0.05, bobSpeed: 0.8 + Math.random() * 0.6, offset: Math.random() * Math.PI * 2 };
+                // prefer placing on existing platforms
+                if (tree.platforms && tree.platforms.length > 0) {
+                    const plat = tree.platforms[Math.floor(Math.random() * tree.platforms.length)];
+                    kodama.position.set(
+                        plat.position.x + (Math.random() - 0.5) * 0.3,
+                        plat.position.y + plat.scale.y * 0.6 + 0.08,
+                        plat.position.z + (Math.random() - 0.5) * 0.3
+                    );
+                } else {
+                    const x = (Math.random() - 0.5) * 2.2;
+                    const z = (Math.random() - 0.5) * 2.2;
+                    kodama.position.set(x, 0, z);
+                }
+
+                kodama.userData = { baseY: kodama.position.y, bobAmp: 0.05 + Math.random() * 0.06, bobSpeed: 0.8 + Math.random() * 0.6, offset: Math.random() * Math.PI * 2 };
+                kodama.scale.setScalar(0.9 + Math.random() * 0.3);
                 scene.add(kodama);
                 tree.kodamas.push(kodama);
             }
