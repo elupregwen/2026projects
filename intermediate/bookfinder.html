@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeBookFinder - Free Open Source Book Library</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Styles */
+        header {
+            background: linear-gradient(135deg, #2c3e50, #4a6491);
+            color: white;
+            padding: 1.5rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .logo i {
+            color: #3498db;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 25px;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav a:hover {
+            color: #3498db;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            background-color: #fff;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            color: #555;
+        }
+        
+        .tagline {
+            color: #3498db;
+            font-weight: 600;
+            font-style: italic;
+            margin-top: 10px;
+        }
+        
+        /* Search Section */
+        .search-container {
+            background-color: #fff;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-top: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .search-box {
+            display: flex;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .search-box input {
+            flex: 1;
+            padding: 18px 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px 0 0 8px;
+            font-size: 1.1rem;
+            transition: border 0.3s;
+        }
+        
+        .search-box input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        .search-btn {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0 30px;
+            border-radius: 0 8px 8px 0;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .search-btn:hover {
+            background: #2980b9;
+        }
+        
+        /* Filters */
+        .filters {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .filter-btn {
+            padding: 10px 20px;
+            background-color: #f1f5f9;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        /* Results Section */
+        .results-container {
+            padding-bottom: 3rem;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .results-count {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        .sort-options select {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background-color: white;
+            font-size: 1rem;
+        }
+        
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .book-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .book-cover {
+            height: 180px;
+            background-color: #ecf0f1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 4rem;
+        }
+        
+        .book-info {
+            padding: 1.5rem;
+        }
+        
+        .book-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .book-author {
+            color: #7f8c8d;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        
+        .book-sources {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .source-link {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #e8f4fc;
+            color: #3498db;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .source-link:hover {
+            background-color: #d1eaf9;
+        }
+        
+        .format-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background-color: #f1f5f9;
+            color: #555;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-right: 8px;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 3rem 0 2rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.2rem;
+            color: #3498db;
+        }
+        
+        .footer-links li {
+            list-style: none;
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: #3498db;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #3a506b;
+            color: #95a5a6;
+            font-size: 0.95rem;
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: #7f8c8d;
+        }
+        
+        .loading i {
+            font-size: 2rem;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+        
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            grid-column: 1 / -1;
+        }
+        
+        .no-results i {
+            font-size: 3rem;
+            color: #bdc3c7;
+            margin-bottom: 1rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav ul {
+                gap: 15px;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .search-box {
+                flex-direction: column;
+            }
+            
+            .search-box input {
+                border-radius: 8px;
+                margin-bottom: 10px;
+            }
+            
+            .search-btn {
+                border-radius: 8px;
+                padding: 15px;
+            }
+            
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-book-open"></i>
+                <span>FreeBookFinder</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#"><i class="fas fa-list"></i> Categories</a></li>
+                    <li><a href="#"><i class="fas fa-star"></i> Popular</a></li>
+                    <li><a href="#"><i class="fas fa-question-circle"></i> About</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Find Free Books Online</h1>
+            <p>Search across multiple free and open-source book repositories. Get instant access to thousands of free books in various formats. No registration required.</p>
+            <p class="tagline">"For book lovers who can't afford physical books"</p>
+            
+            <!-- Search Section -->
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Search for books by title, author, or subject...">
+                    <button class="search-btn" id="search-btn">
+                        <i class="fas fa-search"></i> Search Books
+                    </button>
+                </div>
+                
+                <div class="filters">
+                    <div class="filter-btn active" data-filter="all">All Books</div>
+                    <div class="filter-btn" data-filter="fiction">Fiction</div>
+                    <div class="filter-btn" data-filter="nonfiction">Non-Fiction</div>
+                    <div class="filter-btn" data-filter="classics">Classics</div>
+                    <div class="filter-btn" data-filter="scifi">Science Fiction</div>
+                    <div class="filter-btn" data-filter="academic">Academic</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-container">
+        <div class="container">
+            <div class="results-header">
+                <h2>Search Results</h2>
+                <div class="results-count" id="results-count">Showing 6 free books</div>
+                <div class="sort-options">
+                    <select id="sort-by">
+                        <option value="relevance">Sort by Relevance</option>
+                        <option value="title">Sort by Title</option>
+                        <option value="author">Sort by Author</option>
+                        <option value="newest">Newest First</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="books-grid" id="books-grid">
+                <!-- Book cards will be dynamically inserted here -->
+            </div>
+            
+            <!-- Loading state (initially hidden) -->
+            <div class="loading" id="loading" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i>
+                <p>Searching free book repositories...</p>
+            </div>
+            
+            <!-- No results state (initially hidden) -->
+            <div class="no-results" id="no-results" style="display: none;">
+                <i class="fas fa-book"></i>
+                <h3>No books found matching your search</h3>
+                <p>Try a different search term or browse by category</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>About FreeBookFinder</h3>
+                    <p>We aggregate free books from multiple open-source repositories to make them easily accessible to everyone, especially those who cannot afford physical books.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Source Libraries</h3>
+                    <ul class="footer-links">
+                        <li><a href="https://www.gutenberg.org/" target="_blank">Project Gutenberg</a></li>
+                        <li><a href="https://openlibrary.org/" target="_blank">Open Library</a></li>
+                        <li><a href="https://www.pdfdrive.com/" target="_blank">PDF Drive</a></li>
+                        <li><a href="https://manybooks.net/" target="_blank">ManyBooks</a></li>
+                        <li><a href="https://www.free-ebooks.net/" target="_blank">Free-eBooks</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <p>All books listed are either in the public domain or made available by authors/publishers for free distribution. We do not host any copyrighted material without permission.</p>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 FreeBookFinder. Made with <i class="fas fa-heart" style="color:#e74c3c;"></i> for book lovers everywhere.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Sample book data (in a real app, this would come from APIs)
+        const books = [
+            {
+                id: 1,
+                title: "Pride and Prejudice",
+                author: "Jane Austen",
+                category: "classics",
+                description: "A classic romance novel about manners, upbringing, morality, and marriage in early 19th-century England.",
+                sources: [
+                    { name: "Project Gutenberg", url: "https://www.gutenberg.org/ebooks/1342", format: "EPUB" },
+                    { name: "Open Library", url: "https://openlibrary.org/books/OL24247748M", format: "PDF" },
+                    { name: "ManyBooks", url: "https://manybooks.net/book/132292/read", format: "MOBI" }
+                ],
+                year: 1813
+            },
+            {
+                id: 2,
+                title: "Frankenstein",
+                author: "Mary Shelley",
+                category: "classics",
+                description: "A scientist creates a sentient creature in an unorthodox scientific experiment.",
+                sources: [
+                    { name: "Project Gutenberg", url: "https://www.gutenberg.org/ebooks/84", format: "EPUB" },
+                    { name: "PDF Drive", url: "https://www.pdfdrive.com/frankenstein-e186683383.html", format: "PDF" }
+                ],
+                year: 1818
+            },
+            {
+                id: 3,
+                title: "The Great Gatsby",
+                author: "F. Scott Fitzgerald",
+                category: "classics",
+                description: "A story about the mysteriously wealthy Jay Gatsby and his love for Daisy Buchanan.",
+                sources: [
+                    { name: "Project Gutenberg", url: "https://www.gutenberg.org/ebooks/64317", format: "EPUB" },
+                    { name: "Open Library", url: "https://openlibrary.org/books/OL24292448M", format: "PDF" },
+                    { name: "ManyBooks", url: "https://manybooks.net/book/145444/read", format: "MOBI" }
+                ],
+                year: 1925
+            },
+            {
+                id: 4,
+                title: "A Brief History of Time",
+                author: "Stephen Hawking",
+                category: "nonfiction",
+                description: "A popular-science book on cosmology by British physicist Stephen Hawking.",
+                sources: [
+                    { name: "PDF Drive", url: "https://www.pdfdrive.com/a-brief-history-of-time-e18728378.html", format: "PDF" },
+                    { name: "Free-eBooks", url: "https://www.free-ebooks.net/science/A-Brief-History-of-Time", format: "EPUB" }
+                ],
+                year: 1988
+            },
+            {
+                id: 5,
+                title: "The Hitchhiker's Guide to the Galaxy",
+                author: "Douglas Adams",
+                category: "scifi",
+                description: "The comedic story of Arthur Dent, a man who is swept off Earth just before it is destroyed.",
+                sources: [
+                    { name: "Open Library", url: "https://openlibrary.org/books/OL24292449M", format: "PDF" },
+                    { name: "ManyBooks", url: "https://manybooks.net/book/145445/read", format: "MOBI" }
+                ],
+                year: 1979
+            },
+            {
+                id: 6,
+                title: "Sapiens: A Brief History of Humankind",
+                author: "Yuval Noah Harari",
+                category: "nonfiction",
+                description: "A book exploring the history of the human species from the Stone Age to the modern era.",
+                sources: [
+                    { name: "PDF Drive", url: "https://www.pdfdrive.com/sapiens-a-brief-history-of-humankind-e18728379.html", format: "PDF" },
+                    { name: "Free-eBooks", url: "https://www.free-ebooks.net/history/Sapiens-A-Brief-History-of-Humankind", format: "EPUB" }
+                ],
+                year: 2011
+            }
+        ];
+
+        // DOM elements
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const booksGrid = document.getElementById('books-grid');
+        const loadingEl = document.getElementById('loading');
+        const noResultsEl = document.getElementById('no-results');
+        const resultsCount = document.getElementById('results-count');
+        const sortSelect = document.getElementById('sort-by');
+
+        // Current filter and search state
+        let currentFilter = 'all';
+        let currentSearch = '';
+        let displayedBooks = [...books];
+
+        // Initialize the page with all books
+        function renderBooks() {
+            booksGrid.innerHTML = '';
+            
+            if (displayedBooks.length === 0) {
+                noResultsEl.style.display = 'block';
+                resultsCount.textContent = 'No books found';
+                return;
+            }
+            
+            noResultsEl.style.display = 'none';
+            resultsCount.textContent = `Showing ${displayedBooks.length} free books`;
+            
+            displayedBooks.forEach(book => {
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+                
+                // Get first letter for placeholder
+                const firstLetter = book.title.charAt(0);
+                
+                // Create sources HTML
+                let sourcesHTML = '';
+                book.sources.forEach(source => {
+                    sourcesHTML += `<a href="${source.url}" target="_blank" class="source-link">${source.name} (${source.format})</a>`;
+                });
+                
+                bookCard.innerHTML = `
+                    <div class="book-cover">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="book-info">
+                        <h3 class="book-title">${book.title}</h3>
+                        <p class="book-author">by ${book.author} (${book.year})</p>
+                        <p>${book.description}</p>
+                        <div>
+                            <span class="format-tag">${book.category}</span>
+                        </div>
+                        <div class="book-sources">
+                            ${sourcesHTML}
+                        </div>
+                    </div>
+                `;
+                
+                booksGrid.appendChild(bookCard);
+            });
+        }
+
+        // Filter books based on category and search term
+        function filterBooks() {
+            loadingEl.style.display = 'block';
+            
+            // Simulate API delay
+            setTimeout(() => {
+                displayedBooks = books.filter(book => {
+                    // Filter by category
+                    const categoryMatch = currentFilter === 'all' || book.category === currentFilter;
+                    
+                    // Filter by search term
+                    const searchMatch = !currentSearch || 
+                        book.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                        book.author.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                        book.description.toLowerCase().includes(currentSearch.toLowerCase());
+                    
+                    return categoryMatch && searchMatch;
+                });
+                
+                // Sort books
+                sortBooks();
+                
+                loadingEl.style.display = 'none';
+                renderBooks();
+            }, 500);
+        }
+
+        // Sort books based on selected option
+        function sortBooks() {
+            const sortBy = sortSelect.value;
+            
+            switch(sortBy) {
+                case 'title':
+                    displayedBooks.sort((a, b) => a.title.localeCompare(b.title));
+                    break;
+                case 'author':
+                    displayedBooks.sort((a, b) => a.author.localeCompare(b.author));
+                    break;
+                case 'newest':
+                    displayedBooks.sort((a, b) => b.year - a.year);
+                    break;
+                case 'relevance':
+                default:
+                    // Keep original order (relevance would require a search algorithm)
+                    break;
+            }
+        }
+
+        // Event Listeners
+        searchBtn.addEventListener('click', () => {
+            currentSearch = searchInput.value.trim();
+            filterBooks();
+        });
+
+        searchInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+                currentSearch = searchInput.value.trim();
+                filterBooks();
+            }
+        });
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active filter button
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Update filter and re-render
+                currentFilter = btn.getAttribute('data-filter');
+                filterBooks();
+            });
+        });
+
+        sortSelect.addEventListener('change', () => {
+            sortBooks();
+            renderBooks();
+        });
+
+        // Initialize the page
+        renderBooks();
+        
+        // Add some interaction to search input
+        searchInput.addEventListener('focus', function() {
+            this.parentElement.style.boxShadow = '0 0 0 3px rgba(52, 152, 219, 0.2)';
+        });
+        
+        searchInput.addEventListener('blur', function() {
+            this.parentElement.style.boxShadow = 'none';
+        });
+
+        // Sample search suggestions
+        const sampleSearches = ["Classic novels", "Science fiction", "History books", "Philosophy"];
+        let searchIndex = 0;
+        
+        // Animate placeholder text (optional feature)
+        function animatePlaceholder() {
+            if (!searchInput.matches(':focus')) {
+                searchInput.placeholder = `Search for ${sampleSearches[searchIndex]}...`;
+                searchIndex = (searchIndex + 1) % sampleSearches.length;
+            }
+        }
+        
+        // Uncomment to enable animated placeholder
+        // setInterval(animatePlaceholder, 3000);
+    </script>
+</body>
+</html>
