@@ -217,22 +217,22 @@
             barkTexture.wrapS = barkTexture.wrapT = THREE.RepeatWrapping;
             barkTexture.repeat.set(2, 6);
 
-            // more pronounced twisting for an ancient, gnarled, and thicker look
+            // softened twisting for a cuter, less aggressive ancient look
             let twistAccum = 0;
             for (let i = 0; i < segments; i++) {
                 const t = i / segments;
-                // increase base radius and reduce taper so trunk stays thick
-                const baseRadius = 1.9;
-                const taper = 1 - t * 0.45;
-                const bulge = Math.sin(t * Math.PI * 4.5) * 1.25 * (0.9 + Math.random() * 0.8);
-                const radius = Math.max(0.6, baseRadius * taper + bulge * 0.9);
+                // moderate base radius and slightly stronger taper so trunk reads strong but friendly
+                const baseRadius = 1.4;
+                const taper = 1 - t * 0.55;
+                const bulge = Math.sin(t * Math.PI * 4.0) * 0.9 * (0.6 + Math.random() * 0.6);
+                const radius = Math.max(0.5, baseRadius * taper + bulge * 0.6);
 
-                const spiralTwist = t * Math.PI * 7.5; // even stronger spiral
-                const wavyTwist = Math.sin(t * Math.PI * 6.5) * (0.9 + Math.random() * 0.7);
-                const bend = Math.cos(t * Math.PI * 2.2) * (1.0 + Math.random() * 0.8);
+                const spiralTwist = t * Math.PI * 6.0; // gentler spiral
+                const wavyTwist = Math.sin(t * Math.PI * 5.5) * (0.6 + Math.random() * 0.5);
+                const bend = Math.cos(t * Math.PI * 2.2) * (0.6 + Math.random() * 0.5);
 
                 const height = trunkHeight / segments;
-                const geo = new THREE.CylinderGeometry(radius, radius + 0.08, height, 22);
+                const geo = new THREE.CylinderGeometry(radius, radius + 0.06, height, 16);
 
                 const woodVariation = Math.random();
                 let barkColor;
@@ -247,23 +247,23 @@
                 const mat = new THREE.MeshStandardMaterial({
                     color: barkColor,
                     flatShading: true,
-                    roughness: 0.94,
-                    metalness: 0.05,
+                    roughness: 0.92,
+                    metalness: 0.04,
                     map: barkTexture,
                     bumpMap: barkTexture,
-                    bumpScale: 0.03
+                    bumpScale: 0.02 // softer bump for cuter appearance
                 });
 
                 const seg = new THREE.Mesh(geo, mat);
-                seg.position.y = i * height + height / 2 - 0.6;
-                seg.position.x = bend * t + Math.sin(t * Math.PI * 7.5) * 0.9;
-                seg.position.z = Math.cos(t * Math.PI * 5.2) * 0.85;
+                seg.position.y = i * height + height / 2 - 0.5;
+                seg.position.x = bend * t + Math.sin(t * Math.PI * 7.0) * 0.6;
+                seg.position.z = Math.cos(t * Math.PI * 4.6) * 0.6;
                 seg.rotation.y = spiralTwist + wavyTwist + twistAccum;
-                seg.rotation.z = Math.sin(i * 0.95) * 0.28;
-                seg.rotation.x = Math.cos(i * 0.5) * 0.14;
+                seg.rotation.z = Math.sin(i * 0.95) * 0.20;
+                seg.rotation.x = Math.cos(i * 0.5) * 0.10;
 
-                // small cumulative twist to make the trunk feel continuous
-                twistAccum += 0.08 * (1 - t);
+                // small cumulative twist to make the trunk feel continuous but friendly
+                twistAccum += 0.05 * (1 - t);
 
                 seg.userData = {
                     baseY: seg.position.y,
@@ -280,54 +280,54 @@
                 scene.add(seg);
                 tree.trunk.push(seg);
 
-                // More frequent and larger gnarls/knots for age
-                if (i > 2 && i % 2 === 0) {
-                    const knotSize = radius * (0.9 + Math.random() * 1.2);
-                    const knotGeo = new THREE.IcosahedronGeometry(knotSize, 1);
+                // gentler, less frequent gnarls so trunk reads cute not creepy
+                if (i > 3 && i % 4 === 0) {
+                    const knotSize = radius * (0.6 + Math.random() * 0.6);
+                    const knotGeo = new THREE.IcosahedronGeometry(knotSize, 0);
                     const knot = new THREE.Mesh(knotGeo, mat);
                     knot.position.copy(seg.position);
-                    knot.position.x += radius * 1.45 * Math.cos(i * 1.6) + (Math.random() - 0.5) * 0.35;
-                    knot.position.z += radius * 1.45 * Math.sin(i * 1.7) + (Math.random() - 0.5) * 0.35;
+                    knot.position.x += radius * 1.1 * Math.cos(i * 1.6) + (Math.random() - 0.5) * 0.2;
+                    knot.position.z += radius * 1.1 * Math.sin(i * 1.7) + (Math.random() - 0.5) * 0.2;
                     knot.rotation.z = Math.random() * Math.PI;
-                    knot.rotation.x = Math.random() * Math.PI;
+                    knot.rotation.x = Math.random() * Math.PI * 0.5;
                     scene.add(knot);
                     tree.trunk.push(knot);
                 }
 
                 // Moss platforms/ledges (slightly larger, more irregular)
-                if (i > 3 && i % 3 === 0) {
-                    const platSize = radius * (2.0 + Math.random() * 1.8);
-                    const platGeo = new THREE.SphereGeometry(platSize, 12, 8);
+                if (i > 5 && i % 5 === 0) {
+                    const platSize = radius * (1.4 + Math.random() * 1.0);
+                    const platGeo = new THREE.SphereGeometry(platSize, 10, 6);
                     const platMat = new THREE.MeshStandardMaterial({
                         color: MONONOKE_MOSS,
                         flatShading: true,
-                        roughness: 0.94,
+                        roughness: 0.92,
                         emissive: MONONOKE_MOSS,
-                        emissiveIntensity: 0.04
+                        emissiveIntensity: 0.03
                     });
                     const plat = new THREE.Mesh(platGeo, platMat);
-                    plat.scale.y = 0.2 + Math.random() * 0.16;
+                    plat.scale.y = 0.18 + Math.random() * 0.12;
                     plat.position.copy(seg.position);
-                    plat.position.x += (Math.random() - 0.5) * (radius * 1.4);
-                    plat.position.z += (Math.random() - 0.5) * (radius * 1.4);
+                    plat.position.x += (Math.random() - 0.5) * (radius * 1.0);
+                    plat.position.z += (Math.random() - 0.5) * (radius * 1.0);
                     plat.rotation.y = Math.random() * Math.PI * 2;
                     scene.add(plat);
                     tree.platforms.push(plat);
                 }
             }
 
-            // Add larger root flares at the base to emphasize strength
-            for (let r = 0; r < 8; r++) {
-                const rootRad = 1.9 + Math.random() * 1.8;
-                const tor = new THREE.TorusGeometry(rootRad, 0.35 + Math.random() * 0.45, 10, 48);
-                const rm = new THREE.MeshStandardMaterial({ color: MONONOKE_WOOD_DARK, roughness: 0.96, flatShading: true });
+            // Add smaller, friendlier root flares at the base for a sturdy but cute appearance
+            for (let r = 0; r < 6; r++) {
+                const rootRad = 1.4 + Math.random() * 0.8;
+                const tor = new THREE.TorusGeometry(rootRad, 0.25 + Math.random() * 0.2, 8, 36);
+                const rm = new THREE.MeshStandardMaterial({ color: MONONOKE_WOOD_DARK, roughness: 0.94, flatShading: true });
                 const root = new THREE.Mesh(tor, rm);
-                root.rotation.x = Math.PI / 2 + (Math.random() - 0.5) * 0.6;
+                root.rotation.x = Math.PI / 2 + (Math.random() - 0.5) * 0.5;
                 root.rotation.y = Math.random() * Math.PI * 2;
-                root.position.y = 0.1 - Math.random() * 0.45;
-                root.position.x = Math.cos(r / 8 * Math.PI * 2) * (1.8 + Math.random() * 1.8);
-                root.position.z = Math.sin(r / 8 * Math.PI * 2) * (1.8 + Math.random() * 1.8);
-                root.scale.set(1.2 + Math.random() * 1.2, 0.9 + Math.random() * 0.8, 1.2 + Math.random() * 1.2);
+                root.position.y = 0.15 - Math.random() * 0.3;
+                root.position.x = Math.cos(r / 6 * Math.PI * 2) * (1.6 + Math.random() * 1.0);
+                root.position.z = Math.sin(r / 6 * Math.PI * 2) * (1.6 + Math.random() * 1.0);
+                root.scale.set(1 + Math.random() * 0.6, 0.8 + Math.random() * 0.4, 1 + Math.random() * 0.6);
                 scene.add(root);
                 tree.trunk.push(root);
             }
