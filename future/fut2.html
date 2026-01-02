@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Living Ghibli Tree</title>
+    <title>Mononoke's Spirit Forest</title>
     <style>
         body {
             margin: 0;
             overflow: hidden;
-            background: radial-gradient(ellipse at center, #1a1f3a 0%, #0a0e27 100%);
+            background: radial-gradient(ellipse at center, #0c1a1a 0%, #050c0f 100%);
         }
         canvas {
             display: block;
@@ -20,22 +20,32 @@
     <script>
         let scene, camera, renderer, tree = {}, time = 0;
         
-        const GHIBLI_WOOD_LIGHT = 0xD2B48C;
-        const GHIBLI_WOOD = 0xA67C52;
-        const GHIBLI_WOOD_DARK = 0x6B4F2A;
-        // slightly more muted / desaturated leaf palette for Princess Mononoke vibe
-        // tuned palette to match Kodama-night / Princess Mononoke tones
-        const GHIBLI_LEAF_LIGHT = 0x89c79a;
-        const GHIBLI_LEAF_MED = 0x4f8f6a;
-        const GHIBLI_LEAF_DARK = 0x2f5f44;
-        const GHIBLI_MOSS = 0x3d7f61;
-        const GHIBLI_GRASS = 0x6aa57a;
-        const GHIBLI_FIELD = 0x5f9a83;
-        const GHIBLI_EARTH = 0x8B6F47;
+        // PRINCESS MONONOKE COLOR PALETTE
+        // Wood tones - richer, darker browns
+        const MONONOKE_WOOD_LIGHT = 0xB8945F;
+        const MONONOKE_WOOD = 0x8C5E3A;
+        const MONONOKE_WOOD_DARK = 0x5A3C1F;
+        
+        // Forest tones - deep, desaturated greens with blue undertones
+        const MONONOKE_LEAF_LIGHT = 0x6D9A7A;  // Muted mossy green
+        const MONONOKE_LEAF_MED = 0x4A7159;    // Deep forest green
+        const MONONOKE_LEAF_DARK = 0x2F4A3A;   // Almost black-green
+        const MONONOKE_MOSS = 0x3A5D4E;        // Cool, dark moss
+        const MONONOKE_GRASS = 0x567D66;       // Desaturated grass
+        const MONONOKE_FIELD = 0x2C4135;       // Dark forest floor
+        
+        // Earth and stone
+        const MONONOKE_EARTH = 0x6B5432;       // Rich soil
+        const MONONOKE_STONE = 0x4A4A4A;       // Gray stone
+        
+        // Magical/spirit colors
+        const MONONOKE_SPIRIT_LIGHT = 0x9BE0D8;  // Cool cyan (Night-Walker influence)
+        const MONONOKE_SPIRIT_MED = 0x5AB4B4;    // Deep teal
+        const MONONOKE_KODAMA_GLOW = 0xC8F0E8;   // Pale green-white
         
         function init() {
             scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x0a0e27, 20, 80);
+            scene.fog = new THREE.Fog(0x050c0f, 15, 60);  // Thicker, darker fog
             
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(0, 12, 35);
@@ -43,6 +53,7 @@
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setClearColor(0x050c0f, 1);
             document.body.appendChild(renderer.domElement);
             
             setupLighting();
@@ -54,37 +65,34 @@
         }
         
         function setupLighting() {
-            // softer, green-tinted ambient for forest night
-            const ambient = new THREE.AmbientLight(0x22332a, 0.45);
+            // Very dark, cool ambient - like deep forest night
+            const ambient = new THREE.AmbientLight(0x1A2A2A, 0.25);
             scene.add(ambient);
             
-            // moonlight: cool but dimmer to keep forest intimate
-            const moonLight = new THREE.DirectionalLight(0x6f8faa, 0.6);
-            moonLight.position.set(15, 25, 20);
+            // Moonlight - cool blue, casting sharp shadows
+            const moonLight = new THREE.DirectionalLight(0x5A7A9A, 0.8);
+            moonLight.position.set(20, 30, 15);
+            moonLight.castShadow = true;
+            moonLight.shadow.mapSize.width = 2048;
+            moonLight.shadow.mapSize.height = 2048;
             scene.add(moonLight);
 
-            // subtle bluish fill from other side
-            const blueMoon = new THREE.DirectionalLight(0x25425a, 0.35);
-            blueMoon.position.set(-20, 20, 15);
-            scene.add(blueMoon);
+            // Fill light with green-blue tint (forest reflection)
+            const forestFill = new THREE.DirectionalLight(0x2A4A4A, 0.4);
+            forestFill.position.set(-15, 20, -10);
+            scene.add(forestFill);
 
-            // magical soft green-cyan glow above tree
-            const magicGlow = new THREE.PointLight(0x66c8a8, 2.2, 60);
-            magicGlow.position.set(0, 16, 0);
-            scene.add(magicGlow);
-            tree.magicGlow = magicGlow;
-
-            // gentle green fill around canopy
-            const greenGlow = new THREE.PointLight(0x77bb88, 1.8, 50);
-            greenGlow.position.set(0, 10, 0);
-            scene.add(greenGlow);
-            tree.greenGlow = greenGlow;
-
-            // soft spirit glow (slightly warm/green)
-            const spiritGlow = new THREE.PointLight(0xcfeee8, 1.6, 40);
-            spiritGlow.position.set(0, 15, 0);
+            // Great Forest Spirit/Night-Walker inspired glow
+            const spiritGlow = new THREE.PointLight(MONONOKE_SPIRIT_LIGHT, 2.5, 50);
+            spiritGlow.position.set(0, 18, 0);
             scene.add(spiritGlow);
             tree.spiritGlow = spiritGlow;
+
+            // Subtle cyan glow from within the tree
+            const innerGlow = new THREE.PointLight(MONONOKE_SPIRIT_MED, 1.8, 30);
+            innerGlow.position.set(0, 8, 0);
+            scene.add(innerGlow);
+            tree.innerGlow = innerGlow;
         }
         
         function createLivingTree() {
@@ -101,74 +109,77 @@
         }
         
         function createGround() {
-            const groundGeo = new THREE.CircleGeometry(18, 32);
+            // Main forest floor
+            const groundGeo = new THREE.CircleGeometry(20, 32);
             const groundMat = new THREE.MeshStandardMaterial({ 
-                color: GHIBLI_FIELD,
+                color: MONONOKE_FIELD,
                 flatShading: true,
-                roughness: 0.95
+                roughness: 0.98,
+                metalness: 0.1
             });
             const ground = new THREE.Mesh(groundGeo, groundMat);
             ground.rotation.x = -Math.PI / 2;
-            ground.position.y = 0;
+            ground.position.y = -0.5;
             scene.add(ground);
 
-            // add moss clumps for a forest floor feel
+            // Moss patches - more abundant and darker
             const mossMat = new THREE.MeshStandardMaterial({
-                color: GHIBLI_MOSS,
+                color: MONONOKE_MOSS,
                 flatShading: true,
-                roughness: 0.9,
-                emissive: GHIBLI_MOSS,
-                emissiveIntensity: 0.04
+                roughness: 0.95,
+                emissive: MONONOKE_MOSS,
+                emissiveIntensity: 0.02
             });
-            for (let m = 0; m < 46; m++) {
+            
+            for (let m = 0; m < 60; m++) {
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 1 + Math.random() * 15;
+                const radius = 2 + Math.random() * 16;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
-                const size = 0.6 + Math.random() * 2.2;
+                const size = 0.8 + Math.random() * 2.5;
                 const geo = new THREE.SphereGeometry(size, 10, 8);
                 const moss = new THREE.Mesh(geo, mossMat);
-                moss.scale.y = 0.22;
-                moss.position.set(x, size * 0.12, z);
+                moss.scale.y = 0.25;
+                moss.position.set(x, size * 0.1 - 0.3, z);
                 moss.rotation.y = Math.random() * Math.PI * 2;
                 scene.add(moss);
             }
 
-            // grass blades with richer, desaturated Ghibli palette
-            for (let i = 0; i < 1200; i++) {
+            // Sparse, dark grass
+            for (let i = 0; i < 800; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 2 + Math.random() * 14;
+                const radius = 3 + Math.random() * 15;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
 
-                const height = 0.12 + Math.random() * 0.45;
-                const geo = new THREE.ConeGeometry(0.02 + Math.random() * 0.03, height, 4);
+                const height = 0.1 + Math.random() * 0.4;
+                const geo = new THREE.ConeGeometry(0.02 + Math.random() * 0.025, height, 4);
                 const greenVariation = Math.random();
                 let grassColor;
-                if (greenVariation < 0.35) {
-                    grassColor = GHIBLI_MOSS;
-                } else if (greenVariation < 0.75) {
-                    grassColor = GHIBLI_GRASS;
+                if (greenVariation < 0.4) {
+                    grassColor = MONONOKE_MOSS;
+                } else if (greenVariation < 0.8) {
+                    grassColor = MONONOKE_GRASS;
                 } else {
-                    grassColor = GHIBLI_FIELD;
+                    grassColor = MONONOKE_LEAF_DARK;
                 }
                 const mat = new THREE.MeshStandardMaterial({
                     color: grassColor,
                     flatShading: true,
-                    roughness: 0.92,
+                    roughness: 0.96,
                     emissive: grassColor,
-                    emissiveIntensity: 0.03
+                    emissiveIntensity: 0.01
                 });
                 const blade = new THREE.Mesh(geo, mat);
-                blade.position.set(x, height / 2 + 0.02, z);
-                blade.rotation.z = (Math.random() - 0.5) * 0.6;
+                blade.position.set(x, height / 2 - 0.4, z);
+                blade.rotation.z = (Math.random() - 0.5) * 0.5;
                 blade.rotation.y = Math.random() * Math.PI * 2;
 
                 blade.userData = {
                     baseRotZ: blade.rotation.z,
                     offset: Math.random() * Math.PI * 2,
-                    speed: 0.35 + Math.random() * 0.7,
-                    amp: 0.08 + Math.random() * 0.2
+                    speed: 0.3 + Math.random() * 0.6,
+                    amp: 0.06 + Math.random() * 0.15
                 };
 
                 scene.add(blade);
@@ -177,45 +188,46 @@
         }
         
         function createOrganicTrunk() {
-            const trunkHeight = 10;
-            const segments = 25;
+            const trunkHeight = 11;
+            const segments = 28;
             
             for (let i = 0; i < segments; i++) {
                 const t = i / segments;
-                const baseRadius = 0.9;
-                const taper = 1 - t * 0.6;
-                const bulge = Math.sin(t * Math.PI * 2) * 0.4;
+                const baseRadius = 1.1;
+                const taper = 1 - t * 0.65;
+                const bulge = Math.sin(t * Math.PI * 3) * 0.5;
                 const radius = baseRadius * taper + bulge;
                 
-                const spiralTwist = t * Math.PI * 3;
-                const wavyTwist = Math.sin(t * Math.PI * 4) * 0.5;
-                const bend = Math.cos(t * Math.PI * 2) * 0.6;
+                const spiralTwist = t * Math.PI * 3.5;
+                const wavyTwist = Math.sin(t * Math.PI * 5) * 0.6;
+                const bend = Math.cos(t * Math.PI * 2.5) * 0.7;
                 
                 const height = trunkHeight / segments;
-                const geo = new THREE.CylinderGeometry(radius, radius + 0.06, height, 12);
+                const geo = new THREE.CylinderGeometry(radius, radius + 0.08, height, 14);
                 
                 const woodVariation = Math.random();
                 let barkColor;
-                if (woodVariation < 0.3) {
-                    barkColor = GHIBLI_WOOD_LIGHT;
-                } else if (woodVariation < 0.7) {
-                    barkColor = GHIBLI_WOOD;
+                if (woodVariation < 0.25) {
+                    barkColor = MONONOKE_WOOD_LIGHT;
+                } else if (woodVariation < 0.65) {
+                    barkColor = MONONOKE_WOOD;
                 } else {
-                    barkColor = GHIBLI_WOOD_DARK;
+                    barkColor = MONONOKE_WOOD_DARK;
                 }
                 const mat = new THREE.MeshStandardMaterial({ 
                     color: barkColor,
                     flatShading: true,
-                    roughness: 0.9
+                    roughness: 0.92,
+                    metalness: 0.1
                 });
                 
                 const seg = new THREE.Mesh(geo, mat);
                 seg.position.y = i * height + height / 2;
-                seg.position.x = bend * t + Math.sin(t * Math.PI * 6) * 0.3;
-                seg.position.z = Math.cos(t * Math.PI * 3) * 0.4;
+                seg.position.x = bend * t + Math.sin(t * Math.PI * 7) * 0.4;
+                seg.position.z = Math.cos(t * Math.PI * 3.5) * 0.5;
                 seg.rotation.y = spiralTwist + wavyTwist;
-                seg.rotation.z = Math.sin(i * 0.8) * 0.12;
-                seg.rotation.x = Math.cos(i * 0.5) * 0.08;
+                seg.rotation.z = Math.sin(i * 0.9) * 0.15;
+                seg.rotation.x = Math.cos(i * 0.6) * 0.1;
                 
                 seg.userData = {
                     baseY: seg.position.y,
@@ -225,35 +237,42 @@
                     baseRotZ: seg.rotation.z,
                     baseRotX: seg.rotation.x,
                     offset: i * 0.5,
-                    breatheAmp: 0.02 + Math.random() * 0.015,
-                    breatheSpeed: 0.7 + Math.random() * 0.5
+                    breatheAmp: 0.025 + Math.random() * 0.02,
+                    breatheSpeed: 0.6 + Math.random() * 0.4
                 };
                 
                 scene.add(seg);
                 tree.trunk.push(seg);
                 
-                if (i > 3 && i % 3 === 0) {
-                    const knotSize = radius * (0.4 + Math.random() * 0.4);
-                    const knotGeo = new THREE.SphereGeometry(knotSize, 8, 8);
+                // Add gnarls and knots
+                if (i > 4 && i % 4 === 0) {
+                    const knotSize = radius * (0.5 + Math.random() * 0.5);
+                    const knotGeo = new THREE.SphereGeometry(knotSize, 9, 9);
                     const knot = new THREE.Mesh(knotGeo, mat);
                     knot.position.copy(seg.position);
-                    knot.position.x += radius * 0.9 * Math.cos(i);
-                    knot.position.z += radius * 0.9 * Math.sin(i);
+                    knot.position.x += radius * 1.1 * Math.cos(i * 2);
+                    knot.position.z += radius * 1.1 * Math.sin(i * 2);
                     knot.rotation.z = Math.random() * Math.PI;
                     scene.add(knot);
                     tree.trunk.push(knot);
                 }
-                // occasionally add a flattened moss platform/ledge on the trunk
-                if (i > 4 && i % 4 === 0) {
-                    const platSize = radius * (1.4 + Math.random() * 1.0);
+                
+                // Moss platforms/ledges
+                if (i > 5 && i % 5 === 0) {
+                    const platSize = radius * (1.6 + Math.random() * 1.2);
                     const platGeo = new THREE.SphereGeometry(platSize, 12, 8);
-                    const platMat = new THREE.MeshStandardMaterial({ color: GHIBLI_MOSS, flatShading: true, roughness: 0.92, emissive: GHIBLI_MOSS, emissiveIntensity: 0.04 });
+                    const platMat = new THREE.MeshStandardMaterial({ 
+                        color: MONONOKE_MOSS, 
+                        flatShading: true, 
+                        roughness: 0.94,
+                        emissive: MONONOKE_MOSS,
+                        emissiveIntensity: 0.03 
+                    });
                     const plat = new THREE.Mesh(platGeo, platMat);
-                    plat.scale.y = 0.22;
+                    plat.scale.y = 0.25;
                     plat.position.copy(seg.position);
-                    // offset slightly outward from trunk center
-                    plat.position.x += (Math.random() - 0.5) * (radius * 0.8);
-                    plat.position.z += (Math.random() - 0.5) * (radius * 0.8);
+                    plat.position.x += (Math.random() - 0.5) * (radius * 1.0);
+                    plat.position.z += (Math.random() - 0.5) * (radius * 1.0);
                     plat.rotation.y = Math.random() * Math.PI * 2;
                     scene.add(plat);
                     tree.platforms.push(plat);
@@ -262,139 +281,137 @@
         }
         
         function createBranchNetwork() {
-            const mainBranches = 16;
+            const mainBranches = 18;
             for (let i = 0; i < mainBranches; i++) {
                 const angle = (i / mainBranches) * Math.PI * 2;
-                const startHeight = 6 + Math.random() * 2.5;
-                const length = 3 + Math.random() * 1.5;
-                createOrganicBranch(angle, startHeight, 0, length, 0.25);
+                const startHeight = 7 + Math.random() * 3;
+                const length = 3.5 + Math.random() * 2;
+                createOrganicBranch(angle, startHeight, 0, length, 0.3);
             }
         }
         
         function createOrganicBranch(angle, startY, generation, length, thickness) {
-            if (generation > 3 || length < 0.8) return;
+            if (generation > 3 || length < 1.0) return;
             
             const points = [];
-            const segments = 12;
-            const curvature = 0.3 + Math.random() * 0.5;
-            const twist = (Math.random() - 0.5) * 0.8;
+            const segments = 14;
+            const curvature = 0.4 + Math.random() * 0.6;
+            const twist = (Math.random() - 0.5) * 1.0;
             
             for (let i = 0; i <= segments; i++) {
                 const t = i / segments;
-                const radius = 0.5 + t * length;
-                const lift = Math.pow(t, 0.6) * (2 + Math.random() * 1);
+                const radius = 0.6 + t * length;
+                const lift = Math.pow(t, 0.7) * (2.5 + Math.random() * 1.5);
                 const naturalBend = Math.sin(t * Math.PI) * curvature;
-                const waviness = Math.sin(t * Math.PI * 3) * 0.2;
+                const waviness = Math.sin(t * Math.PI * 4) * 0.25;
                 
                 points.push(new THREE.Vector3(
                     Math.cos(angle + twist * t) * radius + naturalBend,
-                    startY + lift - t * 0.5,
+                    startY + lift - t * 0.7,
                     Math.sin(angle + twist * t) * radius + waviness
                 ));
             }
             
             const curve = new THREE.CatmullRomCurve3(points);
-            const geo = new THREE.TubeGeometry(curve, segments, thickness - generation * 0.05, 8, false);
+            const geo = new THREE.TubeGeometry(curve, segments, thickness - generation * 0.06, 10, false);
             const mat = new THREE.MeshStandardMaterial({ 
-                color: GHIBLI_WOOD_DARK,
+                color: MONONOKE_WOOD_DARK,
                 flatShading: true,
-                roughness: 0.9
+                roughness: 0.92,
+                metalness: 0.05
             });
             const branch = new THREE.Mesh(geo, mat);
             
             branch.userData = {
                 curve: curve,
                 offset: Math.random() * Math.PI * 2,
-                breatheSpeed: 0.4 + Math.random() * 0.3,
-                breatheAmp: 0.02 + Math.random() * 0.02
+                breatheSpeed: 0.35 + Math.random() * 0.25,
+                breatheAmp: 0.025 + Math.random() * 0.025
             };
             
             scene.add(branch);
             tree.branches.push(branch);
             
             if (generation < 3) {
-                const subBranches = 2 + Math.floor(Math.random() * 3);
+                const subBranches = 2 + Math.floor(Math.random() * 4);
                 for (let i = 0; i < subBranches; i++) {
-                    const splitT = 0.5 + Math.random() * 0.4;
+                    const splitT = 0.4 + Math.random() * 0.5;
                     const splitPoint = curve.getPointAt(splitT);
-                    const newAngle = angle + (Math.random() - 0.5) * 1.8;
-                    const newLength = length * (0.5 + Math.random() * 0.3);
-                    createOrganicBranch(newAngle, splitPoint.y, generation + 1, newLength, thickness * 0.7);
+                    const newAngle = angle + (Math.random() - 0.5) * 2.0;
+                    const newLength = length * (0.6 + Math.random() * 0.4);
+                    createOrganicBranch(newAngle, splitPoint.y, generation + 1, newLength, thickness * 0.65);
                 }
             }
         }
         
         function createBreathingCanopy() {
-            const layers = 18;
-            const clustersPerLayer = 50;
+            const layers = 20;
+            const clustersPerLayer = 55;
 
             for (let layer = 0; layer < layers; layer++) {
                 const layerT = layer / (layers - 1);
-                const baseY = 9 + layer * 0.9;
-                // tighten the radius toward the top so canopy tapers
-                const layerRadius = 9 * (1 - layerT * 0.6) * (0.95 + Math.sin(layerT * Math.PI) * 0.15);
-
-                // fewer clusters near the top -> triangular profile
-                const clustersThis = Math.max(6, Math.floor(clustersPerLayer * (1 - Math.pow(layerT, 1.8))));
+                const baseY = 10 + layer * 0.95;
+                const layerRadius = 10 * (1 - layerT * 0.7) * (0.9 + Math.sin(layerT * Math.PI) * 0.2);
+                const clustersThis = Math.max(5, Math.floor(clustersPerLayer * (1 - Math.pow(layerT, 2.0))));
 
                 for (let i = 0; i < clustersThis; i++) {
-                    const angle = (i / clustersThis) * Math.PI * 2 + layer * 0.8;
-                    const radiusVariation = 0.5 + Math.random() * 0.8;
-                    // bias inner radius smaller at higher layers so top is sparse
-                    const r = layerRadius * radiusVariation * (1 - layerT * 0.5);
+                    const angle = (i / clustersThis) * Math.PI * 2 + layer * 0.9;
+                    const radiusVariation = 0.4 + Math.random() * 0.9;
+                    const r = layerRadius * radiusVariation * (1 - layerT * 0.6);
                     const x = Math.cos(angle) * r;
                     const z = Math.sin(angle) * r;
-                    const y = baseY + (Math.random() - 0.5) * 1.5;
+                    const y = baseY + (Math.random() - 0.5) * 1.8;
 
-                    // fewer puffs per cluster at top
-                    const basePuffs = 8 + Math.floor(Math.random() * 6);
-                    const puffCount = Math.max(2, Math.floor(basePuffs * (1 - layerT * 0.75)));
+                    const basePuffs = 7 + Math.floor(Math.random() * 8);
+                    const puffCount = Math.max(1, Math.floor(basePuffs * (1 - layerT * 0.8)));
+                    
                     for (let p = 0; p < puffCount; p++) {
-                        const puffSize = 0.5 + Math.random() * 0.8;
-                        const geo = new THREE.SphereGeometry(puffSize, 8, 8);
+                        const puffSize = 0.6 + Math.random() * 1.0;
+                        const geo = new THREE.SphereGeometry(puffSize, 9, 9);
                         
                         const colorChoice = Math.random();
                         let leafColor;
-                        if (colorChoice < 0.35) {
-                            leafColor = new THREE.Color(GHIBLI_LEAF_LIGHT);
-                        } else if (colorChoice < 0.7) {
-                            leafColor = new THREE.Color(GHIBLI_LEAF_MED);
+                        if (colorChoice < 0.3) {
+                            leafColor = new THREE.Color(MONONOKE_LEAF_LIGHT);
+                        } else if (colorChoice < 0.65) {
+                            leafColor = new THREE.Color(MONONOKE_LEAF_MED);
                         } else if (colorChoice < 0.9) {
-                            leafColor = new THREE.Color(GHIBLI_LEAF_DARK);
+                            leafColor = new THREE.Color(MONONOKE_LEAF_DARK);
                         } else {
-                            leafColor = new THREE.Color(GHIBLI_MOSS);
+                            leafColor = new THREE.Color(MONONOKE_MOSS);
                         }
                         
                         const mat = new THREE.MeshStandardMaterial({ 
                             color: leafColor,
                             flatShading: true,
-                            roughness: 0.9,
+                            roughness: 0.94,
+                            metalness: 0.05,
                             emissive: leafColor,
-                            emissiveIntensity: 0.06
+                            emissiveIntensity: 0.04  // Lower glow for darker theme
                         });
                         
                         const leaf = new THREE.Mesh(geo, mat);
                         leaf.position.set(
-                            x + (Math.random() - 0.5) * 2.2,
-                            y + (Math.random() - 0.5) * 1.5,
-                            z + (Math.random() - 0.5) * 2.2
+                            x + (Math.random() - 0.5) * 2.5,
+                            y + (Math.random() - 0.5) * 1.8,
+                            z + (Math.random() - 0.5) * 2.5
                         );
                         
-                        const scaleVariation = 0.8 + Math.random() * 0.7;
+                        const scaleVariation = 0.7 + Math.random() * 0.8;
                         leaf.scale.set(
-                            scaleVariation * (0.95 + Math.random() * 0.3),
-                            scaleVariation * (1 + Math.random() * 0.4),
-                            scaleVariation * (0.95 + Math.random() * 0.3)
+                            scaleVariation * (0.9 + Math.random() * 0.35),
+                            scaleVariation * (1.1 + Math.random() * 0.5),
+                            scaleVariation * (0.9 + Math.random() * 0.35)
                         );
                         
                         leaf.userData = {
                             basePos: leaf.position.clone(),
                             baseScale: leaf.scale.clone(),
                             offset: Math.random() * Math.PI * 2,
-                            breatheSpeed: 0.6 + Math.random() * 0.9,
-                            breatheAmp: 0.3 + Math.random() * 0.4,
-                            pulseSpeed: 1 + Math.random() * 1.5,
-                            pulseAmp: 0.15 + Math.random() * 0.2
+                            breatheSpeed: 0.5 + Math.random() * 0.8,
+                            breatheAmp: 0.25 + Math.random() * 0.35,
+                            pulseSpeed: 0.8 + Math.random() * 1.2,
+                            pulseAmp: 0.12 + Math.random() * 0.18
                         };
                         
                         scene.add(leaf);
@@ -408,22 +425,23 @@
             tree.fireflies = [];
             tree.spirits = [];
             
-            // Kodama-like forest spirits
-            for (let i = 0; i < 40; i++) {
-                const geo = new THREE.SphereGeometry(0.15, 8, 8);
+            // Forest spirits/Kodama - more ethereal
+            for (let i = 0; i < 50; i++) {
+                const geo = new THREE.SphereGeometry(0.18, 10, 10);
                 const mat = new THREE.MeshBasicMaterial({ 
-                    color: 0xdfffee,
+                    color: MONONOKE_KODAMA_GLOW,
                     transparent: true,
-                    opacity: 0.5
+                    opacity: 0.4,
+                    blending: THREE.AdditiveBlending
                 });
                 const spirit = new THREE.Mesh(geo, mat);
                 
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 3 + Math.random() * 10;
+                const radius = 4 + Math.random() * 12;
                 
                 spirit.position.set(
                     Math.cos(angle) * radius,
-                    2 + Math.random() * 15,
+                    3 + Math.random() * 16,
                     Math.sin(angle) * radius
                 );
                 
@@ -431,10 +449,10 @@
                     angle: angle,
                     radius: radius,
                     baseY: spirit.position.y,
-                    bobSpeed: 0.5 + Math.random() * 0.5,
-                    bobHeight: 0.3 + Math.random() * 0.5,
-                    rotateSpeed: 0.05 + Math.random() * 0.1,
-                    pulseSpeed: 1 + Math.random() * 1.5,
+                    bobSpeed: 0.4 + Math.random() * 0.6,
+                    bobHeight: 0.4 + Math.random() * 0.6,
+                    rotateSpeed: 0.03 + Math.random() * 0.07,
+                    pulseSpeed: 0.8 + Math.random() * 1.2,
                     offset: Math.random() * Math.PI * 2
                 };
                 
@@ -442,83 +460,119 @@
                 tree.spirits.push(spirit);
             }
             
-            // Kodama placed on moss platforms if available (otherwise near trunk)
+            // Kodama figures on platforms
             tree.kodamas = [];
-            const kodamaCount = 4;
+            const kodamaCount = 6;
             for (let k = 0; k < kodamaCount; k++) {
                 const kodama = new THREE.Group();
-                const bodyGeo = new THREE.SphereGeometry(0.16 + Math.random() * 0.06, 10, 10);
+                const bodyGeo = new THREE.SphereGeometry(0.18 + Math.random() * 0.08, 12, 12);
                 const bodyMat = new THREE.MeshStandardMaterial({
-                    color: 0xf8fff8,
-                    emissive: 0xe8f8ea,
-                    roughness: 0.9
+                    color: 0xE8F8F0,
+                    emissive: MONONOKE_SPIRIT_LIGHT,
+                    emissiveIntensity: 0.3,
+                    roughness: 0.8
                 });
                 const body = new THREE.Mesh(bodyGeo, bodyMat);
-                body.position.y = 0.42;
+                body.position.y = 0.45;
                 kodama.add(body);
 
-                const eyeGeo = new THREE.SphereGeometry(0.03, 6, 6);
-                const eyeMat = new THREE.MeshBasicMaterial({ color: 0x111111 });
+                const eyeGeo = new THREE.SphereGeometry(0.035, 8, 8);
+                const eyeMat = new THREE.MeshBasicMaterial({ color: 0x0A1A1A });
                 const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
                 const rightEye = leftEye.clone();
-                leftEye.position.set(-0.055, 0.48, 0.11);
-                rightEye.position.set(0.055, 0.48, 0.11);
+                leftEye.position.set(-0.06, 0.52, 0.13);
+                rightEye.position.set(0.06, 0.52, 0.13);
                 kodama.add(leftEye);
                 kodama.add(rightEye);
 
-                // prefer placing on existing platforms
+                // Place on moss platforms
                 if (tree.platforms && tree.platforms.length > 0) {
                     const plat = tree.platforms[Math.floor(Math.random() * tree.platforms.length)];
                     kodama.position.set(
-                        plat.position.x + (Math.random() - 0.5) * 0.3,
-                        plat.position.y + plat.scale.y * 0.6 + 0.08,
-                        plat.position.z + (Math.random() - 0.5) * 0.3
+                        plat.position.x + (Math.random() - 0.5) * 0.4,
+                        plat.position.y + plat.scale.y * 0.7 + 0.1,
+                        plat.position.z + (Math.random() - 0.5) * 0.4
                     );
-                } else {
-                    const x = (Math.random() - 0.5) * 2.2;
-                    const z = (Math.random() - 0.5) * 2.2;
-                    kodama.position.set(x, 0, z);
                 }
 
-                kodama.userData = { baseY: kodama.position.y, bobAmp: 0.05 + Math.random() * 0.06, bobSpeed: 0.8 + Math.random() * 0.6, offset: Math.random() * Math.PI * 2 };
-                kodama.scale.setScalar(0.9 + Math.random() * 0.3);
+                kodama.userData = { 
+                    baseY: kodama.position.y, 
+                    bobAmp: 0.06 + Math.random() * 0.08, 
+                    bobSpeed: 0.7 + Math.random() * 0.5, 
+                    offset: Math.random() * Math.PI * 2,
+                    headBob: 0
+                };
+                kodama.scale.setScalar(1.0 + Math.random() * 0.4);
                 scene.add(kodama);
                 tree.kodamas.push(kodama);
             }
             
-            // Fireflies (increased count, white color)
-            for (let i = 0; i < 220; i++) {
-                const geo = new THREE.SphereGeometry(0.09 + Math.random() * 0.06, 8, 8);
+            // Fireflies - cooler blue-white like moonlight
+            for (let i = 0; i < 250; i++) {
+                const geo = new THREE.SphereGeometry(0.08 + Math.random() * 0.07, 10, 10);
                 const mat = new THREE.MeshBasicMaterial({
-                    color: 0xffffff,
+                    color: 0xA0C0FF,
                     transparent: true,
-                    opacity: 0.9
+                    opacity: 0.7,
+                    blending: THREE.AdditiveBlending
                 });
                 const firefly = new THREE.Mesh(geo, mat);
 
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 4 + Math.random() * 12;
+                const radius = 5 + Math.random() * 14;
 
                 firefly.position.set(
                     Math.cos(angle) * radius,
-                    1 + Math.random() * 18,
+                    2 + Math.random() * 19,
                     Math.sin(angle) * radius
                 );
 
                 firefly.userData = {
                     angle: angle,
                     radius: radius,
-                    speed: 0.06 + Math.random() * 0.18,
+                    speed: 0.04 + Math.random() * 0.15,
                     yOffset: Math.random() * Math.PI * 2,
-                    ySpeed: 0.25 + Math.random() * 0.35,
-                    pulseSpeed: 1.2 + Math.random() * 2.0,
-                    verticalDrift: (Math.random() - 0.5) * 0.02,
-                    maxY: 20,
-                    minY: 0.8
+                    ySpeed: 0.2 + Math.random() * 0.3,
+                    pulseSpeed: 1.0 + Math.random() * 1.8,
+                    verticalDrift: (Math.random() - 0.5) * 0.015,
+                    maxY: 21,
+                    minY: 1.0
                 };
 
                 scene.add(firefly);
                 tree.fireflies.push(firefly);
+            }
+            
+            // Add subtle floating particles (like dust or spores)
+            tree.particles = [];
+            const particleCount = 100;
+            const particleGeo = new THREE.SphereGeometry(0.03, 6, 6);
+            const particleMat = new THREE.MeshBasicMaterial({
+                color: MONONOKE_SPIRIT_LIGHT,
+                transparent: true,
+                opacity: 0.15,
+                blending: THREE.AdditiveBlending
+            });
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = new THREE.Mesh(particleGeo, particleMat);
+                particle.position.set(
+                    (Math.random() - 0.5) * 25,
+                    5 + Math.random() * 15,
+                    (Math.random() - 0.5) * 25
+                );
+                
+                particle.userData = {
+                    baseY: particle.position.y,
+                    driftSpeed: 0.01 + Math.random() * 0.03,
+                    driftX: (Math.random() - 0.5) * 0.02,
+                    driftZ: (Math.random() - 0.5) * 0.02,
+                    bobSpeed: 0.2 + Math.random() * 0.3,
+                    bobAmp: 0.1 + Math.random() * 0.2
+                };
+                
+                scene.add(particle);
+                tree.particles.push(particle);
             }
         }
         
@@ -526,34 +580,37 @@
             requestAnimationFrame(animate);
             time += 0.016;
             
-            const breathe = Math.sin(time * 0.6) * 0.5 + 0.5;
+            const breathe = Math.sin(time * 0.5) * 0.5 + 0.5;
             
+            // Tree trunk breathing
             tree.trunk.forEach(seg => {
                 if (seg.userData.breatheSpeed) {
                     const breath = Math.sin(time * seg.userData.breatheSpeed + seg.userData.offset);
                     const breathPulse = breath * seg.userData.breatheAmp;
                     
                     seg.rotation.z = seg.userData.baseRotZ + breathPulse;
-                    seg.rotation.y = seg.userData.baseRotY + Math.cos(time * 0.4 + seg.userData.offset) * 0.015;
-                    seg.position.x = seg.userData.baseX + Math.sin(time * 0.3 + seg.userData.offset) * 0.03;
+                    seg.rotation.y = seg.userData.baseRotY + Math.cos(time * 0.35 + seg.userData.offset) * 0.02;
+                    seg.position.x = seg.userData.baseX + Math.sin(time * 0.25 + seg.userData.offset) * 0.04;
                     
-                    const scale = 1 + breathPulse * 2;
-                    seg.scale.set(scale, 1 + breathPulse * 0.5, scale);
+                    const scale = 1 + breathPulse * 1.8;
+                    seg.scale.set(scale, 1 + breathPulse * 0.4, scale);
                 }
             });
             
+            // Branch sway
             tree.branches.forEach(branch => {
                 const breath = Math.sin(time * branch.userData.breatheSpeed + branch.userData.offset);
                 branch.rotation.x = breath * branch.userData.breatheAmp;
-                branch.rotation.z = Math.cos(time * branch.userData.breatheSpeed * 0.6 + branch.userData.offset) * branch.userData.breatheAmp * 0.7;
+                branch.rotation.z = Math.cos(time * branch.userData.breatheSpeed * 0.5 + branch.userData.offset) * branch.userData.breatheAmp * 0.8;
             });
             
+            // Leaves movement
             tree.leaves.forEach((leaf, i) => {
                 const d = leaf.userData;
                 const breath = Math.sin(time * d.breatheSpeed + d.offset);
                 const swayX = breath * d.breatheAmp;
-                const swayY = Math.cos(time * d.breatheSpeed * 0.7 + d.offset) * d.breatheAmp * 0.7;
-                const swayZ = Math.sin(time * d.breatheSpeed * 0.9 + d.offset + 1.5) * d.breatheAmp;
+                const swayY = Math.cos(time * d.breatheSpeed * 0.6 + d.offset) * d.breatheAmp * 0.6;
+                const swayZ = Math.sin(time * d.breatheSpeed * 0.8 + d.offset + 1.5) * d.breatheAmp;
                 
                 leaf.position.x = d.basePos.x + swayX;
                 leaf.position.y = d.basePos.y + swayY;
@@ -564,16 +621,17 @@
                 leaf.scale.y = d.baseScale.y * pulse;
                 leaf.scale.z = d.baseScale.z * pulse;
                 
-                const glow = 0.06 + Math.sin(time * 0.5 + d.offset) * 0.03;
+                const glow = 0.04 + Math.sin(time * 0.4 + d.offset) * 0.02;
                 leaf.material.emissiveIntensity = glow;
             });
             
+            // Grass sway
             tree.grass.forEach(blade => {
                 const sway = Math.sin(time * blade.userData.speed + blade.userData.offset) * blade.userData.amp;
                 blade.rotation.z = blade.userData.baseRotZ + sway;
             });
             
-            // Animate spirits
+            // Spirits animation
             tree.spirits.forEach(spirit => {
                 const d = spirit.userData;
                 d.angle += d.rotateSpeed * 0.016;
@@ -582,53 +640,72 @@
                 spirit.position.z = Math.sin(d.angle) * d.radius;
                 spirit.position.y = d.baseY + Math.sin(time * d.bobSpeed + d.offset) * d.bobHeight;
                 
-                const glow = 0.3 + Math.sin(time * d.pulseSpeed + d.offset) * 0.4;
-                spirit.material.opacity = glow;
-                spirit.scale.setScalar(0.8 + glow * 0.4);
+                const glow = 0.2 + Math.sin(time * d.pulseSpeed + d.offset) * 0.3;
+                spirit.material.opacity = 0.3 + glow * 0.3;
+                spirit.scale.setScalar(0.7 + glow * 0.5);
             });
             
-            // Animate kodamas (small bobs)
+            // Kodamas animation
             if (tree.kodamas) {
                 tree.kodamas.forEach(k => {
                     const d = k.userData;
                     k.position.y = d.baseY + Math.sin(time * d.bobSpeed + d.offset) * d.bobAmp;
-                    k.rotation.y = Math.sin(time * 0.6 + d.offset) * 0.12;
+                    k.rotation.y = Math.sin(time * 0.5 + d.offset) * 0.15;
+                    
+                    // Subtle head nod
+                    d.headBob += 0.05;
+                    k.children[0].rotation.x = Math.sin(d.headBob) * 0.1;
                 });
             }
             
-            // Animate fireflies
+            // Fireflies animation
             tree.fireflies.forEach(f => {
                 const d = f.userData;
                 d.angle += d.speed * 0.016;
                 f.position.x = Math.cos(d.angle) * d.radius;
                 f.position.z = Math.sin(d.angle) * d.radius;
-                f.position.y += Math.sin(time * d.ySpeed + d.yOffset) * 0.03 + d.verticalDrift;
+                f.position.y += Math.sin(time * d.ySpeed + d.yOffset) * 0.025 + d.verticalDrift;
                 
                 if (f.position.y > d.maxY) f.position.y = d.minY;
                 if (f.position.y < d.minY) f.position.y = d.maxY;
                 
-                const glow = 0.2 + Math.sin(time * d.pulseSpeed + d.angle) * 0.6;
-                f.material.opacity = glow;
-                f.scale.setScalar(0.7 + glow * 0.5);
+                const glow = 0.15 + Math.sin(time * d.pulseSpeed + d.angle) * 0.5;
+                f.material.opacity = 0.5 + glow * 0.3;
+                f.scale.setScalar(0.6 + glow * 0.6);
             });
             
-            if (tree.magicGlow) {
-                tree.magicGlow.intensity = 3 + Math.sin(time * 0.7) * 1;
+            // Particles animation
+            if (tree.particles) {
+                tree.particles.forEach(p => {
+                    const d = p.userData;
+                    p.position.x += d.driftX;
+                    p.position.z += d.driftZ;
+                    p.position.y = d.baseY + Math.sin(time * d.bobSpeed) * d.bobAmp;
+                    
+                    // Wrap around
+                    if (p.position.x > 15) p.position.x = -15;
+                    if (p.position.x < -15) p.position.x = 15;
+                    if (p.position.z > 15) p.position.z = -15;
+                    if (p.position.z < -15) p.position.z = 15;
+                });
             }
             
-            if (tree.greenGlow) {
-                tree.greenGlow.intensity = 2.5 + breathe * 1.5;
-            }
-            
+            // Light pulsing
             if (tree.spiritGlow) {
-                tree.spiritGlow.intensity = 2 + Math.cos(time * 0.5) * 0.8;
+                tree.spiritGlow.intensity = 2.0 + Math.sin(time * 0.6) * 1.5;
+                tree.spiritGlow.position.y = 18 + Math.sin(time * 0.3) * 1.5;
             }
             
-            const camAngle = time * 0.03;
-            camera.position.x = Math.cos(camAngle) * 35;
-            camera.position.z = Math.sin(camAngle) * 35;
-            camera.position.y = 12 + Math.sin(time * 0.2) * 2;
-            camera.lookAt(0, 10, 0);
+            if (tree.innerGlow) {
+                tree.innerGlow.intensity = 1.5 + breathe * 1.0;
+            }
+            
+            // Camera movement - slower, more majestic
+            const camAngle = time * 0.02;
+            camera.position.x = Math.cos(camAngle) * 38;
+            camera.position.z = Math.sin(camAngle) * 38;
+            camera.position.y = 14 + Math.sin(time * 0.15) * 2.5;
+            camera.lookAt(0, 12, 0);
             
             renderer.render(scene, camera);
         }
