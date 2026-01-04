@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BookFinder | Search Free Books Across Multiple Sources</title>
-    
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -37,82 +38,94 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
+
     <!-- Custom Styles -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-        
+
         * {
             font-family: 'Poppins', sans-serif;
         }
-        
+
         .gradient-bg {
             background: linear-gradient(135deg, #FF6B9D 0%, #C77DFF 100%);
         }
-        
+
         .gradient-text {
             background: linear-gradient(135deg, #FF6B9D 0%, #C77DFF 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
+
         .book-card {
             transition: all 0.3s ease;
             border: 1px solid #e2e8f0;
         }
-        
+
         .book-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             border-color: #FF6B9D;
         }
-        
+
         .source-tag {
             transition: all 0.2s ease;
         }
-        
+
         .source-tag:hover {
             transform: scale(1.05);
             background-color: #FFB3C6 !important;
         }
-        
+
         .search-input:focus {
             box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
         }
-        
+
         .pagination-btn {
             transition: all 0.2s ease;
         }
-        
+
         .pagination-btn:hover:not(.disabled) {
             background-color: #FF6B9D;
             color: white;
         }
-        
+
         .loading-spinner {
             animation: spin 1s linear infinite;
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
-        
+
         .fade-in {
             animation: fadeIn 0.5s ease-in-out;
         }
-        
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
+
         .source-card {
             transition: all 0.3s ease;
             border: 1px solid #e2e8f0;
         }
-        
+
         .source-card:hover {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
@@ -120,6 +133,7 @@
         }
     </style>
 </head>
+
 <body class="bg-light min-h-screen">
     <!-- Navigation -->
     <nav class="bg-white shadow-sm">
@@ -142,23 +156,22 @@
             <div class="max-w-4xl mx-auto text-center">
                 <h1 class="text-3xl md:text-4xl font-bold mb-6">Search Free Books Across The Web</h1>
                 <p class="text-lg mb-8 text-white/90">
-                    Search 10+ free book sources simultaneously. Get instant access to millions of free ebooks, 
+                    Search 10+ free book sources simultaneously. Get instant access to millions of free ebooks,
                     academic texts, and public domain classics.
                 </p>
-                
+
                 <!-- Search Box -->
                 <div class="bg-white rounded-xl p-2 shadow-2xl max-w-3xl mx-auto">
                     <div class="flex flex-col md:flex-row">
                         <div class="flex-grow relative">
-                            <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            <input 
-                                type="text" 
-                                id="searchInput" 
-                                placeholder="Search for books by title, author, ISBN, or topic..." 
-                                class="w-full pl-12 pr-4 py-4 text-dark search-input rounded-l-lg focus:outline-none"
-                            >
+                            <i
+                                class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="searchInput"
+                                placeholder="Search for books by title, author, ISBN, or topic..."
+                                class="w-full pl-12 pr-4 py-4 text-dark search-input rounded-l-lg focus:outline-none">
                         </div>
-                        <button id="searchBtn" class="bg-primary text-white font-bold py-4 px-8 rounded-r-lg hover:bg-pink-550 transition-colors mt-2 md:mt-0">
+                        <button id="searchBtn"
+                            class="bg-primary text-white font-bold py-4 px-8 rounded-r-lg hover:bg-pink-550 transition-colors mt-2 md:mt-0">
                             <i class="fas fa-search mr-2"></i> Search
                         </button>
                     </div>
@@ -177,26 +190,36 @@
                     0 books found
                 </div>
             </div>
-            
+
             <div class="flex flex-wrap gap-3 mb-6">
-                <button class="filter-btn active bg-primary text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-pink-550 transition-colors" data-filter="all">
+                <button
+                    class="filter-btn active bg-primary text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-pink-550 transition-colors"
+                    data-filter="all">
                     All Books
                 </button>
-                <button class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors" data-filter="fiction">
+                <button
+                    class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors"
+                    data-filter="fiction">
                     Fiction
                 </button>
-                <button class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors" data-filter="nonfiction">
+                <button
+                    class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors"
+                    data-filter="nonfiction">
                     Non-Fiction
                 </button>
-                <button class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors" data-filter="academic">
+                <button
+                    class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors"
+                    data-filter="academic">
                     Academic
                 </button>
-                <button class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors" data-filter="classics">
+                <button
+                    class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors"
+                    data-filter="classics">
                     Classics
                 </button>
             </div>
         </div>
-        
+
         <!-- Loading State -->
         <div id="loadingState" class="hidden text-center py-16">
             <div class="inline-block loading-spinner text-4xl text-primary mb-4">
@@ -204,19 +227,19 @@
             </div>
             <p class="text-gray-600">Searching across 10+ free book sources...</p>
         </div>
-        
+
         <!-- No Results State -->
         <div id="noResults" class="hidden text-center py-16">
             <i class="fas fa-book-open text-6xl text-gray-300 mb-4"></i>
             <h3 class="text-xl font-bold text-gray-700 mb-2">No books found</h3>
             <p class="text-gray-600">Try a different search term or browse by category</p>
         </div>
-        
+
         <!-- Results Grid -->
         <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
             <!-- Book cards will be dynamically inserted here -->
         </div>
-        
+
         <!-- Sources Section -->
         <div class="mt-16 mb-12">
             <h2 class="text-2xl font-bold text-dark mb-8 text-center">Search Across These Free Sources</h2>
@@ -229,14 +252,16 @@
                         </div>
                         <div>
                             <h3 class="font-bold text-lg text-dark">Anna's Archive</h3>
-                            <p class="text-sm text-gray-600 mt-1">Open-source search engine indexing shadow libraries</p>
+                            <p class="text-sm text-gray-600 mt-1">Open-source search engine indexing shadow libraries
+                            </p>
                         </div>
                     </div>
-                    <a href="https://annas-archive.org/" target="_blank" class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
+                    <a href="https://annas-archive.org/" target="_blank"
+                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
                         Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
                     </a>
                 </div>
-                
+
                 <!-- Source 2: Z Library -->
                 <div class="source-card bg-white rounded-xl p-6">
                     <div class="flex items-start mb-4">
@@ -248,11 +273,12 @@
                             <p class="text-sm text-gray-600 mt-1">Millions of scholarly articles and books</p>
                         </div>
                     </div>
-                    <a href="https://z-lib.id/" target="_blank" class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
+                    <a href="https://z-lib.id/" target="_blank"
+                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
                         Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
                     </a>
                 </div>
-                
+
                 <!-- Source 3: Google Books -->
                 <div class="source-card bg-white rounded-xl p-6">
                     <div class="flex items-start mb-4">
@@ -264,11 +290,12 @@
                             <p class="text-sm text-gray-600 mt-1">Preview and access digitized books</p>
                         </div>
                     </div>
-                    <a href="https://books.google.com/" target="_blank" class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
+                    <a href="https://books.google.com/" target="_blank"
+                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
                         Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
                     </a>
                 </div>
-                
+
                 <!-- Source 4: ManyBooks -->
                 <div class="source-card bg-white rounded-xl p-6">
                     <div class="flex items-start mb-4">
@@ -280,11 +307,12 @@
                             <p class="text-sm text-gray-600 mt-1">Free and discounted ebooks</p>
                         </div>
                     </div>
-                    <a href="https://manybooks.net/" target="_blank" class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
+                    <a href="https://manybooks.net/" target="_blank"
+                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
                         Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
                     </a>
                 </div>
-                
+
                 <!-- Source 5: Open Library -->
                 <div class="source-card bg-white rounded-xl p-6">
                     <div class="flex items-start mb-4">
@@ -296,11 +324,12 @@
                             <p class="text-sm text-gray-600 mt-1">Editable online library catalog</p>
                         </div>
                     </div>
-                    <a href="https://openlibrary.org/" target="_blank" class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
+                    <a href="https://openlibrary.org/" target="_blank"
+                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
                         Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
                     </a>
                 </div>
-                
+
                 <!-- Source 6: Smashwords -->
                 <div class="source-card bg-white rounded-xl p-6">
                     <div class="flex items-start mb-4">
@@ -312,11 +341,12 @@
                             <p class="text-sm text-gray-600 mt-1">Independent authors & publishers</p>
                         </div>
                     </div>
-                    <a href="https://www.smashwords.com/" target="_blank" class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
+                    <a href="https://www.smashwords.com/" target="_blank"
+                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
                         Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
                     </a>
                 </div>
-                
+
                 <!-- Source 7: DigiLibraries -->
                 <div class="source-card bg-white rounded-xl p-6">
                     <div class="flex items-start mb-4">
@@ -328,11 +358,12 @@
                             <p class="text-sm text-gray-600 mt-1">Public domain ebooks collection</p>
                         </div>
                     </div>
-                    <a href="https://digilibraries.com/" target="_blank" class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
+                    <a href="https://digilibraries.com/" target="_blank"
+                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
                         Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
                     </a>
                 </div>
-                
+
                 <!-- Source 8: Free-eBooks -->
                 <div class="source-card bg-white rounded-xl p-6">
                     <div class="flex items-start mb-4">
@@ -344,11 +375,12 @@
                             <p class="text-sm text-gray-600 mt-1">Free ebooks in multiple categories</p>
                         </div>
                     </div>
-                    <a href="https://www.free-ebooks.net/" target="_blank" class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
+                    <a href="https://www.free-ebooks.net/" target="_blank"
+                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
                         Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
                     </a>
                 </div>
-                
+
                 <!-- Source 9: PDF Drive -->
                 <div class="source-card bg-white rounded-xl p-6">
                     <div class="flex items-start mb-4">
@@ -360,11 +392,12 @@
                             <p class="text-sm text-gray-600 mt-1">Search engine for PDF books</p>
                         </div>
                     </div>
-                    <a href="https://welib.org/" target="_blank" class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
+                    <a href="https://welib.org/" target="_blank"
+                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
                         Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
                     </a>
                 </div>
-                
+
                 <!-- Source 10: Project Gutenberg -->
                 <div class="source-card bg-white rounded-xl p-6">
                     <div class="flex items-start mb-4">
@@ -376,7 +409,8 @@
                             <p class="text-sm text-gray-600 mt-1">60,000+ free public domain ebooks</p>
                         </div>
                     </div>
-                    <a href="https://www.gutenberg.org/" target="_blank" class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
+                    <a href="https://www.gutenberg.org/" target="_blank"
+                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
                         Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
                     </a>
                 </div>
@@ -396,7 +430,7 @@
                     </p>
                 </div>
             </div>
-            
+
             <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
                 <p>&copy; 2026 FreeBookFinder. All book rights belong to their respective owners.</p>
                 <p class="mt-2 text-sm">This is a search aggregator. We do not host any copyrighted material.</p>
@@ -496,19 +530,19 @@
         // Render Books
         function renderBooks() {
             resultsGrid.innerHTML = '';
-            
+
             if (displayedBooks.length === 0) {
                 noResults.classList.remove('hidden');
                 resultCount.textContent = '0 books found';
                 return;
             }
-            
+
             noResults.classList.add('hidden');
-            
+
             displayedBooks.forEach(book => {
                 const availableSources = book.sources.filter(s => s.available).length;
                 const totalSources = book.sources.length;
-                
+
                 const bookCard = document.createElement('div');
                 bookCard.className = 'book-card bg-white rounded-xl overflow-hidden fade-in';
                 bookCard.innerHTML = `
@@ -556,10 +590,10 @@
                         </div>
                     </div>
                 `;
-                
+
                 resultsGrid.appendChild(bookCard);
             });
-            
+
             updateResultCount();
         }
 
@@ -572,22 +606,22 @@
         // Filter and Search Books
         function filterBooks() {
             loadingState.classList.remove('hidden');
-            
+
             // Simulate API delay
             setTimeout(() => {
                 displayedBooks = books.filter(book => {
                     // Filter by category
                     const categoryMatch = currentFilter === 'all' || book.category === currentFilter;
-                    
+
                     // Filter by search term
-                    const searchMatch = !currentSearch || 
+                    const searchMatch = !currentSearch ||
                         book.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
                         book.author.toLowerCase().includes(currentSearch.toLowerCase()) ||
                         book.description.toLowerCase().includes(currentSearch.toLowerCase());
-                    
+
                     return categoryMatch && searchMatch;
                 });
-                
+
                 loadingState.classList.add('hidden');
                 renderBooks();
             }, 800);
@@ -612,10 +646,10 @@
                     b.classList.remove('active', 'bg-primary', 'text-white', 'border-primary');
                     b.classList.add('bg-white', 'text-dark', 'border-gray-300');
                 });
-                
+
                 btn.classList.add('active', 'bg-primary', 'text-white');
                 btn.classList.remove('bg-white', 'text-dark', 'border-gray-300');
-                
+
                 currentFilter = btn.getAttribute('data-filter');
                 filterBooks();
             });
@@ -624,7 +658,7 @@
         // Initialize
         function init() {
             renderBooks();
-            
+
             // Add placeholder animation
             const placeholders = [
                 "Search for '1984 by George Orwell'...",
@@ -633,7 +667,7 @@
                 "Search for 'academic journals'..."
             ];
             let placeholderIndex = 0;
-            
+
             setInterval(() => {
                 if (!document.activeElement || document.activeElement.id !== 'searchInput') {
                     searchInput.placeholder = placeholders[placeholderIndex];
@@ -646,4 +680,5 @@
         init();
     </script>
 </body>
+
 </html>
