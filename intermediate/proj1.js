@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const randomInputBtn = document.getElementById('random-input-btn');
     const currentBaseName = document.getElementById('current-base-name');
     const inputValidation = document.getElementById('input-validation');
-    
+
     // Result elements with null checks
     const resultBinary = document.getElementById('result-binary');
     const resultDecimal = document.getElementById('result-decimal');
@@ -22,16 +22,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const binaryDigits = document.getElementById('binary-digits');
     const hexDigits = document.getElementById('hex-digits');
     const octalDigits = document.getElementById('octal-digits');
-    
+
     // Custom base input
     const customBaseInput = document.getElementById('custom-base-input');
-    
+
     // Copy buttons
     const copyBtns = document.querySelectorAll('.copy-btn');
-    
+
     // Example buttons
     const exampleBtns = document.querySelectorAll('.example-btn');
-    
+
     // Current input base (default: binary)
     let currentBase = 2;
     let currentInput = '';
@@ -43,14 +43,14 @@ document.addEventListener('DOMContentLoaded', () => {
             element.textContent = value;
         }
     }
-    
+
     // Safe element style update
     function safeStyleUpdate(element, property, value) {
         if (element && element.style) {
             element.style[property] = value;
         }
     }
-    
+
     // Base names mapping
     const baseNames = {
         2: { name: 'Binary', color: 'pink' },
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         16: { name: 'Hexadecimal', color: 'blue' },
         8: { name: 'Octal', color: 'yellow' }
     };
-    
+
     // Character sets for validation
     const baseCharacters = {
         2: '01',
@@ -66,36 +66,36 @@ document.addEventListener('DOMContentLoaded', () => {
         10: '0123456789-',
         16: '0123456789ABCDEFabcdef'
     };
-    
+
     // Max safe integer for JavaScript
     const MAX_SAFE_INTEGER = 9007199254740991;
-    
+
     // Initialize
     function init() {
         // Reset error state
         errorState = false;
-        
+
         // Check if essential elements exist
         if (!numberInput) {
             console.error('Number input element not found!');
             return;
         }
-        
+
         // Set active input type button
         setActiveInputType(2);
         updateAllConversions('0');
         setupEventListeners();
         setupKeyboardShortcuts();
     }
-    
+
     // Set active input type
     function setActiveInputType(base) {
         currentBase = base;
-        
+
         // Reset error state when changing base
         errorState = false;
         safeUpdate(inputValidation, '');
-        
+
         // Update buttons
         inputTypeBtns.forEach(btn => {
             const btnBase = parseInt(btn.getAttribute('data-base'));
@@ -111,15 +111,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.style.borderColor = '';
             }
         });
-        
+
         // Update base indicator
         safeUpdate(inputBaseIndicator, base.toString());
         safeStyleUpdate(inputBaseIndicator, 'color', getButtonColor(base));
-        
+
         // Update current base name
         const baseInfo = baseNames[base];
         safeUpdate(currentBaseName, `${baseInfo.name} (Base ${base})`);
-        
+
         // Update placeholder
         const examples = {
             2: 'e.g., 10101101',
@@ -130,16 +130,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (numberInput) {
             numberInput.placeholder = `Enter ${baseInfo.name.toLowerCase()} number (${examples[base]})`;
         }
-        
+
         // Re-validate current input
         if (currentInput) {
             validateAndConvert(currentInput);
         }
     }
-    
+
     // Get button gradient based on base
     function getButtonGradient(base) {
-        switch(base) {
+        switch (base) {
             case 2: return 'linear-gradient(135deg, #FF6B9D, #C77DFF)';
             case 10: return 'linear-gradient(135deg, #10B981, #34D399)';
             case 16: return 'linear-gradient(135deg, #3B82F6, #60A5FA)';
@@ -147,10 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
             default: return 'linear-gradient(135deg, #FF6B9D, #C77DFF)';
         }
     }
-    
+
     // Get button color based on base
     function getButtonColor(base) {
-        switch(base) {
+        switch (base) {
             case 2: return '#FF6B9D';
             case 10: return '#10B981';
             case 16: return '#3B82F6';
@@ -158,80 +158,80 @@ document.addEventListener('DOMContentLoaded', () => {
             default: return '#FF6B9D';
         }
     }
-    
+
     // Validate input for current base
     function validateInput(input, base) {
         if (!input || input.trim() === '') {
             return { isValid: false, message: 'Please enter a number' };
         }
-        
+
         const chars = baseCharacters[base];
         const inputUpper = input.toUpperCase();
-        
+
         // Check for negative sign in decimal
         if (base === 10 && inputUpper.includes('-')) {
             // Ensure negative sign is only at the beginning
             if (inputUpper.indexOf('-') > 0) {
-                return { 
-                    isValid: false, 
-                    message: 'Negative sign must be at the beginning' 
+                return {
+                    isValid: false,
+                    message: 'Negative sign must be at the beginning'
                 };
             }
             // Check remaining characters
             const remaining = inputUpper.substring(1);
             for (let char of remaining) {
                 if (!'0123456789'.includes(char)) {
-                    return { 
-                        isValid: false, 
-                        message: `Invalid decimal digit: "${char}"` 
+                    return {
+                        isValid: false,
+                        message: `Invalid decimal digit: "${char}"`
                     };
                 }
             }
             return { isValid: true, message: `Valid ${baseNames[base].name} number` };
         }
-        
+
         // Check each character for other bases
         for (let char of inputUpper) {
             if (!chars.includes(char)) {
-                return { 
-                    isValid: false, 
-                    message: `Invalid ${baseNames[base].name.toLowerCase()} digit: "${char}". Valid digits: ${chars}` 
+                return {
+                    isValid: false,
+                    message: `Invalid ${baseNames[base].name.toLowerCase()} digit: "${char}". Valid digits: ${chars}`
                 };
             }
         }
-        
+
         return { isValid: true, message: `Valid ${baseNames[base].name} number` };
     }
-    
+
     // Safe conversion to decimal with error handling
     function toDecimal(numberStr, fromBase) {
         try {
             // Remove any whitespace and convert to uppercase
             numberStr = numberStr.trim().toUpperCase();
             if (numberStr === '' || numberStr === '-') return 0;
-            
+
             // Handle negative numbers
             let isNegative = false;
             if (numberStr.startsWith('-')) {
                 isNegative = true;
                 numberStr = numberStr.substring(1);
             }
-            
+
             // For decimal base, just parse it
             if (fromBase === 10) {
                 const num = parseInt(numberStr, 10);
                 if (isNaN(num)) return 0;
                 return isNegative ? -num : num;
             }
-            
+
             let decimal = 0;
             const digits = numberStr.split('');
-            
+
             // Convert each digit
             for (let i = 0; i < digits.length; i++) {
                 const digit = digits[i];
                 let digitValue;
-                
+
                 if (digit >= '0' && digit <= '9') {
                     digitValue = parseInt(digit);
                 } else if (digit >= 'A' && digit <= 'F') {
@@ -239,73 +239,73 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     digitValue = 0;
                 }
-                
+
                 const power = digits.length - 1 - i;
                 decimal += digitValue * Math.pow(fromBase, power);
             }
-            
+
             return isNegative ? -decimal : decimal;
         } catch (error) {
             console.warn('Conversion error:', error.message);
             throw new Error('Number too large for conversion');
         }
     }
-    
+
     // Convert decimal to any base
     function fromDecimal(decimalNumber, toBase) {
         try {
             if (decimalNumber === 0) return '0';
-            
+
             let number = Math.abs(decimalNumber);
             let result = '';
             const digits = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            
+
             // Convert
             while (number > 0) {
                 const remainder = number % toBase;
                 result = digits[remainder] + result;
                 number = Math.floor(number / toBase);
             }
-            
+
             result = result || '0';
-            
+
             // Add negative sign if needed
             if (decimalNumber < 0) {
                 result = '-' + result;
             }
-            
+
             return result;
         } catch (error) {
             console.warn('Conversion error:', error.message);
             throw new Error('Conversion error');
         }
     }
-    
+
     // Convert between any bases
     function convertBase(numberStr, fromBase, toBase) {
         try {
             if (fromBase === toBase) return numberStr.toUpperCase();
-            
+
             // Convert to decimal first
             const decimal = toDecimal(numberStr, fromBase);
-            
+
             // Convert from decimal to target base
             return fromDecimal(decimal, toBase);
         } catch (error) {
             throw error;
         }
     }
-    
+
     // Update all conversion results
     function updateAllConversions(inputValue) {
         try {
             currentInput = inputValue;
-            
+
             // Reset error state
             errorState = false;
             safeUpdate(inputValidation, '');
             safeStyleUpdate(inputValidation, 'color', '');
-            
+
             // Clear input or empty string
             if (inputValue === '') {
                 clearResults();
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 safeStyleUpdate(inputValidation, 'color', '#6B7280');
                 return;
             }
-            
+
             // Validate input
             const validation = validateInput(inputValue, currentBase);
             if (!validation.isValid) {
@@ -322,40 +322,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearResults();
                 return;
             }
-            
+
             // Main conversions
             const decimalValue = toDecimal(inputValue, currentBase);
-            
+
             safeUpdate(inputValidation, validation.message);
             safeStyleUpdate(inputValidation, 'color', '#10B981');
-            
+
             // Binary
             const binary = convertBase(inputValue, currentBase, 2);
             safeUpdate(resultBinary, formatBinary(binary));
             safeUpdate(binaryDigits, binary.replace(/[^01]/g, '').length.toString());
-            
+
             // Decimal
             safeUpdate(resultDecimal, decimalValue.toLocaleString());
-            
+
             // Hexadecimal
             const hexadecimal = convertBase(inputValue, currentBase, 16);
             safeUpdate(resultHexadecimal, hexadecimal);
             safeUpdate(hexDigits, hexadecimal.replace(/[^0-9A-F]/g, '').length.toString());
-            
+
             // Octal
             const octal = convertBase(inputValue, currentBase, 8);
             safeUpdate(resultOctal, octal);
             safeUpdate(octalDigits, octal.replace(/[^0-7]/g, '').length.toString());
-            
+
             // ASCII Character
             updateAsciiConversion(decimalValue);
-            
+
             // 32-bit Binary
             update32BitBinary(decimalValue);
-            
+
             // Custom Base
             updateCustomBaseConversion(decimalValue);
-            
+
         } catch (error) {
             console.warn('Conversion failed:', error.message);
             errorState = true;
@@ -364,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clearResults();
         }
     }
-    
+
     // Format binary with spacing
     function formatBinary(binary) {
         // Handle negative binary
@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return binary.replace(/(.{4})/g, '$1 ').trim();
     }
-    
+
     // Update ASCII conversion
     function updateAsciiConversion(decimalValue) {
         try {
@@ -403,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
             safeUpdate(asciiCode, 'Error');
         }
     }
-    
+
     // Update 32-bit binary representation
     function update32BitBinary(decimalValue) {
         try {
@@ -424,13 +424,13 @@ document.addEventListener('DOMContentLoaded', () => {
             safeUpdate(result32Bit, 'Conversion error');
         }
     }
-    
+
     // Update custom base conversion
     function updateCustomBaseConversion(decimalValue) {
         try {
             if (customBaseInput) {
                 const customBase = parseInt(customBaseInput.value) || 5;
-                
+
                 if (customBase >= 2 && customBase <= 36) {
                     const customResult = fromDecimal(decimalValue, customBase);
                     safeUpdate(resultCustom, customResult);
@@ -442,7 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
             safeUpdate(resultCustom, 'Error');
         }
     }
-    
+
     // Clear all results
     function clearResults() {
         safeUpdate(resultBinary, '0');
@@ -457,32 +457,32 @@ document.addEventListener('DOMContentLoaded', () => {
         safeUpdate(hexDigits, '1');
         safeUpdate(octalDigits, '1');
     }
-    
+
     // Generate random number based on current base
     function generateRandomNumber() {
         // Reset error state
         errorState = false;
         safeUpdate(inputValidation, '');
-        
+
         let randomNum = '';
         let chars;
-        
+
         // Get valid characters for current base
         if (currentBase === 10) {
             // For decimal, include negative numbers sometimes
             chars = '0123456789';
             const maxLength = 8;
             const length = Math.floor(Math.random() * maxLength) + 1;
-            
+
             // Generate random digits
             for (let i = 0; i < length; i++) {
                 const randomIndex = Math.floor(Math.random() * chars.length);
                 randomNum += chars[randomIndex];
             }
-            
+
             // Remove leading zeros
             randomNum = randomNum.replace(/^0+/, '') || '0';
-            
+
             // 25% chance to add negative sign
             if (Math.random() < 0.25 && randomNum !== '0') {
                 randomNum = '-' + randomNum;
@@ -491,41 +491,41 @@ document.addEventListener('DOMContentLoaded', () => {
             chars = baseCharacters[currentBase].replace('-', '');
             const maxLength = currentBase === 16 || currentBase === 2 ? 8 : 4;
             const length = Math.floor(Math.random() * maxLength) + 1;
-            
+
             // Generate random digits
             for (let i = 0; i < length; i++) {
                 const randomIndex = Math.floor(Math.random() * chars.length);
                 randomNum += chars[randomIndex];
             }
-            
+
             // Remove leading zeros
             randomNum = randomNum.replace(/^0+/, '') || '0';
         }
-        
+
         if (numberInput) {
             numberInput.value = randomNum;
             validateAndConvert(randomNum);
         }
     }
-    
+
     // Validate and convert input
     function validateAndConvert(inputValue) {
         updateAllConversions(inputValue);
     }
-    
+
     // Copy result to clipboard
     function copyToClipboard(text, button) {
         // Don't copy if in error state
         if (errorState) return;
-        
+
         navigator.clipboard.writeText(text).then(() => {
             // Visual feedback
             const originalHTML = button.innerHTML;
             const originalClasses = button.className;
-            
+
             button.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
             button.classList.add('copy-success');
-            
+
             setTimeout(() => {
                 button.innerHTML = originalHTML;
                 button.classList.remove('copy-success');
@@ -539,7 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 1500);
         });
     }
-    
+
     // Setup event listeners
     function setupEventListeners() {
         // Input type buttons
@@ -552,14 +552,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
-        
+
         // Number input
         if (numberInput) {
             numberInput.addEventListener('input', (e) => {
                 validateAndConvert(e.target.value);
             });
         }
-        
+
         // Clear input button
         if (clearInputBtn) {
             clearInputBtn.addEventListener('click', () => {
@@ -573,21 +573,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
-        
+
         // Random input button
         if (randomInputBtn) {
             randomInputBtn.addEventListener('click', generateRandomNumber);
         }
-        
+
         // Copy buttons
         copyBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 if (errorState) return;
-                
+
                 const target = btn.getAttribute('data-target');
                 let textToCopy = '';
-                
-                switch(target) {
+
+                switch (target) {
                     case 'binary':
                         textToCopy = resultBinary ? resultBinary.textContent.replace(/ /g, '') : '';
                         break;
@@ -610,29 +610,29 @@ document.addEventListener('DOMContentLoaded', () => {
                         textToCopy = resultCustom ? resultCustom.textContent : '';
                         break;
                 }
-                
+
                 copyToClipboard(textToCopy, btn);
             });
         });
-        
+
         // Example buttons
         exampleBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 // Reset error state
                 errorState = false;
-                
+
                 const binaryText = btn.querySelector('.font-mono').textContent;
                 if (numberInput) {
                     numberInput.value = binaryText;
                     validateAndConvert(binaryText);
                     numberInput.focus();
                 }
-                
+
                 // Visual feedback
                 btn.style.borderColor = '#FF6B9D';
                 btn.style.backgroundColor = 'rgba(255, 107, 157, 0.1)';
                 btn.style.color = 'white';
-                
+
                 setTimeout(() => {
                     btn.style.borderColor = '';
                     btn.style.backgroundColor = '';
@@ -640,12 +640,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 500);
             });
         });
-        
+
         // Custom base input
         if (customBaseInput) {
             customBaseInput.addEventListener('input', () => {
                 if (errorState || !numberInput || !numberInput.value) return;
-                
+
                 const customBase = parseInt(customBaseInput.value);
                 if (customBase >= 2 && customBase <= 36) {
                     try {
@@ -658,7 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     }
-    
+
     // Setup keyboard shortcuts
     function setupKeyboardShortcuts() {
         document.addEventListener('keydown', (e) => {
@@ -673,13 +673,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     numberInput.focus();
                 }
             }
-            
+
             // Random on R
             if (e.key === 'r' && e.ctrlKey) {
                 e.preventDefault();
                 generateRandomNumber();
             }
-            
+
             // Switch bases with number keys
             if (e.key === '2' && e.ctrlKey) {
                 e.preventDefault();
@@ -696,15 +696,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
+
     // Initialize the converter
     init();
-    
+
     // Focus input on load
     if (numberInput) {
         numberInput.focus();
     }
-    
+
     // Log any missing elements for debugging
     const elements = [
         { name: 'numberInput', element: numberInput },
@@ -713,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'resultHexadecimal', element: resultHexadecimal },
         { name: 'resultOctal', element: resultOctal }
     ];
-    
+
     elements.forEach(item => {
         if (!item.element) {
             console.warn(`Element not found: ${item.name}`);
