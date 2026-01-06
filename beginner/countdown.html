@@ -87,6 +87,85 @@
                 <i class="fas fa-clock mr-4"></i>Countdown Timer
             </h1>
             <p class="text-xl text-gray-300">Set your target date and watch the magic happen</p>
+            <button onclick="toggleSettings()" class="mt-4 bg-white/20 text-white font-semibold py-2 px-6 rounded-xl hover:bg-white/30 transition-all border-2 border-white/30">
+                <i class="fas fa-cog mr-2"></i>Settings
+            </button>
+        </div>
+
+        <!-- Settings Panel -->
+        <div id="settingsPanel" class="glass rounded-3xl p-8 mb-8 max-w-2xl mx-auto hidden">
+            <h3 class="text-2xl font-bold text-white mb-6"><i class="fas fa-sliders-h mr-2"></i>Customization Settings</h3>
+            
+            <!-- Theme Selection -->
+            <div class="mb-6">
+                <label class="block text-white text-sm font-semibold mb-3">
+                    <i class="fas fa-palette mr-2"></i>Color Theme
+                </label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <button onclick="changeTheme('default')" class="theme-btn bg-gradient-to-r from-pink-450 to-purple-450 text-white py-3 px-4 rounded-xl hover:scale-105 transition-all font-semibold">Default</button>
+                    <button onclick="changeTheme('ocean')" class="theme-btn bg-gradient-to-r from-blue-500 to-cyan-400 text-white py-3 px-4 rounded-xl hover:scale-105 transition-all font-semibold">Ocean</button>
+                    <button onclick="changeTheme('sunset')" class="theme-btn bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-4 rounded-xl hover:scale-105 transition-all font-semibold">Sunset</button>
+                    <button onclick="changeTheme('forest')" class="theme-btn bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 px-4 rounded-xl hover:scale-105 transition-all font-semibold">Forest</button>
+                </div>
+            </div>
+
+            <!-- Sound Toggle -->
+            <div class="mb-6">
+                <label class="flex items-center justify-between text-white text-sm font-semibold">
+                    <span><i class="fas fa-volume-up mr-2"></i>Completion Sound</span>
+                    <input type="checkbox" id="soundToggle" checked class="w-6 h-6 rounded">
+                </label>
+            </div>
+
+            <!-- Notification Settings -->
+            <div class="mb-6">
+                <label class="block text-white text-sm font-semibold mb-3">
+                    <i class="fas fa-bell mr-2"></i>Notifications
+                </label>
+                <button onclick="requestNotificationPermission()" id="notifBtn" class="w-full bg-white/20 text-white py-3 px-4 rounded-xl hover:bg-white/30 transition-all border-2 border-white/30">
+                    Enable Browser Notifications
+                </button>
+                <div class="mt-3 space-y-2">
+                    <label class="flex items-center text-white text-sm">
+                        <input type="checkbox" id="notifyOnComplete" checked class="mr-2 w-4 h-4">
+                        Notify when countdown completes
+                    </label>
+                    <label class="flex items-center text-white text-sm">
+                        <input type="checkbox" id="notifyOneDay" class="mr-2 w-4 h-4">
+                        Notify 1 day before
+                    </label>
+                    <label class="flex items-center text-white text-sm">
+                        <input type="checkbox" id="notifyOneHour" class="mr-2 w-4 h-4">
+                        Notify 1 hour before
+                    </label>
+                    <label class="flex items-center text-white text-sm">
+                        <input type="checkbox" id="notifyOneMinute" class="mr-2 w-4 h-4">
+                        Notify 1 minute before
+                    </label>
+                </div>
+            </div>
+
+            <!-- Font Size -->
+            <div class="mb-6">
+                <label class="block text-white text-sm font-semibold mb-3">
+                    <i class="fas fa-text-height mr-2"></i>Timer Font Size
+                </label>
+                <input type="range" id="fontSizeSlider" min="40" max="100" value="70" class="w-full">
+                <div class="text-center text-white mt-2"><span id="fontSizeValue">70</span>px</div>
+            </div>
+
+            <!-- Animation Speed -->
+            <div class="mb-6">
+                <label class="block text-white text-sm font-semibold mb-3">
+                    <i class="fas fa-tachometer-alt mr-2"></i>Animation Speed
+                </label>
+                <select id="animationSpeed" class="w-full px-4 py-3 rounded-xl bg-white/20 text-white border-2 border-white/30 focus:border-primary focus:outline-none">
+                    <option value="slow">Slow</option>
+                    <option value="normal" selected>Normal</option>
+                    <option value="fast">Fast</option>
+                    <option value="none">No Animation</option>
+                </select>
+            </div>
         </div>
 
         <!-- Input Section -->
@@ -170,6 +249,131 @@
     <script>
         let countdownInterval;
         let targetDateTime;
+        let notificationSent = {
+            oneDay: false,
+            oneHour: false,
+            oneMinute: false,
+            complete: false
+        };
+        let currentTheme = {
+            primary: '#FF6B9D',
+            secondary: '#C77DFF',
+            accent: '#FFB3C6',
+            fourth: '#B65CFF'
+        };
+
+        // Request notification permission
+        async function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                alert("This browser does not support notifications");
+                return;
+            }
+
+            const permission = await Notification.requestPermission();
+            const btn = document.getElementById('notifBtn');
+            
+            if (permission === "granted") {
+                btn.textContent = "✓ Notifications Enabled";
+                btn.classList.add('bg-green-500');
+                new Notification("Countdown Timer", {
+                    body: "Notifications are now enabled!",
+                    icon: "https://cdn-icons-png.flaticon.com/512/2693/2693507.png"
+                });
+            } else {
+                btn.textContent = "Notifications Blocked";
+                btn.classList.add('bg-red-500');
+            }
+        }
+
+        // Check notification permission on load
+        if ("Notification" in window && Notification.permission === "granted") {
+            const btn = document.getElementById('notifBtn');
+            btn.textContent = "✓ Notifications Enabled";
+            btn.classList.add('bg-green-500');
+        }
+
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('hidden');
+        }
+
+        function changeTheme(theme) {
+            const themes = {
+                default: { primary: '#FF6B9D', secondary: '#C77DFF', accent: '#FFB3C6', fourth: '#B65CFF' },
+                ocean: { primary: '#3B82F6', secondary: '#06B6D4', accent: '#0EA5E9', fourth: '#0891B2' },
+                sunset: { primary: '#F97316', secondary: '#EF4444', accent: '#FB923C', fourth: '#DC2626' },
+                forest: { primary: '#10B981', secondary: '#059669', accent: '#34D399', fourth: '#047857' }
+            };
+            
+            currentTheme = themes[theme];
+            applyTheme();
+        }
+
+        function applyTheme() {
+            document.getElementById('days').style.color = currentTheme.primary;
+            document.getElementById('hours').style.color = currentTheme.secondary;
+            document.getElementById('minutes').style.color = currentTheme.accent;
+            document.getElementById('seconds').style.color = currentTheme.fourth;
+        }
+
+        // Font size slider
+        document.getElementById('fontSizeSlider').addEventListener('input', function(e) {
+            const size = e.target.value;
+            document.getElementById('fontSizeValue').textContent = size;
+            ['days', 'hours', 'minutes', 'seconds'].forEach(id => {
+                document.getElementById(id).style.fontSize = size + 'px';
+            });
+        });
+
+        // Animation speed
+        document.getElementById('animationSpeed').addEventListener('change', function(e) {
+            const speed = e.target.value;
+            const durations = { slow: '20s', normal: '15s', fast: '8s', none: '0s' };
+            document.body.style.animationDuration = durations[speed];
+        });
+
+        function playCompletionSound() {
+            if (document.getElementById('soundToggle').checked) {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+                
+                setTimeout(() => {
+                    const osc2 = audioContext.createOscillator();
+                    const gain2 = audioContext.createGain();
+                    osc2.connect(gain2);
+                    gain2.connect(audioContext.destination);
+                    osc2.frequency.value = 1000;
+                    osc2.type = 'sine';
+                    gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                    osc2.start(audioContext.currentTime);
+                    osc2.stop(audioContext.currentTime + 0.5);
+                }, 200);
+            }
+        }
+
+        function sendNotification(title, body) {
+            if (Notification.permission === "granted") {
+                new Notification(title, {
+                    body: body,
+                    icon: "https://cdn-icons-png.flaticon.com/512/2693/2693507.png",
+                    badge: "https://cdn-icons-png.flaticon.com/512/2693/2693507.png"
+                });
+            }
+        }
 
         function startCountdown() {
             const dateInput = document.getElementById('targetDate').value;
@@ -187,6 +391,14 @@
                 alert('Please select a future date and time!');
                 return;
             }
+
+            // Reset notification flags
+            notificationSent = {
+                oneDay: false,
+                oneHour: false,
+                oneMinute: false,
+                complete: false
+            };
 
             // Show event name if provided
             const eventTitleDiv = document.getElementById('eventTitle');
@@ -216,6 +428,13 @@
                 clearInterval(countdownInterval);
                 document.getElementById('countdownDisplay').classList.add('hidden');
                 document.getElementById('completedMessage').classList.remove('hidden');
+                
+                if (!notificationSent.complete && document.getElementById('notifyOnComplete').checked) {
+                    const eventName = document.getElementById('eventName').value || "Your event";
+                    sendNotification("Time's Up! ⏰", eventName + " has arrived!");
+                    playCompletionSound();
+                    notificationSent.complete = true;
+                }
                 return;
             }
 
@@ -223,6 +442,27 @@
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Check for notification triggers
+            const eventName = document.getElementById('eventName').value || "Your event";
+            
+            if (!notificationSent.oneDay && document.getElementById('notifyOneDay').checked && 
+                days === 1 && hours === 0 && minutes === 0 && seconds === 0) {
+                sendNotification("1 Day Remaining! 📅", eventName + " is tomorrow!");
+                notificationSent.oneDay = true;
+            }
+            
+            if (!notificationSent.oneHour && document.getElementById('notifyOneHour').checked && 
+                days === 0 && hours === 1 && minutes === 0 && seconds === 0) {
+                sendNotification("1 Hour Remaining! ⏳", eventName + " is in one hour!");
+                notificationSent.oneHour = true;
+            }
+            
+            if (!notificationSent.oneMinute && document.getElementById('notifyOneMinute').checked && 
+                days === 0 && hours === 0 && minutes === 1 && seconds === 0) {
+                sendNotification("1 Minute Remaining! ⚡", eventName + " is almost here!");
+                notificationSent.oneMinute = true;
+            }
 
             document.getElementById('days').textContent = String(days).padStart(2, '0');
             document.getElementById('hours').textContent = String(hours).padStart(2, '0');
@@ -240,6 +480,12 @@
             document.getElementById('targetDate').value = '';
             document.getElementById('targetTime').value = '';
             document.getElementById('eventName').value = '';
+            notificationSent = {
+                oneDay: false,
+                oneHour: false,
+                oneMinute: false,
+                complete: false
+            };
         }
 
         // Set minimum date to today
