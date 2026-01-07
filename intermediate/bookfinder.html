@@ -237,6 +237,7 @@
             <i class="fas fa-book-open text-6xl text-gray-300 mb-4"></i>
             <h3 class="text-xl font-bold text-gray-700 mb-2">No books found</h3>
             <p class="text-gray-600">Try a different search term or browse by category</p>
+            <div id="externalSearchBtns" class="mt-6 flex flex-wrap gap-3 justify-center"></div>
         </div>
 
         <!-- Results Grid -->
@@ -468,6 +469,7 @@
         const resultCount = document.getElementById('resultCount');
         const sourcesGrid = document.getElementById('sourcesGrid');
         const searchSourcesNote = document.getElementById('searchSourcesNote');
+        const externalSearchBtns = document.getElementById('externalSearchBtns');
 
         // State Variables
         let currentFilter = 'all';
@@ -504,8 +506,12 @@
             if (!results || results.length === 0) {
                 noResults.classList.remove('hidden');
                 resultCount.textContent = '0 books found';
+                renderExternalSearchButtons(currentSearch);
                 return;
             }
+
+            // hide external buttons when we have results
+            if (externalSearchBtns) externalSearchBtns.innerHTML = '';
 
             noResults.classList.add('hidden');
 
@@ -600,8 +606,8 @@
                             Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
                         </a>
                         ${s.searchable ?
-                            '<span class="px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold">Searched</span>' :
-                            '<span class="px-3 py-1 rounded-full bg-gray-50 text-gray-600 text-xs">External</span>'}
+                        '<span class="px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold">Searched</span>' :
+                        '<span class="px-3 py-1 rounded-full bg-gray-50 text-gray-600 text-xs">External</span>'}
                     </div>
                 `;
                 // If not searchable, add a direct-search hint link
@@ -622,6 +628,51 @@
                     searchSourcesNote.innerHTML = `This tool currently does not query external sources. Use the links below to search directly on those sites.`;
                 }
             }
+        }
+
+        // External search helper
+        const externalSites = [
+            { name: "Anna's Archive", domain: 'annas-archive.org' },
+            { name: 'Z Library', domain: 'z-lib.id' },
+            { name: 'ManyBooks', domain: 'manybooks.net' },
+            { name: 'Smashwords', domain: 'smashwords.com' },
+            { name: 'DigiLibraries', domain: 'digilibraries.com' },
+            { name: 'Free-eBooks', domain: 'free-ebooks.net' },
+            { name: 'PDF Drive', domain: 'pdfdrive.com' }
+        ];
+
+        function buildSiteSearchUrl(domain, query) {
+            // Use a site-specific Google search to reliably find results on various domains
+            const q = `site:${domain} ${query}`;
+            return `https://www.google.com/search?q=${encodeURIComponent(q)}`;
+        }
+
+        function renderExternalSearchButtons(query) {
+            if (!externalSearchBtns) return;
+            externalSearchBtns.innerHTML = '';
+            if (!query) return;
+
+            // Individual buttons
+            externalSites.forEach(s => {
+                const a = document.createElement('a');
+                a.href = buildSiteSearchUrl(s.domain, query);
+                a.target = '_blank';
+                a.rel = 'noopener noreferrer';
+                a.className = 'bg-white border border-gray-200 text-dark px-4 py-2 rounded-full text-sm hover:bg-gray-50';
+                a.textContent = `Search ${s.name}`;
+                externalSearchBtns.appendChild(a);
+            });
+
+            // Combined search across all external sites
+            const combined = externalSites.map(s => `site:${s.domain}`).join(' OR ');
+            const combinedUrl = `https://www.google.com/search?q=${encodeURIComponent(combined + ' ' + query)}`;
+            const allBtn = document.createElement('a');
+            allBtn.href = combinedUrl;
+            allBtn.target = '_blank';
+            allBtn.rel = 'noopener noreferrer';
+            allBtn.className = 'bg-primary text-white px-4 py-2 rounded-full text-sm ml-2';
+            allBtn.textContent = 'Search all external sources';
+            externalSearchBtns.appendChild(allBtn);
         }
 
         // Initialize

@@ -25,9 +25,9 @@ def search():
     title = request.args.get('title')
     author = request.args.get('author')
     try:
-        limit = int(request.args.get('limit', 8))
+        limit = int(request.args.get('limit', 20))
     except ValueError:
-        limit = 8
+        limit = 20
 
     if not title:
         return jsonify({'error': 'title is required'}), 400
