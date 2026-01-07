@@ -47,7 +47,8 @@
         }
 
         .gradient-bg {
-            background: linear-gradient(-45deg, #0f172a, #1e293b, #312e81, #4c1d95);
+            /* Neutral animated background uses deep grays (no blue) */
+            background: linear-gradient(-45deg, #0b0b0b, #0f0f0f, #141414, #1a1a1a);
             background-size: 400% 400%;
             animation: gradient 15s ease infinite;
             transition: background 0.5s ease;
@@ -55,11 +56,13 @@
 
         /* Theme Classes */
         .theme-dark {
-            background: linear-gradient(-45deg, #0f172a, #1e293b, #312e81, #4c1d95);
+            /* Modern near-black dark mode */
+            background: linear-gradient(-45deg, #000000, #070707, #0b0b0b, #121212);
         }
 
         .theme-light {
-            background: linear-gradient(-45deg, #ffffff, #f8fafc, #e5e7eb);
+            /* Soft off-white light mode (less bright than pure white) */
+            background: linear-gradient(-45deg, #fbfbfb, #f6f7f9, #eef1f4);
         }
 
         .theme-pink {
@@ -121,7 +124,7 @@
                 </label>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <button onclick="changeTheme('dark')" class="theme-btn bg-gradient-to-r from-slate-700 to-purple-900 text-white py-3 px-4 rounded-xl hover:scale-105 transition-all font-semibold">Dark</button>
-                    <button onclick="changeTheme('light')" class="theme-btn bg-gradient-to-r from-yellow-200 to-yellow-400 text-gray-800 py-3 px-4 rounded-xl hover:scale-105 transition-all font-semibold">Light</button>
+                    <button onclick="changeTheme('light')" class="theme-btn bg-gradient-to-r from-white-200 to-white-400 text-gray-800 py-3 px-4 rounded-xl hover:scale-105 transition-all font-semibold">Light</button>
                     <button onclick="changeTheme('pink')" class="theme-btn bg-gradient-to-r from-pink-300 to-pink-500 text-white py-3 px-4 rounded-xl hover:scale-105 transition-all font-semibold">Pink</button>
                     <button onclick="changeTheme('aesthetic')" class="theme-btn bg-gradient-to-r from-indigo-300 to-indigo-500 text-white py-3 px-4 rounded-xl hover:scale-105 transition-all font-semibold">Blue</button>
                 </div>
@@ -326,11 +329,11 @@
                     secondary: '#C77DFF', 
                     accent: '#FFB3C6', 
                     fourth: '#B65CFF',
-                    textColor: '#ffffff',
-                    secondaryText: '#d1d5db',
+                    textColor: '#e5e7eb',
+                    secondaryText: '#9ca3af',
                     bgClass: 'theme-dark',
-                    inputBg: 'rgba(255, 255, 255, 0.2)',
-                    inputBorder: 'rgba(255, 255, 255, 0.3)'
+                    inputBg: 'rgba(255, 255, 255, 0.03)',
+                    inputBorder: 'rgba(255, 255, 255, 0.06)'
                 },
                 light: { 
                     primary: '#000000',
