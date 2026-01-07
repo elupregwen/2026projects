@@ -180,6 +180,10 @@
         </div>
     </section>
 
+    <div class="container mx-auto px-4 mt-4">
+        <div id="searchSourcesNote" class="text-center text-sm text-gray-600"></div>
+    </div>
+
     <!-- Main Content -->
     <main class="container mx-auto px-4 py-8">
         <!-- Search Results Header -->
@@ -440,77 +444,18 @@
 
     <script>
         // Book Sources Data
+        // Mark `searchable: true` for sources the backend actually queries
         const sources = [
-            {
-                name: "Anna's Archive",
-                url: "https://annas-archive.org/",
-                description: "Open-source search engine indexing shadow libraries",
-                color: "bg-pink-100",
-                textColor: "text-pink-550"
-            },
-            {
-                name: "Z Library",
-                url: "https://z-lib.id/",
-                description: "Millions of scholarly articles and books",
-                color: "bg-purple-100",
-                textColor: "text-purple-550"
-            },
-            {
-                name: "Google Books",
-                url: "https://books.google.com/",
-                description: "Preview and access digitized books",
-                color: "bg-blue-100",
-                textColor: "text-blue-600"
-            },
-            {
-                name: "ManyBooks",
-                url: "https://manybooks.net/",
-                description: "Free and discounted ebooks",
-                color: "bg-green-100",
-                textColor: "text-green-600"
-            },
-            {
-                name: "Open Library",
-                url: "https://openlibrary.org/",
-                description: "Editable online library catalog",
-                color: "bg-yellow-100",
-                textColor: "text-yellow-600"
-            },
-            {
-                name: "Smashwords",
-                url: "https://www.smashwords.com/",
-                description: "Independent authors & publishers",
-                color: "bg-red-100",
-                textColor: "text-red-600"
-            },
-            {
-                name: "DigiLibraries",
-                url: "https://digilibraries.com/",
-                description: "Public domain ebooks collection",
-                color: "bg-indigo-100",
-                textColor: "text-indigo-600"
-            },
-            {
-                name: "Free-eBooks",
-                url: "https://www.free-ebooks.net/",
-                description: "Free ebooks in multiple categories",
-                color: "bg-teal-100",
-                textColor: "text-teal-600"
-            },
-            {
-                name: "PDF Drive",
-                url: "https://welib.org/",
-                description: "Search engine for PDF books",
-                color: "bg-orange-100",
-                textColor: "text-orange-600"
-            },
-            {
-                name: "Project Gutenberg",
-                url: "https://www.gutenberg.org/",
-                description: "60,000+ free public domain ebooks",
-                color: "bg-gray-100",
-                textColor: "text-gray-700"
-            }
+            { name: "Anna's Archive", url: "https://annas-archive.org/", description: "Open-source search engine indexing shadow libraries", color: "bg-pink-100", textColor: "text-pink-550", searchable: false },
+            { name: "Z Library", url: "https://z-lib.id/", description: "Millions of scholarly articles and books", color: "bg-purple-100", textColor: "text-purple-550", searchable: false },
+            { name: "Google Books", url: "https://books.google.com/", description: "Preview and access digitized books", color: "bg-blue-100", textColor: "text-blue-600", searchable: true },
+            { name: "ManyBooks", url: "https://manybooks.net/", description: "Free and discounted ebooks", color: "bg-green-100", textColor: "text-green-600", searchable: false },
+            { name: "Open Library", url: "https://openlibrary.org/", description: "Editable online library catalog", color: "bg-yellow-100", textColor: "text-yellow-600", searchable: true },
+            { name: "Smashwords", url: "https://www.smashwords.com/", description: "Independent authors & publishers", color: "bg-red-100", textColor: "text-red-600", searchable: false },
+            { name: "DigiLibraries", url: "https://digilibraries.com/", description: "Public domain ebooks collection", color: "bg-indigo-100", textColor: "text-indigo-600", searchable: false },
+            { name: "Free-eBooks", url: "https://www.free-ebooks.net/", description: "Free ebooks in multiple categories", color: "bg-teal-100", textColor: "text-teal-600", searchable: false },
+            { name: "PDF Drive", url: "https://welib.org/", description: "Search engine for PDF books", color: "bg-orange-100", textColor: "text-orange-600", searchable: false },
+            { name: "Project Gutenberg", url: "https://www.gutenberg.org/", description: "60,000+ free public domain ebooks", color: "bg-gray-100", textColor: "text-gray-700", searchable: true }
         ];
 
         // DOM Elements
@@ -521,6 +466,8 @@
         const loadingState = document.getElementById('loadingState');
         const noResults = document.getElementById('noResults');
         const resultCount = document.getElementById('resultCount');
+        const sourcesGrid = document.getElementById('sourcesGrid');
+        const searchSourcesNote = document.getElementById('searchSourcesNote');
 
         // State Variables
         let currentFilter = 'all';
@@ -628,8 +575,59 @@
             });
         });
 
+        // Render sources section dynamically
+        function renderSources() {
+            if (!sourcesGrid) return;
+            sourcesGrid.innerHTML = '';
+            const searchableNames = [];
+            sources.forEach(s => {
+                if (s.searchable) searchableNames.push(s.name);
+
+                const card = document.createElement('div');
+                card.className = 'source-card bg-white rounded-xl p-6';
+                card.innerHTML = `
+                    <div class="flex items-start mb-4">
+                        <div class="${s.color} w-12 h-12 rounded-lg flex items-center justify-center mr-4">
+                            <i class="fas fa-book text-2xl ${s.textColor}"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-dark">${s.name}</h3>
+                            <p class="text-sm text-gray-600 mt-1">${s.description}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <a href="${s.url}" target="_blank" class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
+                            Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
+                        </a>
+                        ${s.searchable ?
+                            '<span class="px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-semibold">Searched</span>' :
+                            '<span class="px-3 py-1 rounded-full bg-gray-50 text-gray-600 text-xs">External</span>'}
+                    </div>
+                `;
+                // If not searchable, add a direct-search hint link
+                if (!s.searchable) {
+                    const hint = document.createElement('div');
+                    hint.className = 'mt-3 text-sm';
+                    hint.innerHTML = `<a href="${s.url}" target="_blank" class="text-primary underline">Search directly on ${s.name}</a>`;
+                    card.appendChild(hint);
+                }
+
+                sourcesGrid.appendChild(card);
+            });
+
+            if (searchSourcesNote) {
+                if (searchableNames.length) {
+                    searchSourcesNote.innerHTML = `This search queries: <strong>${searchableNames.join(', ')}</strong>. For other sources below, you can visit them directly.`;
+                } else {
+                    searchSourcesNote.innerHTML = `This tool currently does not query external sources. Use the links below to search directly on those sites.`;
+                }
+            }
+        }
+
         // Initialize
         function init() {
+            renderSources();
+
             // placeholder animation
             const placeholders = [
                 "Search for '1984 by George Orwell'...",
