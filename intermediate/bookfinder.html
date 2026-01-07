@@ -525,13 +525,36 @@
         // State Variables
         let currentFilter = 'all';
         let currentSearch = '';
-        let displayedBooks = [...books];
+        let displayedBooks = [];
+        const API_BASE = 'http://127.0.0.1:5000';
 
-        // Render Books
-        function renderBooks() {
+        function showLoading(show) {
+            if (show) {
+                loadingState.classList.remove('hidden');
+            } else {
+                loadingState.classList.add('hidden');
+            }
+        }
+
+        async function performRemoteSearch(title, author) {
+            if (!title) return [];
+            showLoading(true);
+            try {
+                const q = `${API_BASE}/search?title=${encodeURIComponent(title)}${author ? `&author=${encodeURIComponent(author)}` : ''}`;
+                const resp = await fetch(q);
+                const data = await resp.json();
+                showLoading(false);
+                return data;
+            } catch (err) {
+                showLoading(false);
+                return [{ source: 'Local', error: err.toString() }];
+            }
+        }
+
+        function renderRemoteResults(results) {
             resultsGrid.innerHTML = '';
 
-            if (displayedBooks.length === 0) {
+            if (!results || results.length === 0) {
                 noResults.classList.remove('hidden');
                 resultCount.textContent = '0 books found';
                 return;
@@ -539,54 +562,31 @@
 
             noResults.classList.add('hidden');
 
-            displayedBooks.forEach(book => {
-                const availableSources = book.sources.filter(s => s.available).length;
-                const totalSources = book.sources.length;
+            results.forEach(r => {
+                if (r.error) {
+                    const errDiv = document.createElement('div');
+                    errDiv.className = 'col-span-1 p-6 bg-red-50 rounded-lg';
+                    errDiv.textContent = `[${r.source || 'Error'}] ${r.error}`;
+                    resultsGrid.appendChild(errDiv);
+                    return;
+                }
+
+                const title = r.title || '(no title)';
+                const authors = (r.authors || []).join(', ');
+                const link = r.link || '#';
+                const source = r.source || 'Unknown';
+                const avail = r.availability || '';
 
                 const bookCard = document.createElement('div');
-                bookCard.className = 'book-card bg-white rounded-xl overflow-hidden fade-in';
+                bookCard.className = 'book-card bg-white rounded-xl overflow-hidden fade-in p-4';
                 bookCard.innerHTML = `
-                    <div class="flex h-48 ${book.coverColor} p-6">
-                        <div class="self-end">
-                            <div class="bg-white/90 backdrop-blur-sm rounded-lg p-3 inline-block">
-                                <i class="fas fa-book-open text-primary text-3xl"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl text-dark mb-2">${book.title}</h3>
-                        <p class="text-gray-600 mb-3">by ${book.author} • ${book.year}</p>
-                        <p class="text-gray-700 mb-4 text-sm">${book.description}</p>
-                        
-                        <div class="mb-4">
-                            <span class="inline-block bg-accent text-primary text-xs font-semibold px-3 py-1 rounded-full">
-                                ${book.category.charAt(0).toUpperCase() + book.category.slice(1)}
-                            </span>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <p class="text-sm text-gray-600 mb-2">
-                                <i class="fas fa-check-circle text-green-500 mr-1"></i>
-                                Available on ${availableSources} of ${totalSources} sources
-                            </p>
-                            <div class="flex flex-wrap gap-2">
-                                ${book.sources.map(source => `
-                                    <a href="${source.url}" target="_blank" 
-                                       class="source-tag ${source.available ? 'bg-gray-100 hover:bg-primary hover:text-white text-gray-700' : 'bg-gray-50 text-gray-400 cursor-not-allowed'} 
-                                              text-xs px-3 py-1 rounded-lg transition-all">
-                                        ${source.name}
-                                    </a>
-                                `).join('')}
-                            </div>
-                        </div>
-                        
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-500">
-                                <i class="far fa-clock mr-1"></i> Just now
-                            </span>
-                            <a href="#" class="bg-primary text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-pink-550 transition-colors">
-                                View All Sources
-                            </a>
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg text-dark mb-1">${title}</h3>
+                        <p class="text-gray-600 text-sm mb-2">${authors}</p>
+                        <p class="text-sm text-gray-500 mb-3">Source: <strong>${source}</strong> ${avail ? `• ${avail}` : ''}</p>
+                        <div class="flex gap-2">
+                            <a href="${link}" target="_blank" class="bg-primary text-white px-3 py-2 rounded-md text-sm">Open Link</a>
+                            <a href="#" class="bg-white border border-gray-200 text-dark px-3 py-2 rounded-md text-sm">View Details</a>
                         </div>
                     </div>
                 `;
@@ -594,49 +594,23 @@
                 resultsGrid.appendChild(bookCard);
             });
 
-            updateResultCount();
+            resultCount.textContent = `${results.length} result${results.length !== 1 ? 's' : ''} found`;
         }
 
-        // Update Result Count
-        function updateResultCount() {
-            const totalBooks = displayedBooks.length;
-            resultCount.textContent = `${totalBooks} book${totalBooks !== 1 ? 's' : ''} found`;
-        }
-
-        // Filter and Search Books
-        function filterBooks() {
-            loadingState.classList.remove('hidden');
-
-            // Simulate API delay
-            setTimeout(() => {
-                displayedBooks = books.filter(book => {
-                    // Filter by category
-                    const categoryMatch = currentFilter === 'all' || book.category === currentFilter;
-
-                    // Filter by search term
-                    const searchMatch = !currentSearch ||
-                        book.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
-                        book.author.toLowerCase().includes(currentSearch.toLowerCase()) ||
-                        book.description.toLowerCase().includes(currentSearch.toLowerCase());
-
-                    return categoryMatch && searchMatch;
-                });
-
-                loadingState.classList.add('hidden');
-                renderBooks();
-            }, 800);
-        }
-
-        // Event Listeners
-        searchBtn.addEventListener('click', () => {
+        // Event Listeners (remote search)
+        searchBtn.addEventListener('click', async () => {
             currentSearch = searchInput.value.trim();
-            filterBooks();
+            if (!currentSearch) return;
+            const results = await performRemoteSearch(currentSearch);
+            renderRemoteResults(results);
         });
 
-        searchInput.addEventListener('keyup', (event) => {
+        searchInput.addEventListener('keyup', async (event) => {
             if (event.key === 'Enter') {
                 currentSearch = searchInput.value.trim();
-                filterBooks();
+                if (!currentSearch) return;
+                const results = await performRemoteSearch(currentSearch);
+                renderRemoteResults(results);
             }
         });
 
@@ -651,15 +625,12 @@
                 btn.classList.remove('bg-white', 'text-dark', 'border-gray-300');
 
                 currentFilter = btn.getAttribute('data-filter');
-                filterBooks();
             });
         });
 
         // Initialize
         function init() {
-            renderBooks();
-
-            // Add placeholder animation
+            // placeholder animation
             const placeholders = [
                 "Search for '1984 by George Orwell'...",
                 "Search for 'Pride and Prejudice'...",
