@@ -61,7 +61,46 @@ def search_all(title, author=None):
         out.extend(search_googlebooks(title, author))
     except Exception as e:
         out.append({"source": "Google Books", "error": str(e)})
+    # Add Project Gutenberg via Gutendex
+    try:
+        out.extend(search_gutendex(title, author))
+    except Exception as e:
+        out.append({"source": "Gutendex", "error": str(e)})
     return out
+
+
+def search_gutendex(title, author=None, limit=5):
+    # Gutendex is an open API for Project Gutenberg: https://gutendex.com/
+    params = {"search": title, "page": 1}
+    resp = requests.get("https://gutendex.com/books/", params=params, timeout=10)
+    resp.raise_for_status()
+    data = resp.json()
+    results = []
+    for item in data.get("results", [])[:limit]:
+        ti = item.get("title")
+        authors = [a.get("name") for a in item.get("authors", []) if a.get("name")]
+        link = None
+        formats = item.get("formats", {})
+        # Prefer HTML or plain text formats
+        for k in ("text/html; charset=utf-8", "text/html", "text/plain; charset=utf-8", "text/plain"):
+            if formats.get(k):
+                link = formats.get(k)
+                break
+        if not link:
+            # fallback to Gutenberg page
+            gid = item.get("id")
+            if gid:
+                link = f"https://www.gutenberg.org/ebooks/{gid}"
+
+        r = {
+            "title": ti,
+            "authors": authors,
+            "source": "Project Gutenberg",
+            "link": link,
+            "availability": "public-domain"
+        }
+        results.append(r)
+    return results
 
 
 def main():

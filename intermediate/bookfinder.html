@@ -526,7 +526,7 @@
         let currentFilter = 'all';
         let currentSearch = '';
         let displayedBooks = [];
-        const API_BASE = 'http://127.0.0.1:5000';
+        const API_BASE = ''; // when deployed to Vercel the serverless function is at /api/search
 
         function showLoading(show) {
             if (show) {
@@ -540,7 +540,7 @@
             if (!title) return [];
             showLoading(true);
             try {
-                const q = `${API_BASE}/search?title=${encodeURIComponent(title)}${author ? `&author=${encodeURIComponent(author)}` : ''}`;
+                const q = `${API_BASE}/api/search?title=${encodeURIComponent(title)}${author ? `&author=${encodeURIComponent(author)}` : ''}`;
                 const resp = await fetch(q);
                 const data = await resp.json();
                 showLoading(false);
