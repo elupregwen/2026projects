@@ -485,11 +485,11 @@
             }
         }
 
-        async function performRemoteSearch(title, author) {
+        async function performRemoteSearch(title, author, requestedLimit=20) {
             if (!title) return [];
             showLoading(true);
             try {
-                const q = `${API_BASE}/api/search?title=${encodeURIComponent(title)}${author ? `&author=${encodeURIComponent(author)}` : ''}`;
+                const q = `${API_BASE}/api/search?title=${encodeURIComponent(title)}${author ? `&author=${encodeURIComponent(author)}` : ''}&limit=${requestedLimit}`;
                 const resp = await fetch(q);
                 const data = await resp.json();
                 showLoading(false);

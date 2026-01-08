@@ -51,19 +51,21 @@ def search_googlebooks(title, author=None, limit=5):
     return results
 
 
-def search_all(title, author=None):
+def search_all(title, author=None, limit=20):
+    MAX_LIMIT = 20
+    limit = min(limit or MAX_LIMIT, MAX_LIMIT)
     out = []
     try:
-        out.extend(search_openlibrary(title, author))
+        out.extend(search_openlibrary(title, author, limit))
     except Exception as e:
         out.append({"source": "Open Library", "error": str(e)})
     try:
-        out.extend(search_googlebooks(title, author))
+        out.extend(search_googlebooks(title, author, limit))
     except Exception as e:
         out.append({"source": "Google Books", "error": str(e)})
     # Add Project Gutenberg via Gutendex
     try:
-        out.extend(search_gutendex(title, author))
+        out.extend(search_gutendex(title, author, limit))
     except Exception as e:
         out.append({"source": "Gutendex", "error": str(e)})
     return out

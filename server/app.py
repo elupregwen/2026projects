@@ -32,9 +32,7 @@ def search():
     if not title:
         return jsonify({'error': 'title is required'}), 400
 
-    results = book_search.search_all(title, author)
-    if isinstance(results, list):
-        results = results[:limit]
+        results = book_search.search_all(title, author, limit)
     return jsonify(results)
 
 

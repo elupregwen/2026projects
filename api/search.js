@@ -1,7 +1,9 @@
 export default async function handler(req, res) {
   const title = req.query.title || req.query.q || '';
   const author = req.query.author || '';
-  const limit = parseInt(req.query.limit || '8', 10) || 8;
+  const requested = parseInt(req.query.limit || '8', 10) || 8;
+  const MAX_LIMIT = 20;
+  const limit = Math.min(requested, MAX_LIMIT);
 
   if (!title) {
     res.status(400).json({ error: 'title is required' });
@@ -15,6 +17,7 @@ export default async function handler(req, res) {
     const olUrl = new URL('https://openlibrary.org/search.json');
     olUrl.searchParams.set('title', title);
     if (author) olUrl.searchParams.set('author', author);
+    // Open Library supports a limit param; cap per-service requests to `limit`
     olUrl.searchParams.set('limit', String(limit));
     const r = await fetch(olUrl.toString(), { method: 'GET' });
     const data = await r.json();
@@ -36,6 +39,7 @@ export default async function handler(req, res) {
     const q = `intitle:${title}${author ? `+inauthor:${author}` : ''}`;
     const gbUrl = new URL('https://www.googleapis.com/books/v1/volumes');
     gbUrl.searchParams.set('q', q);
+    // Google Books maxResults has limits; request `limit` and slice as needed
     gbUrl.searchParams.set('maxResults', String(limit));
     const r = await fetch(gbUrl.toString(), { method: 'GET' });
     const data = await r.json();
@@ -82,5 +86,7 @@ export default async function handler(req, res) {
   }
 
   res.setHeader('Content-Type', 'application/json');
+  res.setHeader('X-Results-Limit', String(limit));
+  res.setHeader('X-Results-Max', String(MAX_LIMIT));
   res.status(200).json(results.slice(0, limit));
 }
