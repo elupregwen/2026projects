@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BookFinder | Search Free Books Across Multiple Sources</title>
+    <title>Aklat at Pluma | Discover Free Literature</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,432 +13,516 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#FF6B9D',
-                        secondary: '#C77DFF',
-                        accent: '#FFB3C6',
-                        dark: '#0f172a',
-                        light: '#f8fafc',
-                        pink: {
-                            350: '#FF9EBD',
-                            450: '#FF6B9D',
-                            550: '#FF4785'
+                        moss: {
+                            50: '#f5f7f0',
+                            100: '#e9edd8',
+                            200: '#d4deba',
+                            300: '#b7c992',
+                            400: '#9ab26c',
+                            500: '#7f9752', // Deep moss green
+                            600: '#627841',
+                            700: '#4c5e34',
+                            800: '#3f4c2e',
+                            900: '#364029',
                         },
-                        purple: {
-                            450: '#C77DFF',
-                            550: '#B65CFF'
+                        ivory: '#fcf9f2',
+                        gold: {
+                            50: '#fdfce9',
+                            100: '#faf7c9',
+                            200: '#f5ee96',
+                            300: '#eee059', // Soft antique gold
+                            400: '#e3cf2f',
+                            500: '#d3b91f',
+                            600: '#b59316',
+                            700: '#906c15',
+                            800: '#785718',
+                            900: '#66481b',
+                        },
+                        lavender: {
+                            50: '#f9f8fb',
+                            100: '#f1eff7',
+                            200: '#e5e1f0',
+                            300: '#d2cbe5', // Lavender-gray
+                            400: '#b8aed6',
+                            500: '#9f91c7',
+                            600: '#8775b8',
+                            700: '#7260a5',
+                            800: '#5f5189',
+                            900: '#4e446f',
                         }
                     },
-                    spacing: {
-                        '128': '32rem',
+                    fontFamily: {
+                        'serif': ['Cormorant Garamond', 'Georgia', 'serif'],
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.8s ease-out',
+                        'float': 'float 6s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        glow: {
+                            '0%': { 'text-shadow': '0 0 5px rgba(226, 224, 89, 0.3)' },
+                            '100%': { 'text-shadow': '0 0 20px rgba(226, 224, 89, 0.6)' },
+                        }
                     }
                 }
             }
         }
     </script>
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- Custom Styles -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
-        * {
-            font-family: 'Poppins', sans-serif;
+        body {
+            background-color: #fcf9f2;
         }
 
-        .gradient-bg {
-            background: linear-gradient(135deg, #FF6B9D 0%, #C77DFF 100%);
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #FF6B9D 0%, #C77DFF 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .page-transition {
+            animation: fadeIn 0.8s ease-out;
         }
 
         .book-card {
-            transition: all 0.3s ease;
-            border: 1px solid #e2e8f0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
         .book-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border-color: #FF6B9D;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(127, 151, 82, 0.15);
         }
 
-        .source-tag {
-            transition: all 0.2s ease;
+        .book-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #e2e059, #7f9752);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+            transform-origin: left;
         }
 
-        .source-tag:hover {
-            transform: scale(1.05);
-            background-color: #FFB3C6 !important;
+        .book-card:hover::before {
+            transform: scaleX(1);
         }
 
         .search-input:focus {
-            box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.2);
+            box-shadow: 0 0 0 3px rgba(127, 151, 82, 0.2);
+            border-color: #7f9752;
         }
 
-        .pagination-btn {
-            transition: all 0.2s ease;
-        }
-
-        .pagination-btn:hover:not(.disabled) {
-            background-color: #FF6B9D;
-            color: white;
-        }
-
-        .loading-spinner {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .filter-btn.active {
+            background-color: #7f9752;
+            color: #fcf9f2;
+            box-shadow: 0 4px 12px rgba(127, 151, 82, 0.3);
         }
 
         .source-card {
             transition: all 0.3s ease;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #e9e5d7;
         }
 
         .source-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-            border-color: #C77DFF;
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(127, 151, 82, 0.1);
+            border-color: #7f9752;
+        }
+
+        .ornamental-divider {
+            position: relative;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .ornamental-divider::before {
+            content: "❖";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fcf9f2;
+            padding: 0 1rem;
+            color: #e2e059;
+            font-size: 1.2rem;
+        }
+
+        .ornamental-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d2cbe5, transparent);
+            z-index: -1;
+        }
+
+        .fairy-sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background-color: #e2e059;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+        }
+
+        @keyframes sparkle {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+        }
+
+        .header-ornament {
+            position: relative;
+            display: inline-block;
+        }
+
+        .header-ornament::after {
+            content: '✧';
+            position: absolute;
+            top: -10px;
+            right: -20px;
+            color: #e2e059;
+            font-size: 1.2rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        .leaf-accent {
+            position: relative;
+        }
+
+        .leaf-accent::before {
+            content: '🍃';
+            position: absolute;
+            left: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            color: #7f9752;
         }
     </style>
 </head>
 
-<body class="bg-light min-h-screen">
+<body class="font-sans text-gray-800">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm">
+    <nav class="bg-moss-900/95 backdrop-blur-sm sticky top-0 z-50 shadow-lg">
         <div class="container mx-auto px-4 py-4">
             <div class="flex justify-between items-center">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-book-open text-primary text-3xl"></i>
-                    <h1 class="text-2xl font-bold gradient-text">Book Finder</h1>
+                    <div class="relative">
+                        <i class="fas fa-feather-alt text-gold-300 text-2xl"></i>
+                        <div class="absolute -top-1 -right-1 w-2 h-2 bg-gold-300 rounded-full animate-pulse"></div>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-serif font-bold text-ivory">Aklat at Pluma</h1>
+                        <p class="text-xs text-moss-300 font-serif italic">books & quill</p>
+                    </div>
                 </div>
-                <div class="text-sm text-gray-600">
-                    <i class="fas fa-heart text-primary mr-1"></i> Free books for everyone
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#" class="text-ivory/80 hover:text-gold-300 transition-colors font-serif">Discover</a>
+                    <a href="#" class="text-ivory/80 hover:text-gold-300 transition-colors font-serif">Classics</a>
+                    <a href="#" class="text-ivory/80 hover:text-gold-300 transition-colors font-serif">About</a>
+                    <button
+                        class="bg-gold-300 text-moss-900 px-4 py-2 rounded-full text-sm font-medium hover:bg-gold-400 transition-colors">
+                        <i class="fas fa-book-open mr-2"></i> Start Reading
+                    </button>
                 </div>
+                <button class="md:hidden text-ivory">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="gradient-bg text-white py-12 md:py-16">
-        <div class="container mx-auto px-4">
-            <div class="max-w-4xl mx-auto text-center">
-                <h1 class="text-3xl md:text-4xl font-bold mb-6">Search Free Books Across The Web</h1>
-                <p class="text-lg mb-8 text-white/90">
-                    Search 10+ free book sources simultaneously. Get instant access to millions of free ebooks,
-                    academic texts, and public domain classics.
+    <section class="relative overflow-hidden">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 opacity-5">
+            <div class="absolute top-10 left-10 text-6xl">❖</div>
+            <div class="absolute bottom-20 right-20 text-6xl">✧</div>
+            <div class="absolute top-1/3 right-1/4 text-4xl">🍃</div>
+        </div>
+
+        <div class="container mx-auto px-4 py-16 md:py-24 relative">
+            <div class="max-w-3xl mx-auto text-center">
+                <div class="header-ornament inline-block mb-6">
+                    <h1 class="text-4xl md:text-5xl font-serif font-bold text-moss-800 mb-4">
+                        Discover Timeless Literature
+                    </h1>
+                </div>
+
+                <p class="text-lg md:text-xl text-moss-600 mb-8 font-serif italic">
+                    Where Filipino heritage meets the written word. A curated sanctuary for free literature.
                 </p>
 
                 <!-- Search Box -->
-                <div class="bg-white rounded-xl p-2 shadow-2xl max-w-3xl mx-auto">
+                <div
+                    class="bg-white/80 backdrop-blur-sm rounded-2xl p-2 shadow-xl max-w-2xl mx-auto border border-moss-200">
                     <div class="flex flex-col md:flex-row">
                         <div class="flex-grow relative">
                             <i
-                                class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" id="searchInput"
-                                placeholder="Search for books by title, author, ISBN, or topic..."
-                                class="w-full pl-12 pr-4 py-4 text-dark search-input rounded-l-lg focus:outline-none">
+                                class="fas fa-search absolute left-5 top-1/2 transform -translate-y-1/2 text-moss-400"></i>
+                            <input type="text" id="searchInput" placeholder="Search by title, author, or keyword..."
+                                class="w-full pl-12 pr-4 py-5 text-moss-900 bg-transparent search-input rounded-l-2xl focus:outline-none placeholder-moss-400 font-serif">
                         </div>
                         <button id="searchBtn"
-                            class="bg-primary text-white font-bold py-4 px-8 rounded-r-lg hover:bg-pink-550 transition-colors mt-2 md:mt-0">
-                            <i class="fas fa-search mr-2"></i> Search
+                            class="bg-moss-600 text-ivory font-serif font-semibold py-5 px-8 rounded-r-2xl hover:bg-moss-700 transition-all duration-300 mt-2 md:mt-0 group">
+                            <i class="fas fa-magnifying-glass mr-2 group-hover:rotate-12 transition-transform"></i>
+                            Search Libraries
                         </button>
+                    </div>
+                    <div class="text-xs text-moss-500 mt-3 px-4">
+                        <i class="fas fa-leaf text-moss-500 mr-1"></i>
+                        Searching: Open Library • Google Books • Project Gutenberg
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <div class="container mx-auto px-4 mt-4">
-        <div id="searchSourcesNote" class="text-center text-sm text-gray-600"></div>
-    </div>
-
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
+    <main class="container mx-auto px-4 py-8 page-transition">
         <!-- Search Results Header -->
-        <div class="mb-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                <h2 class="text-2xl font-bold text-dark mb-2 md:mb-0">Search Results</h2>
-                <div id="resultCount" class="text-gray-600 text-lg font-medium">
-                    0 books found
+        <div class="mb-12">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+                <div class="leaf-accent mb-4 md:mb-0">
+                    <h2 class="text-3xl font-serif font-bold text-moss-800">Search Results</h2>
+                </div>
+                <div id="resultCount" class="text-moss-600 text-lg font-medium font-serif">
+                    <span class="text-gold-600">0</span> books found
                 </div>
             </div>
 
-            <div class="flex flex-wrap gap-3 mb-6">
+            <div class="flex flex-wrap gap-3 mb-8">
                 <button
-                    class="filter-btn active bg-primary text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-pink-550 transition-colors"
+                    class="filter-btn active bg-moss-600 text-ivory px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300"
                     data-filter="all">
-                    All Books
+                    <i class="fas fa-star mr-2"></i> All Books
                 </button>
                 <button
-                    class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors"
+                    class="filter-btn bg-white text-moss-700 border border-moss-200 px-5 py-2.5 rounded-full text-sm font-medium hover:border-moss-400 hover:text-moss-800 transition-all duration-300"
                     data-filter="fiction">
-                    Fiction
+                    <i class="fas fa-crown mr-2"></i> Fiction
                 </button>
                 <button
-                    class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors"
+                    class="filter-btn bg-white text-moss-700 border border-moss-200 px-5 py-2.5 rounded-full text-sm font-medium hover:border-moss-400 hover:text-moss-800 transition-all duration-300"
                     data-filter="nonfiction">
-                    Non-Fiction
+                    <i class="fas fa-scroll mr-2"></i> Non-Fiction
                 </button>
                 <button
-                    class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors"
-                    data-filter="academic">
-                    Academic
-                </button>
-                <button
-                    class="filter-btn bg-white text-dark border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:border-primary hover:text-primary transition-colors"
+                    class="filter-btn bg-white text-moss-700 border border-moss-200 px-5 py-2.5 rounded-full text-sm font-medium hover:border-moss-400 hover:text-moss-800 transition-all duration-300"
                     data-filter="classics">
-                    Classics
+                    <i class="fas fa-landmark mr-2"></i> Classics
+                </button>
+                <button
+                    class="filter-btn bg-white text-moss-700 border border-moss-200 px-5 py-2.5 rounded-full text-sm font-medium hover:border-moss-400 hover:text-moss-800 transition-all duration-300"
+                    data-filter="poetry">
+                    <i class="fas fa-feather mr-2"></i> Poetry
                 </button>
             </div>
         </div>
 
         <!-- Loading State -->
-        <div id="loadingState" class="hidden text-center py-16">
-            <div class="inline-block loading-spinner text-4xl text-primary mb-4">
-                <i class="fas fa-spinner"></i>
+        <div id="loadingState" class="hidden text-center py-20">
+            <div class="inline-block animate-spin text-5xl text-gold-400 mb-6">
+                <i class="fas fa-feather-alt"></i>
             </div>
-            <p class="text-gray-600">Searching across 10+ free book sources...</p>
+            <p class="text-moss-600 font-serif text-lg">Gathering books from timeless libraries...</p>
+            <p class="text-moss-400 text-sm mt-2">Open Library • Google Books • Project Gutenberg</p>
         </div>
 
         <!-- No Results State -->
-        <div id="noResults" class="hidden text-center py-16">
-            <i class="fas fa-book-open text-6xl text-gray-300 mb-4"></i>
-            <h3 class="text-xl font-bold text-gray-700 mb-2">No books found</h3>
-            <p class="text-gray-600">Try a different search term or browse by category</p>
-            <div id="externalSearchBtns" class="mt-6 flex flex-wrap gap-3 justify-center"></div>
+        <div id="noResults" class="hidden text-center py-20">
+            <div class="inline-block animate-float mb-6">
+                <i class="fas fa-book-open text-6xl text-moss-300"></i>
+            </div>
+            <h3 class="text-2xl font-serif font-bold text-moss-700 mb-3">No books found</h3>
+            <p class="text-moss-600 max-w-md mx-auto mb-6">
+                Try searching for classics, authors, or literary topics. Our collection focuses on public domain works.
+            </p>
+            <div id="externalSearchBtns" class="mt-8 flex flex-wrap gap-3 justify-center"></div>
         </div>
 
         <!-- Results Grid -->
-        <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             <!-- Book cards will be dynamically inserted here -->
         </div>
 
-        <!-- Sources Section -->
-        <div class="mt-16 mb-12">
-            <h2 class="text-2xl font-bold text-dark mb-8 text-center">Search Across These Free Sources</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-                <!-- Source 1: Anna's Archive -->
-                <div class="source-card bg-white rounded-xl p-6">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-pink-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-archive text-pink-550 text-xl"></i>
-                        </div> 
-                        <div>
-                            <h3 class="font-bold text-lg text-dark">Anna's Archive</h3>
-                            <p class="text-sm text-gray-600 mt-1">Open-source search engine indexing shadow libraries
-                            </p>
-                        </div>
-                    </div>
-                    <a href="https://annas-archive.org/" target="_blank"
-                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
-                        Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
-                    </a>
-                </div>
+        <!-- Ornamental Divider -->
+        <div class="ornamental-divider my-16">
+            <span class="text-moss-400 font-serif text-sm tracking-widest">TRUSTED SOURCES</span>
+        </div>
 
-                <!-- Source 2: Z Library -->
-                <div class="source-card bg-white rounded-xl p-6">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-purple-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-book text-purple-550 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-dark">Z Library</h3>
-                            <p class="text-sm text-gray-600 mt-1">Millions of scholarly articles and books</p>
-                        </div>
-                    </div>
-                    <a href="https://z-lib.id/" target="_blank"
-                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
-                        Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
-                    </a>
-                </div>
+        <!-- Trusted Sources Section -->
+        <div class="mb-20">
+            <h2 class="text-3xl font-serif font-bold text-center text-moss-800 mb-12">
+                Ethically Sourced Literature
+            </h2>
 
-                <!-- Source 3: Google Books -->
-                <div class="source-card bg-white rounded-xl p-6">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-blue-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fab fa-google text-blue-600 text-xl"></i>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Source 1: Open Library -->
+                <div class="source-card bg-white rounded-2xl p-8">
+                    <div class="flex items-start mb-6">
+                        <div
+                            class="bg-moss-50 w-14 h-14 rounded-xl flex items-center justify-center mr-5 border border-moss-200">
+                            <i class="fas fa-university text-moss-600 text-2xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-lg text-dark">Google Books</h3>
-                            <p class="text-sm text-gray-600 mt-1">Preview and access digitized books</p>
+                            <h3 class="font-serif font-bold text-xl text-moss-800 mb-2">Open Library</h3>
+                            <p class="text-moss-600 text-sm">An open, editable library catalog</p>
                         </div>
                     </div>
-                    <a href="https://books.google.com/" target="_blank"
-                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
-                        Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
-                    </a>
-                </div>
-
-                <!-- Source 4: ManyBooks -->
-                <div class="source-card bg-white rounded-xl p-6">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-green-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-books text-green-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-dark">ManyBooks</h3>
-                            <p class="text-sm text-gray-600 mt-1">Free and discounted ebooks</p>
-                        </div>
-                    </div>
-                    <a href="https://manybooks.net/" target="_blank"
-                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
-                        Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
-                    </a>
-                </div>
-
-                <!-- Source 5: Open Library -->
-                <div class="source-card bg-white rounded-xl p-6">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-yellow-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-university text-yellow-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-dark">Open Library</h3>
-                            <p class="text-sm text-gray-600 mt-1">Editable online library catalog</p>
-                        </div>
-                    </div>
+                    <p class="text-moss-500 text-sm mb-6">
+                        Free digital access to millions of books. Part of the Internet Archive's open-source initiative.
+                    </p>
                     <a href="https://openlibrary.org/" target="_blank"
-                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
-                        Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
+                        class="inline-flex items-center text-moss-600 hover:text-moss-800 text-sm font-medium border border-moss-300 hover:border-moss-500 px-4 py-2 rounded-full transition-all">
+                        <i class="fas fa-external-link-alt mr-2 text-xs"></i> Visit Source
                     </a>
                 </div>
 
-                <!-- Source 6: Smashwords -->
-                <div class="source-card bg-white rounded-xl p-6">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-red-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-pen-nib text-red-600 text-xl"></i>
+                <!-- Source 2: Google Books -->
+                <div class="source-card bg-white rounded-2xl p-8">
+                    <div class="flex items-start mb-6">
+                        <div
+                            class="bg-lavender-50 w-14 h-14 rounded-xl flex items-center justify-center mr-5 border border-lavender-300">
+                            <i class="fab fa-google text-lavender-600 text-2xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-lg text-dark">Smashwords</h3>
-                            <p class="text-sm text-gray-600 mt-1">Independent authors & publishers</p>
+                            <h3 class="font-serif font-bold text-xl text-moss-800 mb-2">Google Books</h3>
+                            <p class="text-moss-600 text-sm">Preview & access digitized books</p>
                         </div>
                     </div>
-                    <a href="https://www.smashwords.com/" target="_blank"
-                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
-                        Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
+                    <p class="text-moss-500 text-sm mb-6">
+                        Comprehensive book search with previews and links to full texts where available for free.
+                    </p>
+                    <a href="https://books.google.com/" target="_blank"
+                        class="inline-flex items-center text-moss-600 hover:text-moss-800 text-sm font-medium border border-moss-300 hover:border-moss-500 px-4 py-2 rounded-full transition-all">
+                        <i class="fas fa-external-link-alt mr-2 text-xs"></i> Visit Source
                     </a>
                 </div>
 
-                <!-- Source 7: DigiLibraries -->
-                <div class="source-card bg-white rounded-xl p-6">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-indigo-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-digital-tachograph text-indigo-600 text-xl"></i>
+                <!-- Source 3: Project Gutenberg -->
+                <div class="source-card bg-white rounded-2xl p-8">
+                    <div class="flex items-start mb-6">
+                        <div
+                            class="bg-gold-50 w-14 h-14 rounded-xl flex items-center justify-center mr-5 border border-gold-200">
+                            <i class="fas fa-book-medical text-gold-600 text-2xl"></i>
                         </div>
                         <div>
-                            <h3 class="font-bold text-lg text-dark">DigiLibraries</h3>
-                            <p class="text-sm text-gray-600 mt-1">Public domain ebooks collection</p>
+                            <h3 class="font-serif font-bold text-xl text-moss-800 mb-2">Project Gutenberg</h3>
+                            <p class="text-moss-600 text-sm">60,000+ free public domain ebooks</p>
                         </div>
                     </div>
-                    <a href="https://digilibraries.com/" target="_blank"
-                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
-                        Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
-                    </a>
-                </div>
-
-                <!-- Source 8: Free-eBooks -->
-                <div class="source-card bg-white rounded-xl p-6">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-teal-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-book-reader text-teal-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-dark">Free-eBooks</h3>
-                            <p class="text-sm text-gray-600 mt-1">Free ebooks in multiple categories</p>
-                        </div>
-                    </div>
-                    <a href="https://www.free-ebooks.net/" target="_blank"
-                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
-                        Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
-                    </a>
-                </div>
-
-                <!-- Source 9: PDF Drive -->
-                <div class="source-card bg-white rounded-xl p-6">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-orange-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-file-pdf text-orange-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-dark">PDF Drive</h3>
-                            <p class="text-sm text-gray-600 mt-1">Search engine for PDF books</p>
-                        </div>
-                    </div>
-                    <a href="https://welib.org/" target="_blank"
-                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
-                        Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
-                    </a>
-                </div>
-
-                <!-- Source 10: Project Gutenberg -->
-                <div class="source-card bg-white rounded-xl p-6">
-                    <div class="flex items-start mb-4">
-                        <div class="bg-gray-100 w-12 h-12 rounded-lg flex items-center justify-center mr-4">
-                            <i class="fas fa-book-medical text-gray-700 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-lg text-dark">Project Gutenberg</h3>
-                            <p class="text-sm text-gray-600 mt-1">60,000+ free public domain ebooks</p>
-                        </div>
-                    </div>
+                    <p class="text-moss-500 text-sm mb-6">
+                        The oldest digital library offering free eBooks. Focuses on cultural works in the public domain.
+                    </p>
                     <a href="https://www.gutenberg.org/" target="_blank"
-                        class="inline-flex items-center text-primary hover:text-pink-550 text-sm font-medium">
-                        Visit Source <i class="fas fa-external-link-alt ml-2 text-xs"></i>
+                        class="inline-flex items-center text-moss-600 hover:text-moss-800 text-sm font-medium border border-moss-300 hover:border-moss-500 px-4 py-2 rounded-full transition-all">
+                        <i class="fas fa-external-link-alt mr-2 text-xs"></i> Visit Source
                     </a>
                 </div>
+            </div>
+
+            <div class="text-center mt-12 p-6 bg-moss-50/50 rounded-2xl border border-moss-200">
+                <div class="flex items-center justify-center mb-3">
+                    <i class="fas fa-scale-balanced text-moss-500 mr-3"></i>
+                    <h4 class="font-serif font-bold text-moss-700">Ethical & Transparent</h4>
+                </div>
+                <p class="text-moss-600 text-sm max-w-2xl mx-auto">
+                    Aklat at Pluma only uses official, public APIs. We do not scrape websites or host copyrighted
+                    material.
+                    All book rights belong to their respective authors and publishers.
+                </p>
             </div>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-12">
+    <footer class="bg-moss-900 text-ivory py-12">
         <div class="container mx-auto px-4">
-            <div class="text-center mb-8">
-                <div class="flex flex-col items-center mb-6">
-                    <i class="fas fa-book-open text-primary text-4xl mb-4"></i>
-                    <h3 class="text-2xl font-bold mb-2">FreeBookFinder</h3>
-                    <p class="text-gray-400 max-w-md mx-auto">
-                        Making books accessible to everyone, regardless of financial situation.
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-feather-alt text-gold-300 text-2xl mr-3"></i>
+                        <h3 class="text-2xl font-serif font-bold">Aklat at Pluma</h3>
+                    </div>
+                    <p class="text-moss-300 text-sm mb-4 font-serif italic">
+                        "Books and quill" — a sanctuary for literature lovers
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-moss-300 hover:text-gold-300"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-moss-300 hover:text-gold-300"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-moss-300 hover:text-gold-300"><i class="fab fa-goodreads"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-serif font-bold text-lg mb-4">Literary Collections</h4>
+                    <ul class="space-y-2 text-moss-300">
+                        <li><a href="#" class="hover:text-gold-300 transition-colors">Filipino Literature</a></li>
+                        <li><a href="#" class="hover:text-gold-300 transition-colors">Public Domain Classics</a></li>
+                        <li><a href="#" class="hover:text-gold-300 transition-colors">Poetry Collections</a></li>
+                        <li><a href="#" class="hover:text-gold-300 transition-colors">Academic Texts</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-serif font-bold text-lg mb-4">About Our Mission</h4>
+                    <p class="text-moss-300 text-sm mb-4">
+                        We believe literature should be accessible to all. Aklat at Pluma provides a beautiful, ethical
+                        gateway to free books.
                     </p>
                 </div>
             </div>
 
-            <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
-                <p>&copy; 2026 FreeBookFinder. All book rights belong to their respective owners.</p>
-                <p class="mt-2 text-sm">This is a search aggregator. We do not host any copyrighted material.</p>
+            <div class="border-t border-moss-800 pt-8 text-center">
+                <div class="mb-4 p-4 bg-moss-800/50 rounded-xl">
+                    <p class="text-moss-300 text-sm italic">
+                        <i class="fas fa-info-circle text-gold-300 mr-2"></i>
+                        <strong>Disclaimer:</strong> Aklat at Pluma does not host, own, or distribute any books. All
+                        book data is sourced from publicly available APIs such as Open Library, Google Books, and
+                        Project Gutenberg. External websites are linked for reference only. All rights to books and
+                        content belong to their respective authors, publishers, and platforms.
+                    </p>
+                </div>
+                <p class="text-moss-400 text-sm">
+                    &copy; 2024 Aklat at Pluma. Made with <i class="fas fa-heart text-gold-300 mx-1"></i> for literature
+                    lovers.
+                </p>
             </div>
         </div>
     </footer>
@@ -485,7 +569,7 @@
             }
         }
 
-        async function performRemoteSearch(title, author, requestedLimit=20) {
+        async function performRemoteSearch(title, author, requestedLimit = 20) {
             if (!title) return [];
             showLoading(true);
             try {
