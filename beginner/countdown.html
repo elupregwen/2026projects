@@ -3,37 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghibli Countdown Timer</title>
+    <title>Countdown Timer</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        ghibli: {
-                            blue: '#9AD0F3',
-                            green: '#8BCF7C',
-                            pink: '#F9B5AC',
-                            yellow: '#F7E967',
-                            brown: '#8B6D5E',
-                            gray: '#D9E0E7'
+                        primary: {
+                            DEFAULT: '#3B82F6',
+                            dark: '#1E40AF'
+                        },
+                        secondary: {
+                            DEFAULT: '#10B981',
+                            dark: '#047857'
                         }
                     },
-                    fontFamily: {
-                        'ghibli': ['"M PLUS Rounded 1c"', 'Arial Rounded MT Bold', 'sans-serif'],
-                    },
                     animation: {
-                        'float-slow': 'float 6s ease-in-out infinite',
-                        'float-medium': 'float 4s ease-in-out infinite',
-                        'float-fast': 'float 3s ease-in-out infinite',
-                        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
-                        'sway': 'sway 8s ease-in-out infinite',
-                        'bob': 'bob 5s ease-in-out infinite',
-                        'twinkle': 'twinkle 3s ease-in-out infinite',
-                        'cloud-float': 'cloud-float 60s linear infinite',
-                        'soot-float': 'soot-float 20s linear infinite',
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'pulse-subtle': 'pulseSubtle 2s infinite'
                     }
                 }
             }
@@ -43,361 +35,167 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
-    <!-- Google Fonts for Ghibli style -->
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(2deg); }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        @keyframes sway {
-            0%, 100% { transform: rotate(-2deg); }
-            50% { transform: rotate(2deg); }
+        @keyframes slideUp {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        @keyframes bob {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+        @keyframes pulseSubtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
         }
 
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 15px rgba(154, 208, 243, 0.6); }
-            50% { box-shadow: 0 0 30px rgba(154, 208, 243, 0.9); }
+        .dark .glass-card {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        @keyframes cloud-float {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100vw); }
+        .card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        @keyframes soot-float {
-            0% { transform: translateY(0) translateX(0); }
-            25% { transform: translateY(-15px) translateX(10px); }
-            50% { transform: translateY(-5px) translateX(20px); }
-            75% { transform: translateY(-20px) translateX(5px); }
-            100% { transform: translateY(0) translateX(0); }
+        .dark .card {
+            background: #1f2937;
+            border: 1px solid #374151;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
         }
 
-        @keyframes leaf-fall {
-            0% { transform: translateY(-100px) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s, color 0.3s;
         }
 
-        .ghibli-bg {
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            transition: background-image 1.5s ease-in-out;
-        }
-
-        .glass-ghibli {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-        }
-
-        .glass-dark {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(12px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .theme-btn.active {
-            transform: scale(1.05);
-            border-width: 3px;
-            border-color: white;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
-        }
-
-        .totoro-ears {
-            position: relative;
-        }
-
-        .totoro-ears:before, .totoro-ears:after {
-            content: '';
-            position: absolute;
-            width: 30px;
-            height: 40px;
-            background: #8B6D5E;
-            border-radius: 50% 50% 40% 40%;
-            top: -35px;
-        }
-
-        .totoro-ears:before {
-            left: 15px;
-            transform: rotate(-15deg);
-        }
-
-        .totoro-ears:after {
-            right: 15px;
-            transform: rotate(15deg);
-        }
-
-        .calcifer-fire {
-            background: radial-gradient(circle, #FF6B35 0%, #FF9E00 30%, #FFDD00 70%, transparent 100%);
-            animation: pulse-glow 1.5s infinite alternate;
-        }
-
-        .soot-sprite {
-            width: 20px;
-            height: 20px;
-            background: black;
-            border-radius: 50%;
-            position: absolute;
-            animation: soot-float linear infinite;
-        }
-
-        .leaf {
-            position: absolute;
-            width: 25px;
-            height: 25px;
-            background: #8BCF7C;
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            opacity: 0;
-            z-index: 1;
-        }
-
-        .cloud {
-            position: absolute;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            z-index: 1;
+        .theme-transition {
+            transition: all 0.3s ease;
         }
     </style>
 </head>
 
-<body class="ghibli-bg min-h-screen flex items-center justify-center p-4 font-ghibli" style="background-image: url('https://images.unsplash.com/photo-1622737133809-d95047b9e673?q=80&w=2069&auto=format&fit=crop'); background-attachment: fixed;">
+<body class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 transition-colors duration-300">
+    <!-- Theme Toggle -->
+    <button id="themeToggle" class="fixed top-4 right-4 z-50 p-3 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300">
+        <i id="themeIcon" class="fas fa-moon text-gray-800 dark:text-yellow-300"></i>
+    </button>
 
-    <!-- Animated Background Elements -->
-    <div id="backgroundElements">
-        <!-- Clouds will be generated here -->
-        <div class="cloud w-32 h-16 top-10 animate-cloud-float" style="animation-duration: 80s;"></div>
-        <div class="cloud w-40 h-20 top-32 animate-cloud-float" style="animation-duration: 100s; animation-delay: -20s;"></div>
-        <div class="cloud w-24 h-12 top-64 animate-cloud-float" style="animation-duration: 70s; animation-delay: -40s;"></div>
-        
-        <!-- Leaves will be generated here -->
-    </div>
-
-    <div class="container max-w-6xl mx-auto relative z-10">
-        <!-- Header with Totoro -->
-        <div class="text-center mb-12 animate-float-slow">
-            <div class="inline-block relative mb-6 totoro-ears">
-                <div class="w-24 h-32 bg-ghibli-brown rounded-full relative">
-                    <!-- Totoro body -->
-                    <div class="absolute w-full h-16 bg-ghibli-brown rounded-full bottom-0"></div>
-                    <!-- Totoro eyes -->
-                    <div class="absolute w-4 h-6 bg-white rounded-full top-10 left-8"></div>
-                    <div class="absolute w-4 h-6 bg-white rounded-full top-10 right-8"></div>
-                    <!-- Totoro pupils -->
-                    <div class="absolute w-2 h-4 bg-black rounded-full top-12 left-9"></div>
-                    <div class="absolute w-2 h-4 bg-black rounded-full top-12 right-9"></div>
-                    <!-- Totoro nose -->
-                    <div class="absolute w-3 h-3 bg-black rounded-full top-16 left-1/2 transform -translate-x-1/2"></div>
-                    <!-- Totoro belly -->
-                    <div class="absolute w-16 h-10 bg-ghibli-gray rounded-full bottom-6 left-1/2 transform -translate-x-1/2"></div>
-                </div>
-            </div>
-            
-            <h1 class="text-5xl md:text-7xl font-bold text-white mb-4 text-shadow-lg" style="text-shadow: 3px 3px 0 rgba(139, 109, 94, 0.5);">
-                <i class="fas fa-magic mr-4 animate-spin" style="animation-duration: 10s;"></i>Countdown Timer
+    <div class="container max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-12 animate-fade-in">
+            <h1 class="text-4xl md:text-6xl font-bold text-gray-800 dark:text-white mb-4">
+                <i class="fas fa-clock mr-4 text-primary dark:text-primary-dark"></i>Countdown Timer
             </h1>
-            <p class="text-2xl text-ghibli-yellow font-medium animate-pulse">Set your target date and experience the magic</p>
-            <button onclick="toggleSettings()" class="mt-6 glass-ghibli text-ghibli-brown font-bold py-3 px-8 rounded-2xl hover:scale-105 transform transition-all border-2 border-ghibli-yellow animate-bob">
-                <i class="fas fa-film mr-2"></i>Settings
-            </button>
-        </div>
-
-        <!-- Theme Selection Panel -->
-        <div id="themePanel" class="glass-ghibli rounded-3xl p-8 mb-8 max-w-5xl mx-auto hidden">
-            <h3 class="text-3xl font-bold text-ghibli-brown mb-6 text-center"><i class="fas fa-palette mr-3"></i>Ghibli Theme Selection</h3>
-            
-            <div class="mb-8">
-                <h4 class="text-xl font-bold text-ghibli-brown mb-4">Featured Themes</h4>
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <button onclick="changeTheme('all-ghibli')" class="theme-btn glass-ghibli p-4 rounded-2xl text-center hover:scale-105 transition-all active">
-                        <div class="w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center" style="background: linear-gradient(135deg, #9AD0F3, #8BCF7C, #F9B5AC, #F7E967);">
-                            <i class="fas fa-star text-2xl text-white"></i>
-                        </div>
-                        <span class="font-bold text-ghibli-brown">All Ghibli</span>
-                    </button>
-                    
-                    <button onclick="changeTheme('howls-castle')" class="theme-btn glass-ghibli p-4 rounded-2xl text-center hover:scale-105 transition-all">
-                        <div class="w-16 h-16 rounded-full mx-auto mb-3" style="background: linear-gradient(135deg, #FF9A8B, #FF6B9D, #FFDD00);"></div>
-                        <span class="font-bold text-ghibli-brown">Howl's Moving Castle</span>
-                    </button>
-                    
-                    <button onclick="changeTheme('ponyo')" class="theme-btn glass-ghibli p-4 rounded-2xl text-center hover:scale-105 transition-all">
-                        <div class="w-16 h-16 rounded-full mx-auto mb-3" style="background: linear-gradient(135deg, #9AD0F3, #FF6B9D);"></div>
-                        <span class="font-bold text-ghibli-brown">Ponyo</span>
-                    </button>
-                    
-                    <button onclick="changeTheme('spirited-away')" class="theme-btn glass-ghibli p-4 rounded-2xl text-center hover:scale-105 transition-all">
-                        <div class="w-16 h-16 rounded-full mx-auto mb-3" style="background: linear-gradient(135deg, #FF6B35, #8B6D5E, #D9E0E7);"></div>
-                        <span class="font-bold text-ghibli-brown">Spirited Away</span>
-                    </button>
-                    
-                    <button onclick="changeTheme('mononoke')" class="theme-btn glass-ghibli p-4 rounded-2xl text-center hover:scale-105 transition-all">
-                        <div class="w-16 h-16 rounded-full mx-auto mb-3" style="background: linear-gradient(135deg, #8BCF7C, #5A7D5A, #3C5C3C);"></div>
-                        <span class="font-bold text-ghibli-brown">Princess Mononoke</span>
-                    </button>
-                    
-                    <button onclick="changeTheme('arrietty')" class="theme-btn glass-ghibli p-4 rounded-2xl text-center hover:scale-105 transition-all">
-                        <div class="w-16 h-16 rounded-full mx-auto mb-3" style="background: linear-gradient(135deg, #8BCF7C, #F7E967, #9AD0F3);"></div>
-                        <span class="font-bold text-ghibli-brown">Arrietty</span>
-                    </button>
-                    
-                    <button onclick="changeTheme('grave-fireflies')" class="theme-btn glass-ghibli p-4 rounded-2xl text-center hover:scale-105 transition-all">
-                        <div class="w-16 h-16 rounded-full mx-auto mb-3" style="background: linear-gradient(135deg, #FF6B35, #8B6D5E, #333333);"></div>
-                        <span class="font-bold text-ghibli-brown">Grave of the Fireflies</span>
-                    </button>
-                    
-                    <button onclick="changeTheme('kiki')" class="theme-btn glass-ghibli p-4 rounded-2xl text-center hover:scale-105 transition-all">
-                        <div class="w-16 h-16 rounded-full mx-auto mb-3" style="background: linear-gradient(135deg, #9AD0F3, #FF6B9D, #F7E967);"></div>
-                        <span class="font-bold text-ghibli-brown">Kiki's Delivery</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Custom Background Upload -->
-            <div class="glass-dark rounded-2xl p-6 mb-6">
-                <h4 class="text-xl font-bold text-white mb-4"><i class="fas fa-image mr-2"></i>Upload Custom Background</h4>
-                <div class="flex flex-col md:flex-row gap-4 items-center">
-                    <input type="file" id="backgroundUpload" accept="image/*" class="flex-grow px-4 py-3 rounded-xl bg-white/20 text-white border-2 border-ghibli-blue focus:border-ghibli-pink focus:outline-none transition-all">
-                    <button onclick="uploadBackground()" class="glass-ghibli text-ghibli-brown font-bold py-3 px-6 rounded-xl hover:scale-105 transition-all">
-                        <i class="fas fa-upload mr-2"></i>Upload
-                    </button>
-                    <button onclick="resetBackground()" class="glass-dark text-white font-bold py-3 px-6 rounded-xl hover:scale-105 transition-all">
-                        <i class="fas fa-redo mr-2"></i>Reset
-                    </button>
-                </div>
-                <p class="text-gray-300 text-sm mt-3">Upload your own image to use as a custom background for the timer</p>
-            </div>
-
-            <!-- Animation Settings -->
-            <div class="mb-6">
-                <h4 class="text-xl font-bold text-white mb-4"><i class="fas fa-film mr-2"></i>Animation Settings</h4>
-                <select id="animationSpeed" class="w-full px-4 py-3 rounded-xl glass-dark text-white focus:outline-none">
-                    <option value="slow">Slow & Magical</option>
-                    <option value="normal" selected>Normal Ghibli Style</option>
-                    <option value="fast">Fast & Whimsical</option>
-                    <option value="none">Minimal Animation</option>
-                </select>
-                <div class="mt-4 flex items-center">
-                    <input type="checkbox" id="enableLeaves" checked class="w-5 h-5 mr-3">
-                    <label for="enableLeaves" class="text-white">Falling Leaves Animation</label>
-                </div>
-                <div class="mt-2 flex items-center">
-                    <input type="checkbox" id="enableClouds" checked class="w-5 h-5 mr-3">
-                    <label for="enableClouds" class="text-white">Floating Clouds</label>
-                </div>
-            </div>
-
-            <div class="text-center">
-                <button onclick="toggleSettings()" class="bg-ghibli-blue text-white font-bold py-3 px-8 rounded-2xl hover:scale-105 transform transition-all animate-pulse-glow">
-                    <i class="fas fa-check mr-2"></i>Apply Settings
-                </button>
-            </div>
+            <p class="text-xl text-gray-600 dark:text-gray-300">Set your target date and track the countdown</p>
         </div>
 
         <!-- Main Timer Input -->
-        <div class="glass-ghibli rounded-3xl p-8 mb-8 max-w-2xl mx-auto animate-float-medium">
+        <div class="card rounded-2xl p-6 md:p-8 mb-8 max-w-2xl mx-auto animate-slide-up">
             <div class="grid md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-ghibli-brown text-lg font-bold mb-3">
-                        <i class="fas fa-calendar-alt mr-2 animate-sway"></i>Target Date
+                    <label class="block text-gray-700 dark:text-gray-300 text-lg font-semibold mb-3">
+                        <i class="fas fa-calendar-alt mr-2"></i>Target Date
                     </label>
-                    <input type="date" id="targetDate" class="w-full px-5 py-4 rounded-2xl glass-dark text-white border-2 border-ghibli-blue focus:border-ghibli-pink focus:outline-none transition-all text-lg">
+                    <input type="date" id="targetDate" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
                 </div>
                 <div>
-                    <label class="block text-ghibli-brown text-lg font-bold mb-3">
-                        <i class="fas fa-clock mr-2 animate-spin" style="animation-duration: 5s;"></i>Target Time
+                    <label class="block text-gray-700 dark:text-gray-300 text-lg font-semibold mb-3">
+                        <i class="fas fa-clock mr-2"></i>Target Time
                     </label>
-                    <input type="time" id="targetTime" class="w-full px-5 py-4 rounded-2xl glass-dark text-white border-2 border-ghibli-blue focus:border-ghibli-pink focus:outline-none transition-all text-lg">
+                    <input type="time" id="targetTime" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
                 </div>
             </div>
             <div class="mt-8">
-                <label class="block text-ghibli-brown text-lg font-bold mb-3">
-                    <i class="fas fa-tag mr-2 animate-bob"></i>Event Name
+                <label class="block text-gray-700 dark:text-gray-300 text-lg font-semibold mb-3">
+                    <i class="fas fa-tag mr-2"></i>Event Name
                 </label>
-                <input type="text" id="eventName" placeholder="e.g., Howl's Birthday, Ponyo's Visit, Spirited Away Day..." class="w-full px-5 py-4 rounded-2xl glass-dark text-white placeholder-gray-400 border-2 border-ghibli-blue focus:border-ghibli-pink focus:outline-none transition-all text-lg">
+                <input type="text" id="eventName" placeholder="e.g., Birthday, Meeting, Vacation..." class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 border border-gray-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
             </div>
             
-            <!-- Calcifer Fire Start Button -->
+            <!-- Start Button -->
             <div class="text-center mt-10">
-                <button onclick="startCountdown()" class="relative overflow-hidden py-5 px-12 rounded-3xl font-bold text-2xl text-white transform hover:scale-105 transition-all pulse-glow" style="background: linear-gradient(to bottom, #FF6B35, #FF9E00, #FFDD00);">
-                    <i class="fas fa-fire mr-3"></i>Start Countdown
-                    <div class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-24 h-6 calcifer-fire rounded-full blur-md"></div>
+                <button onclick="startCountdown()" class="bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary dark:from-blue-600 dark:to-blue-800 text-white font-semibold py-4 px-12 rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                    <i class="fas fa-play mr-3"></i>Start Countdown
                 </button>
             </div>
         </div>
 
         <!-- Event Title Display -->
-        <div id="eventTitle" class="text-center mb-10 hidden">
-            <div class="inline-block glass-ghibli px-10 py-6 rounded-3xl animate-float-slow">
-                <h2 class="text-4xl md:text-5xl font-bold text-ghibli-brown"></h2>
+        <div id="eventTitle" class="text-center mb-10 hidden animate-fade-in">
+            <div class="inline-block bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary-dark/20 dark:to-secondary-dark/20 px-8 py-5 rounded-2xl">
+                <h2 class="text-2xl md:text-4xl font-bold text-gray-800 dark:text-white"></h2>
             </div>
         </div>
 
         <!-- Countdown Display -->
-        <div id="countdownDisplay" class="hidden">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+        <div id="countdownDisplay" class="hidden animate-slide-up">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
                 <!-- Days -->
-                <div class="glass-ghibli rounded-3xl p-8 text-center transform hover:scale-105 transition-all animate-float-slow">
-                    <div class="text-6xl md:text-8xl font-bold text-ghibli-blue mb-4" id="days">00</div>
-                    <div class="text-ghibli-brown text-2xl font-bold">Days</div>
-                    <div class="mt-4 text-ghibli-green"><i class="fas fa-leaf text-3xl"></i></div>
+                <div class="card rounded-xl p-6 text-center transform hover:scale-[1.02] transition-all duration-300">
+                    <div class="text-4xl md:text-6xl font-bold text-primary dark:text-primary-dark mb-3" id="days">00</div>
+                    <div class="text-gray-700 dark:text-gray-300 text-xl font-semibold">Days</div>
+                    <div class="mt-4 text-primary/50 dark:text-primary-dark/50">
+                        <i class="fas fa-calendar-day text-2xl"></i>
+                    </div>
                 </div>
                 <!-- Hours -->
-                <div class="glass-ghibli rounded-3xl p-8 text-center transform hover:scale-105 transition-all animate-float-medium" style="animation-delay: 0.5s;">
-                    <div class="text-6xl md:text-8xl font-bold text-ghibli-green mb-4" id="hours">00</div>
-                    <div class="text-ghibli-brown text-2xl font-bold">Hours</div>
-                    <div class="mt-4 text-ghibli-pink"><i class="fas fa-water text-3xl"></i></div>
+                <div class="card rounded-xl p-6 text-center transform hover:scale-[1.02] transition-all duration-300" style="animation-delay: 0.1s;">
+                    <div class="text-4xl md:text-6xl font-bold text-secondary dark:text-secondary-dark mb-3" id="hours">00</div>
+                    <div class="text-gray-700 dark:text-gray-300 text-xl font-semibold">Hours</div>
+                    <div class="mt-4 text-secondary/50 dark:text-secondary-dark/50">
+                        <i class="fas fa-hourglass-half text-2xl"></i>
+                    </div>
                 </div>
                 <!-- Minutes -->
-                <div class="glass-ghibli rounded-3xl p-8 text-center transform hover:scale-105 transition-all animate-float-fast" style="animation-delay: 1s;">
-                    <div class="text-6xl md:text-8xl font-bold text-ghibli-pink mb-4" id="minutes">00</div>
-                    <div class="text-ghibli-brown text-2xl font-bold">Minutes</div>
-                    <div class="mt-4 text-ghibli-yellow"><i class="fas fa-star text-3xl"></i></div>
+                <div class="card rounded-xl p-6 text-center transform hover:scale-[1.02] transition-all duration-300" style="animation-delay: 0.2s;">
+                    <div class="text-4xl md:text-6xl font-bold text-purple-600 dark:text-purple-400 mb-3" id="minutes">00</div>
+                    <div class="text-gray-700 dark:text-gray-300 text-xl font-semibold">Minutes</div>
+                    <div class="mt-4 text-purple-600/50 dark:text-purple-400/50">
+                        <i class="fas fa-clock text-2xl"></i>
+                    </div>
                 </div>
                 <!-- Seconds -->
-                <div class="glass-ghibli rounded-3xl p-8 text-center transform hover:scale-105 transition-all animate-float-slow" style="animation-delay: 1.5s;">
-                    <div class="text-6xl md:text-8xl font-bold text-ghibli-yellow mb-4" id="seconds">00</div>
-                    <div class="text-ghibli-brown text-2xl font-bold">Seconds</div>
-                    <div class="mt-4 text-ghibli-blue"><i class="fas fa-magic text-3xl"></i></div>
+                <div class="card rounded-xl p-6 text-center transform hover:scale-[1.02] transition-all duration-300" style="animation-delay: 0.3s;">
+                    <div class="text-4xl md:text-6xl font-bold text-amber-600 dark:text-amber-400 mb-3" id="seconds">00</div>
+                    <div class="text-gray-700 dark:text-gray-300 text-xl font-semibold">Seconds</div>
+                    <div class="mt-4 text-amber-600/50 dark:text-amber-400/50">
+                        <i class="fas fa-stopwatch text-2xl"></i>
+                    </div>
                 </div>
             </div>
 
             <!-- Reset Button -->
             <div class="text-center mt-12">
-                <button onclick="resetCountdown()" class="glass-ghibli text-ghibli-brown font-bold py-4 px-10 rounded-2xl hover:scale-105 transform transition-all border-2 border-ghibli-brown animate-bob">
+                <button onclick="resetCountdown()" class="px-8 py-3 rounded-xl bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-semibold transform hover:scale-105 transition-all duration-300">
                     <i class="fas fa-redo mr-3"></i>Reset Timer
                 </button>
             </div>
         </div>
 
         <!-- Completed Message -->
-        <div id="completedMessage" class="hidden text-center max-w-2xl mx-auto">
-            <div class="glass-ghibli rounded-3xl p-12 relative overflow-hidden">
-                <!-- Soot sprites -->
-                <div class="soot-sprite top-6 left-10" style="animation-duration: 15s;"></div>
-                <div class="soot-sprite top-10 right-16" style="animation-duration: 18s; animation-delay: 2s;"></div>
-                <div class="soot-sprite bottom-16 left-20" style="animation-duration: 12s; animation-delay: 4s;"></div>
-                
-                <i class="fas fa-trophy text-8xl text-ghibli-yellow mb-8 animate-bob"></i>
-                <h2 class="text-5xl font-bold text-ghibli-brown mb-6">Time's Up!</h2>
-                <p class="text-2xl text-ghibli-brown mb-10">Your magical countdown has reached zero!</p>
-                <button onclick="resetCountdown()" class="bg-ghibli-green text-white font-bold py-5 px-12 rounded-2xl hover:scale-105 transform transition-all">
-                    <i class="fas fa-magic mr-3"></i>Start New Countdown
+        <div id="completedMessage" class="hidden text-center max-w-2xl mx-auto animate-fade-in">
+            <div class="card rounded-2xl p-8 md:p-12">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
+                    <i class="fas fa-check text-3xl text-white"></i>
+                </div>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">Countdown Complete!</h2>
+                <p class="text-xl text-gray-600 dark:text-gray-300 mb-8">Your countdown has reached zero!</p>
+                <button onclick="resetCountdown()" class="bg-gradient-to-r from-secondary to-secondary-dark hover:from-secondary-dark hover:to-secondary dark:from-emerald-600 dark:to-emerald-800 text-white font-semibold py-4 px-10 rounded-xl transform hover:scale-105 transition-all duration-300">
+                    <i class="fas fa-plus mr-3"></i>New Countdown
                 </button>
             </div>
         </div>
@@ -406,118 +204,37 @@
     <script>
         let countdownInterval;
         let targetDateTime;
-        let currentThemeName = 'all-ghibli';
-        let customBackground = null;
-        let leavesInterval;
-        let sootSprites = [];
 
-        // Ghibli Themes Configuration
-        const ghibliThemes = {
-            'all-ghibli': {
-                name: 'All Ghibli',
-                background: 'https://images.unsplash.com/photo-1622737133809-d95047b9e673?q=80&w=2069&auto=format&fit=crop',
-                colors: {
-                    primary: '#9AD0F3', // Blue
-                    secondary: '#8BCF7C', // Green
-                    accent: '#F9B5AC', // Pink
-                    highlight: '#F7E967', // Yellow
-                    text: '#8B6D5E', // Brown
-                    bg: '#D9E0E7' // Gray
-                }
-            },
-            'howls-castle': {
-                name: 'Howl\'s Moving Castle',
-                background: 'https://images.unsplash.com/photo-1542736667-069246bdbc6d?q=80&w=2071&auto=format&fit=crop',
-                colors: {
-                    primary: '#FF6B9D', // Pink
-                    secondary: '#FFDD00', // Yellow
-                    accent: '#FF9A8B', // Coral
-                    highlight: '#C77DFF', // Purple
-                    text: '#5A3E5C',
-                    bg: '#FFEEDD'
-                }
-            },
-            'ponyo': {
-                name: 'Ponyo',
-                background: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop',
-                colors: {
-                    primary: '#9AD0F3', // Sky Blue
-                    secondary: '#FF6B9D', // Pink
-                    accent: '#FFDD00', // Yellow
-                    highlight: '#FFFFFF', // White
-                    text: '#2C5F8F',
-                    bg: '#E3F2FD'
-                }
-            },
-            'spirited-away': {
-                name: 'Spirited Away',
-                background: 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?q=80&w=2067&auto=format&fit=crop',
-                colors: {
-                    primary: '#FF6B35', // Orange
-                    secondary: '#8B6D5E', // Brown
-                    accent: '#D9E0E7', // Gray
-                    highlight: '#FFDD00', // Gold
-                    text: '#5A3E36',
-                    bg: '#FFE8D6'
-                }
-            },
-            'mononoke': {
-                name: 'Princess Mononoke',
-                background: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2070&auto=format&fit=crop',
-                colors: {
-                    primary: '#8BCF7C', // Green
-                    secondary: '#5A7D5A', // Dark Green
-                    accent: '#3C5C3C', // Forest Green
-                    highlight: '#D9B779', // Tan
-                    text: '#2C4D2C',
-                    bg: '#E8F5E8'
-                }
-            },
-            'arrietty': {
-                name: 'Arrietty',
-                background: 'https://images.unsplash.com/photo-1493246507139-91e8fad9978e?q=80&w=2070&auto=format&fit=crop',
-                colors: {
-                    primary: '#8BCF7C', // Green
-                    secondary: '#F7E967', // Yellow
-                    accent: '#9AD0F3', // Blue
-                    highlight: '#F9B5AC', // Pink
-                    text: '#5A6D5A',
-                    bg: '#F0F8E8'
-                }
-            },
-            'grave-fireflies': {
-                name: 'Grave of the Fireflies',
-                background: 'https://images.unsplash.com/photo-1476820865390-c52aeebb9891?q=80&w=2070&auto=format&fit=crop',
-                colors: {
-                    primary: '#FF6B35', // Orange
-                    secondary: '#8B6D5E', // Brown
-                    accent: '#333333', // Dark Gray
-                    highlight: '#FF9E00', // Amber
-                    text: '#4A3A30',
-                    bg: '#FFF3E0'
-                }
-            },
-            'kiki': {
-                name: 'Kiki\'s Delivery Service',
-                background: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop',
-                colors: {
-                    primary: '#9AD0F3', // Blue
-                    secondary: '#FF6B9D', // Pink
-                    accent: '#F7E967', // Yellow
-                    highlight: '#FFFFFF', // White
-                    text: '#4A6B8F',
-                    bg: '#E8F4FD'
-                }
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        // Check for saved theme or prefer-color-scheme
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const savedTheme = localStorage.getItem('theme');
+        
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+            document.documentElement.classList.add('dark');
+            themeIcon.classList.remove('fa-moon');
+            themeIcon.classList.add('fa-sun');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
             }
-        };
+        });
 
-        // Initialize with default theme
+        // Initialize
         function init() {
-            changeTheme('all-ghibli');
-            createClouds();
-            startLeavesAnimation();
-            createSootSprites();
-            
             // Set minimum date to today
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('targetDate').setAttribute('min', today);
@@ -528,207 +245,25 @@
             document.getElementById('targetTime').value = nextHour.toTimeString().substring(0, 5);
         }
 
-        // Theme change function
-        function changeTheme(themeName) {
-            currentThemeName = themeName;
-            const theme = ghibliThemes[themeName];
-            
-            // Update active button
-            document.querySelectorAll('.theme-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.closest('.theme-btn').classList.add('active');
-            
-            // Apply background if no custom background is set
-            if (!customBackground) {
-                document.body.style.backgroundImage = `url('${theme.background}')`;
-            }
-            
-            // Update timer colors
-            document.getElementById('days').style.color = theme.colors.primary;
-            document.getElementById('hours').style.color = theme.colors.secondary;
-            document.getElementById('minutes').style.color = theme.colors.accent;
-            document.getElementById('seconds').style.color = theme.colors.highlight;
-            
-            // Update other theme elements
-            document.querySelectorAll('h1, h2, h3').forEach(el => {
-                if (!el.closest('#completedMessage') && !el.closest('#countdownDisplay')) {
-                    el.style.color = theme.colors.text;
-                }
-            });
-            
-            // Update buttons with theme colors
-            const startBtn = document.querySelector('button[onclick="startCountdown()"]');
-            if (startBtn) {
-                startBtn.style.background = `linear-gradient(to bottom, ${theme.colors.primary}, ${theme.colors.secondary})`;
-            }
-        }
-
-        // Toggle settings panel
-        function toggleSettings() {
-            const panel = document.getElementById('themePanel');
-            panel.classList.toggle('hidden');
-            
-            if (!panel.classList.contains('hidden')) {
-                // Highlight current theme button
-                document.querySelectorAll('.theme-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    if (btn.querySelector('span').textContent === ghibliThemes[currentThemeName].name) {
-                        btn.classList.add('active');
-                    }
-                });
-            }
-        }
-
-        // Background upload
-        function uploadBackground() {
-            const fileInput = document.getElementById('backgroundUpload');
-            if (fileInput.files && fileInput.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    customBackground = e.target.result;
-                    document.body.style.backgroundImage = `url('${customBackground}')`;
-                };
-                reader.readAsDataURL(fileInput.files[0]);
-            }
-        }
-
-        // Reset to default background
-        function resetBackground() {
-            customBackground = null;
-            document.body.style.backgroundImage = `url('${ghibliThemes[currentThemeName].background}')`;
-            document.getElementById('backgroundUpload').value = '';
-        }
-
-        // Create animated clouds
-        function createClouds() {
-            const bgElements = document.getElementById('backgroundElements');
-            if (!document.getElementById('enableClouds').checked) return;
-            
-            for (let i = 0; i < 5; i++) {
-                const cloud = document.createElement('div');
-                cloud.className = 'cloud';
-                cloud.style.width = `${Math.random() * 60 + 40}px`;
-                cloud.style.height = `${Math.random() * 30 + 20}px`;
-                cloud.style.top = `${Math.random() * 80 + 5}%`;
-                cloud.style.left = `${Math.random() * 20 - 10}%`;
-                cloud.style.opacity = `${Math.random() * 0.5 + 0.5}`;
-                cloud.style.animationDuration = `${Math.random() * 40 + 60}s`;
-                cloud.style.animationDelay = `${Math.random() * 30}s`;
-                cloud.classList.add('animate-cloud-float');
-                bgElements.appendChild(cloud);
-            }
-        }
-
-        // Create falling leaves animation
-        function startLeavesAnimation() {
-            if (!document.getElementById('enableLeaves').checked) return;
-            
-            clearInterval(leavesInterval);
-            leavesInterval = setInterval(() => {
-                const leaf = document.createElement('div');
-                leaf.className = 'leaf';
-                leaf.style.left = `${Math.random() * 100}vw`;
-                leaf.style.animation = `leaf-fall ${Math.random() * 5 + 8}s linear`;
-                leaf.style.animationDelay = `${Math.random() * 2}s`;
-                
-                // Random leaf color
-                const colors = ['#8BCF7C', '#7CB56C', '#9AD0F3', '#F7E967'];
-                leaf.style.background = colors[Math.floor(Math.random() * colors.length)];
-                
-                document.getElementById('backgroundElements').appendChild(leaf);
-                
-                // Remove leaf after animation
-                setTimeout(() => {
-                    if (leaf.parentNode) {
-                        leaf.parentNode.removeChild(leaf);
-                    }
-                }, 10000);
-            }, 800);
-        }
-
-        // Create soot sprites for completed message
-        function createSootSprites() {
-            const container = document.querySelector('#completedMessage .glass-ghibli');
-            if (!container) return;
-            
-            for (let i = 0; i < 6; i++) {
-                const soot = document.createElement('div');
-                soot.className = 'soot-sprite';
-                soot.style.left = `${Math.random() * 90 + 5}%`;
-                soot.style.top = `${Math.random() * 90 + 5}%`;
-                soot.style.animationDuration = `${Math.random() * 10 + 15}s`;
-                soot.style.animationDelay = `${Math.random() * 5}s`;
-                container.appendChild(soot);
-                sootSprites.push(soot);
-            }
-        }
-
-        // Animation speed control
-        document.getElementById('animationSpeed').addEventListener('change', function(e) {
-            const speed = e.target.value;
-            const durations = { 
-                slow: '2s', 
-                normal: '1s', 
-                fast: '0.5s', 
-                none: '0s' 
-            };
-            
-            document.querySelectorAll('.animate-float-slow, .animate-float-medium, .animate-float-fast, .animate-bob, .animate-sway').forEach(el => {
-                if (speed === 'none') {
-                    el.style.animationPlayState = 'paused';
-                } else {
-                    el.style.animationPlayState = 'running';
-                    el.style.animationDuration = durations[speed];
-                }
-            });
-        });
-
-        // Toggle leaves animation
-        document.getElementById('enableLeaves').addEventListener('change', function() {
-            if (this.checked) {
-                startLeavesAnimation();
-            } else {
-                clearInterval(leavesInterval);
-                document.querySelectorAll('.leaf').forEach(leaf => leaf.remove());
-            }
-        });
-
-        // Toggle clouds
-        document.getElementById('enableClouds').addEventListener('change', function() {
-            const clouds = document.querySelectorAll('.cloud');
-            clouds.forEach(cloud => {
-                cloud.style.display = this.checked ? 'block' : 'none';
-            });
-        });
-
-        // Play Ghibli-style completion sound
+        // Play completion sound
         function playCompletionSound() {
-            // Create wind chime sound
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             
-            // Play multiple notes for a wind chime effect
-            const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-            const times = [0, 0.1, 0.2, 0.3];
+            // Simple completion tone
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
             
-            times.forEach((time, index) => {
-                setTimeout(() => {
-                    const oscillator = audioContext.createOscillator();
-                    const gainNode = audioContext.createGain();
-                    
-                    oscillator.connect(gainNode);
-                    gainNode.connect(audioContext.destination);
-                    
-                    oscillator.frequency.value = notes[index];
-                    oscillator.type = 'sine';
-                    
-                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
-                    
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 1.5);
-                }, time * 1000);
-            });
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 523.25; // C5
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 1);
         }
 
         // Start countdown
@@ -752,7 +287,7 @@
             // Show event name if provided
             const eventTitleDiv = document.getElementById('eventTitle');
             if (eventName.trim()) {
-                eventTitleDiv.querySelector('h2').textContent = `✨ ${eventName} ✨`;
+                eventTitleDiv.querySelector('h2').textContent = eventName;
                 eventTitleDiv.classList.remove('hidden');
             } else {
                 eventTitleDiv.classList.add('hidden');
@@ -760,7 +295,6 @@
 
             document.getElementById('countdownDisplay').classList.remove('hidden');
             document.getElementById('completedMessage').classList.add('hidden');
-            document.getElementById('themePanel').classList.add('hidden');
 
             if (countdownInterval) {
                 clearInterval(countdownInterval);
