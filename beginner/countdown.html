@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,29 +36,55 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    
+
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         @keyframes slideUp {
-            from { transform: translateY(10px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         @keyframes pulseSubtle {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
         }
 
         @keyframes notificationSlide {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .glass-card {
@@ -116,15 +143,24 @@
         }
 
         @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 transition-colors duration-300">
+<body
+    class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4 transition-colors duration-300">
     <!-- Theme Toggle -->
-    <button id="themeToggle" class="fixed top-4 right-4 z-50 p-3 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300">
+    <button id="themeToggle"
+        class="fixed top-4 right-4 z-50 p-3 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transition-all duration-300">
         <i id="themeIcon" class="fas fa-moon text-gray-800 dark:text-yellow-300"></i>
     </button>
 
@@ -153,20 +189,23 @@
                     <label class="block text-gray-700 dark:text-gray-300 text-lg font-semibold mb-3">
                         <i class="fas fa-calendar-alt mr-2"></i>Target Date
                     </label>
-                    <input type="date" id="targetDate" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+                    <input type="date" id="targetDate"
+                        class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
                 </div>
                 <div>
                     <label class="block text-gray-700 dark:text-gray-300 text-lg font-semibold mb-3">
                         <i class="fas fa-clock mr-2"></i>Target Time
                     </label>
-                    <input type="time" id="targetTime" class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+                    <input type="time" id="targetTime"
+                        class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
                 </div>
             </div>
             <div class="mt-8">
                 <label class="block text-gray-700 dark:text-gray-300 text-lg font-semibold mb-3">
                     <i class="fas fa-tag mr-2"></i>Event Name
                 </label>
-                <input type="text" id="eventName" placeholder="e.g., Birthday, Meeting, Vacation..." class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 border border-gray-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
+                <input type="text" id="eventName" placeholder="e.g., Birthday, Meeting, Vacation..."
+                    class="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 border border-gray-300 dark:border-gray-600 focus:border-primary dark:focus:border-primary-dark focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all">
             </div>
 
             <!-- Notification Settings -->
@@ -176,23 +215,30 @@
                 </label>
                 <div class="space-y-3">
                     <div class="flex items-center">
-                        <input type="checkbox" id="tabChangeNotification" checked class="w-5 h-5 mr-3 rounded text-primary focus:ring-primary/20">
-                        <label for="tabChangeNotification" class="text-gray-700 dark:text-gray-300">Notify on tab switch</label>
+                        <input type="checkbox" id="tabChangeNotification" checked
+                            class="w-5 h-5 mr-3 rounded text-primary focus:ring-primary/20">
+                        <label for="tabChangeNotification" class="text-gray-700 dark:text-gray-300">Notify on tab
+                            switch</label>
                     </div>
                     <div class="flex items-center">
-                        <input type="checkbox" id="windowMinimizeNotification" checked class="w-5 h-5 mr-3 rounded text-primary focus:ring-primary/20">
-                        <label for="windowMinimizeNotification" class="text-gray-700 dark:text-gray-300">Notify on window minimize</label>
+                        <input type="checkbox" id="windowMinimizeNotification" checked
+                            class="w-5 h-5 mr-3 rounded text-primary focus:ring-primary/20">
+                        <label for="windowMinimizeNotification" class="text-gray-700 dark:text-gray-300">Notify on
+                            window minimize</label>
                     </div>
                     <div class="flex items-center">
-                        <input type="checkbox" id="soundNotification" checked class="w-5 h-5 mr-3 rounded text-primary focus:ring-primary/20">
-                        <label for="soundNotification" class="text-gray-700 dark:text-gray-300">Play sound with notifications</label>
+                        <input type="checkbox" id="soundNotification" checked
+                            class="w-5 h-5 mr-3 rounded text-primary focus:ring-primary/20">
+                        <label for="soundNotification" class="text-gray-700 dark:text-gray-300">Play sound with
+                            notifications</label>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Start Button -->
             <div class="text-center mt-10">
-                <button onclick="startCountdown()" class="bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary dark:from-blue-600 dark:to-blue-800 text-white font-semibold py-4 px-12 rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                <button onclick="startCountdown()"
+                    class="bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary dark:from-blue-600 dark:to-blue-800 text-white font-semibold py-4 px-12 rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
                     <i class="fas fa-play mr-3"></i>Start Countdown
                 </button>
             </div>
@@ -200,7 +246,8 @@
 
         <!-- Event Title Display -->
         <div id="eventTitle" class="text-center mb-10 hidden animate-fade-in">
-            <div class="inline-block bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary-dark/20 dark:to-secondary-dark/20 px-8 py-5 rounded-2xl">
+            <div
+                class="inline-block bg-gradient-to-r from-primary/10 to-secondary/10 dark:from-primary-dark/20 dark:to-secondary-dark/20 px-8 py-5 rounded-2xl">
                 <h2 class="text-2xl md:text-4xl font-bold text-gray-800 dark:text-white"></h2>
             </div>
         </div>
@@ -210,31 +257,38 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
                 <!-- Days -->
                 <div class="card rounded-xl p-6 text-center transform hover:scale-[1.02] transition-all duration-300">
-                    <div class="text-4xl md:text-6xl font-bold text-primary dark:text-primary-dark mb-3" id="days">00</div>
+                    <div class="text-4xl md:text-6xl font-bold text-primary dark:text-primary-dark mb-3" id="days">00
+                    </div>
                     <div class="text-gray-700 dark:text-gray-300 text-xl font-semibold">Days</div>
                     <div class="mt-4 text-primary/50 dark:text-primary-dark/50">
                         <i class="fas fa-calendar-day text-2xl"></i>
                     </div>
                 </div>
                 <!-- Hours -->
-                <div class="card rounded-xl p-6 text-center transform hover:scale-[1.02] transition-all duration-300" style="animation-delay: 0.1s;">
-                    <div class="text-4xl md:text-6xl font-bold text-secondary dark:text-secondary-dark mb-3" id="hours">00</div>
+                <div class="card rounded-xl p-6 text-center transform hover:scale-[1.02] transition-all duration-300"
+                    style="animation-delay: 0.1s;">
+                    <div class="text-4xl md:text-6xl font-bold text-secondary dark:text-secondary-dark mb-3" id="hours">
+                        00</div>
                     <div class="text-gray-700 dark:text-gray-300 text-xl font-semibold">Hours</div>
                     <div class="mt-4 text-secondary/50 dark:text-secondary-dark/50">
                         <i class="fas fa-hourglass-half text-2xl"></i>
                     </div>
                 </div>
                 <!-- Minutes -->
-                <div class="card rounded-xl p-6 text-center transform hover:scale-[1.02] transition-all duration-300" style="animation-delay: 0.2s;">
-                    <div class="text-4xl md:text-6xl font-bold text-purple-600 dark:text-purple-400 mb-3" id="minutes">00</div>
+                <div class="card rounded-xl p-6 text-center transform hover:scale-[1.02] transition-all duration-300"
+                    style="animation-delay: 0.2s;">
+                    <div class="text-4xl md:text-6xl font-bold text-purple-600 dark:text-purple-400 mb-3" id="minutes">
+                        00</div>
                     <div class="text-gray-700 dark:text-gray-300 text-xl font-semibold">Minutes</div>
                     <div class="mt-4 text-purple-600/50 dark:text-purple-400/50">
                         <i class="fas fa-clock text-2xl"></i>
                     </div>
                 </div>
                 <!-- Seconds -->
-                <div class="card rounded-xl p-6 text-center transform hover:scale-[1.02] transition-all duration-300" style="animation-delay: 0.3s;">
-                    <div class="text-4xl md:text-6xl font-bold text-amber-600 dark:text-amber-400 mb-3" id="seconds">00</div>
+                <div class="card rounded-xl p-6 text-center transform hover:scale-[1.02] transition-all duration-300"
+                    style="animation-delay: 0.3s;">
+                    <div class="text-4xl md:text-6xl font-bold text-amber-600 dark:text-amber-400 mb-3" id="seconds">00
+                    </div>
                     <div class="text-gray-700 dark:text-gray-300 text-xl font-semibold">Seconds</div>
                     <div class="mt-4 text-amber-600/50 dark:text-amber-400/50">
                         <i class="fas fa-stopwatch text-2xl"></i>
@@ -244,7 +298,8 @@
 
             <!-- Reset Button -->
             <div class="text-center mt-12">
-                <button onclick="resetCountdown()" class="px-8 py-3 rounded-xl bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-semibold transform hover:scale-105 transition-all duration-300">
+                <button onclick="resetCountdown()"
+                    class="px-8 py-3 rounded-xl bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-semibold transform hover:scale-105 transition-all duration-300">
                     <i class="fas fa-redo mr-3"></i>Reset Timer
                 </button>
             </div>
@@ -253,12 +308,14 @@
         <!-- Completed Message -->
         <div id="completedMessage" class="hidden text-center max-w-2xl mx-auto animate-fade-in">
             <div class="card rounded-2xl p-8 md:p-12">
-                <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
+                <div
+                    class="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 flex items-center justify-center">
                     <i class="fas fa-check text-3xl text-white"></i>
                 </div>
                 <h2 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">Countdown Complete!</h2>
                 <p class="text-xl text-gray-600 dark:text-gray-300 mb-8">Your countdown has reached zero!</p>
-                <button onclick="resetCountdown()" class="bg-gradient-to-r from-secondary to-secondary-dark hover:from-secondary-dark hover:to-secondary dark:from-emerald-600 dark:to-emerald-800 text-white font-semibold py-4 px-10 rounded-xl transform hover:scale-105 transition-all duration-300">
+                <button onclick="resetCountdown()"
+                    class="bg-gradient-to-r from-secondary to-secondary-dark hover:from-secondary-dark hover:to-secondary dark:from-emerald-600 dark:to-emerald-800 text-white font-semibold py-4 px-10 rounded-xl transform hover:scale-105 transition-all duration-300">
                     <i class="fas fa-plus mr-3"></i>New Countdown
                 </button>
             </div>
@@ -286,7 +343,7 @@
         // Check for saved theme or prefer-color-scheme
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         const savedTheme = localStorage.getItem('theme');
-        
+
         if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
             document.documentElement.classList.add('dark');
             themeIcon.classList.remove('fa-moon');
@@ -309,11 +366,11 @@
 
         // Tab visibility detection
         document.addEventListener('visibilitychange', handleVisibilityChange);
-        
+
         // Window focus/blur detection
         window.addEventListener('blur', handleWindowBlur);
         window.addEventListener('focus', handleWindowFocus);
-        
+
         // Page minimization detection
         window.addEventListener('resize', handleResize);
         window.addEventListener('beforeunload', handleBeforeUnload);
@@ -323,7 +380,7 @@
                 // Tab became inactive
                 isTabActive = false;
                 document.getElementById('tabStatus').classList.remove('hidden');
-                
+
                 // Show notification if enabled
                 if (notificationSettings.tabChange && canShowNotification()) {
                     showNotification('Tab Switched', 'Timer is running in the background', 'info');
@@ -332,7 +389,7 @@
                 // Tab became active
                 isTabActive = true;
                 document.getElementById('tabStatus').classList.add('hidden');
-                
+
                 if (canShowNotification()) {
                     showNotification('Welcome Back!', 'Timer is now active', 'success');
                 }
@@ -386,16 +443,16 @@
         function showNotification(title, message, type = 'info') {
             // Update settings from checkboxes
             updateNotificationSettings();
-            
+
             if (!notificationSettings.tabChange && type === 'info') return;
             if (!notificationSettings.windowMinimize && type === 'warning') return;
 
             const container = document.getElementById('notificationContainer');
             const notificationId = 'notification-' + Date.now();
-            
+
             // Determine colors based on type
             let bgColor, textColor, icon;
-            switch(type) {
+            switch (type) {
                 case 'warning':
                     bgColor = 'bg-amber-100 dark:bg-amber-900/30';
                     textColor = 'text-amber-800 dark:text-amber-300';
@@ -416,7 +473,7 @@
                     textColor = 'text-blue-800 dark:text-blue-300';
                     icon = 'fas fa-info-circle';
             }
-            
+
             const notification = document.createElement('div');
             notification.id = notificationId;
             notification.className = `notification ${bgColor} ${textColor} rounded-xl p-4 shadow-lg border border-gray-200 dark:border-gray-700`;
@@ -426,21 +483,21 @@
                     <div class="flex-1">
                         <h4 class="font-semibold">${title}</h4>
                         <p class="text-sm mt-1">${message}</p>
-                        <p class="text-xs mt-2 opacity-70">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                        <p class="text-xs mt-2 opacity-70">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                     <button onclick="removeNotification('${notificationId}')" class="ml-3 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             `;
-            
+
             container.appendChild(notification);
-            
+
             // Play sound if enabled
             if (notificationSettings.sound) {
                 playNotificationSound(type);
             }
-            
+
             // Auto-remove notification after 5 seconds
             setTimeout(() => {
                 removeNotification(notificationId);
@@ -463,13 +520,13 @@
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
+
             // Different frequencies for different notification types
             let frequency;
-            switch(type) {
+            switch (type) {
                 case 'warning':
                     frequency = 349.23; // F4
                     break;
@@ -482,13 +539,13 @@
                 default:
                     frequency = 440.00; // A4
             }
-            
+
             oscillator.frequency.value = frequency;
             oscillator.type = 'sine';
-            
+
             gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-            
+
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.5);
         }
@@ -504,15 +561,15 @@
             // Set minimum date to today
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('targetDate').setAttribute('min', today);
-            
+
             // Set default time to next hour
             const nextHour = new Date();
             nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
             document.getElementById('targetTime').value = nextHour.toTimeString().substring(0, 5);
-            
+
             // Load notification settings
             updateNotificationSettings();
-            
+
             // Request notification permission
             if ('Notification' in window && Notification.permission === 'default') {
                 Notification.requestPermission();
@@ -522,20 +579,20 @@
         // Play completion sound
         function playCompletionSound() {
             const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            
+
             // Simple completion tone
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
-            
+
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            
+
             oscillator.frequency.value = 523.25; // C5
             oscillator.type = 'sine';
-            
+
             gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-            
+
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 1);
         }
@@ -552,7 +609,7 @@
             }
 
             targetDateTime = new Date(dateInput + 'T' + timeInput);
-            
+
             if (targetDateTime <= new Date()) {
                 showNotification('Invalid Date', 'Please select a future date and time', 'warning');
                 return;
@@ -576,10 +633,10 @@
 
             updateCountdown();
             countdownInterval = setInterval(updateCountdown, 1000);
-            
+
             // Show start notification
             showNotification('Countdown Started', 'Timer is now running', 'success');
-            
+
             // Send browser notification if allowed
             if ('Notification' in window && Notification.permission === 'granted') {
                 new Notification('Countdown Started', {
@@ -599,10 +656,10 @@
                 document.getElementById('countdownDisplay').classList.add('hidden');
                 document.getElementById('completedMessage').classList.remove('hidden');
                 playCompletionSound();
-                
+
                 // Show completion notification
                 showNotification('Countdown Complete!', 'Timer has reached zero', 'success');
-                
+
                 // Send browser notification if allowed
                 if ('Notification' in window && Notification.permission === 'granted') {
                     new Notification('Countdown Complete!', {
@@ -635,12 +692,12 @@
             document.getElementById('targetDate').value = '';
             document.getElementById('targetTime').value = '';
             document.getElementById('eventName').value = '';
-            
+
             // Reset time to next hour
             const nextHour = new Date();
             nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
             document.getElementById('targetTime').value = nextHour.toTimeString().substring(0, 5);
-            
+
             // Show reset notification
             showNotification('Timer Reset', 'Countdown has been reset', 'info');
         }
@@ -649,4 +706,5 @@
         window.addEventListener('load', init);
     </script>
 </body>
+
 </html>
