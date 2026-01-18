@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Status Monitor</title>
+    <title>GitHub Status Monitor - LIVE</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -21,7 +21,7 @@
         }
         
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
         }
         
@@ -57,11 +57,60 @@
             margin-top: 5px;
         }
         
+        .status-overview {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #161b22;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #30363d;
+        }
+        
+        .overall-status {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .status-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        .status-indicator.operational {
+            background: #3fb950;
+            box-shadow: 0 0 10px rgba(63, 185, 80, 0.5);
+        }
+        
+        .status-indicator.partial {
+            background: #d29922;
+            box-shadow: 0 0 10px rgba(210, 153, 34, 0.5);
+        }
+        
+        .status-indicator.major {
+            background: #f85149;
+            box-shadow: 0 0 10px rgba(248, 81, 73, 0.5);
+        }
+        
+        .overview-text h2 {
+            font-size: 1.5rem;
+            color: #f0f6fc;
+        }
+        
+        .overview-text p {
+            color: #8b949e;
+            font-size: 0.9rem;
+        }
+        
         .controls {
             display: flex;
             justify-content: center;
             gap: 15px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
         
         .btn {
@@ -90,6 +139,11 @@
             transform: translateY(0);
         }
         
+        .btn:focus {
+            outline: 2px solid #58a6ff;
+            outline-offset: 2px;
+        }
+        
         .btn-refresh {
             background: #1f6feb;
         }
@@ -104,6 +158,7 @@
             border: 1px solid #30363d;
             overflow: hidden;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            margin-bottom: 30px;
         }
         
         .status-header {
@@ -113,6 +168,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         
         .status-title {
@@ -143,10 +200,15 @@
             border-bottom: none;
         }
         
+        .status-item:focus-within {
+            background: rgba(88, 166, 255, 0.05);
+        }
+        
         .status-info {
             display: flex;
             align-items: center;
             gap: 15px;
+            flex: 1;
         }
         
         .status-icon {
@@ -163,6 +225,7 @@
         .status-text {
             display: flex;
             flex-direction: column;
+            flex: 1;
         }
         
         .service-name {
@@ -184,6 +247,8 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            min-width: 100px;
+            text-align: center;
         }
         
         /* Status Colors */
@@ -192,21 +257,22 @@
             background: rgba(63, 185, 80, 0.15);
         }
         
-        .degraded, .issues {
+        .degraded {
             color: #d29922;
             background: rgba(210, 153, 34, 0.15);
             animation: pulse 2s infinite;
         }
         
-        .down, .major-outage {
+        .partial {
             color: #f85149;
             background: rgba(248, 81, 73, 0.15);
-            animation: alert 1.5s infinite;
+            animation: pulse 1.5s infinite;
         }
         
-        .maintenance {
-            color: #a371f7;
-            background: rgba(163, 113, 247, 0.15);
+        .major {
+            color: #f85149;
+            background: rgba(248, 81, 73, 0.15);
+            animation: alert 1s infinite;
         }
         
         /* Animations */
@@ -225,18 +291,9 @@
             border-left: 4px solid #d29922;
         }
         
-        .highlighted.down {
+        .highlighted.partial, .highlighted.major {
             background: rgba(248, 81, 73, 0.1);
             border-left-color: #f85149;
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #8b949e;
-            font-size: 0.9rem;
-            padding: 20px;
-            border-top: 1px solid #30363d;
         }
         
         .loading {
@@ -257,10 +314,56 @@
             100% { transform: rotate(360deg); }
         }
         
+        .error {
+            text-align: center;
+            padding: 40px;
+            color: #f85149;
+        }
+        
+        .error i {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+        
+        .data-source {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            background: #161b22;
+            margin-left: 10px;
+        }
+        
+        .data-source.live {
+            color: #3fb950;
+            border: 1px solid rgba(63, 185, 80, 0.3);
+        }
+        
+        .data-source.simulated {
+            color: #d29922;
+            border: 1px solid rgba(210, 153, 34, 0.3);
+        }
+        
+        footer {
+            text-align: center;
+            color: #8b949e;
+            font-size: 0.9rem;
+            padding: 20px;
+            border-top: 1px solid #30363d;
+        }
+        
         /* Responsive Design */
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             .container {
                 padding: 10px;
+            }
+            
+            .status-overview {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
             }
             
             .status-header {
@@ -282,6 +385,10 @@
             .controls {
                 flex-direction: column;
             }
+            
+            .btn {
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -289,162 +396,285 @@
     <div class="container">
         <header>
             <div class="logo">
-                <i class="fab fa-github"></i>
+                <i class="fab fa-github" aria-hidden="true"></i>
                 <h1>GitHub Status Monitor</h1>
             </div>
-            <p class="subtitle">Real-time status of GitHub services and operations</p>
+            <p class="subtitle">Real-time status monitoring of GitHub services</p>
         </header>
         
+        <div class="status-overview" id="overallStatus">
+            <div class="overall-status">
+                <div class="status-indicator operational" id="statusIndicator"></div>
+                <div class="overview-text">
+                    <h2 id="statusTitle">Loading GitHub Status...</h2>
+                    <p id="statusDescription">Checking service availability</p>
+                </div>
+            </div>
+            <div class="data-source simulated" id="dataSource">
+                <i class="fas fa-database"></i>
+                <span>Using Demo Data</span>
+            </div>
+        </div>
+        
         <div class="controls">
-            <button id="getStatus" class="btn">
-                <i class="fas fa-sync-alt"></i> Get Current Status
+            <button id="getStatus" class="btn" aria-label="Get current GitHub status">
+                <i class="fas fa-sync-alt" aria-hidden="true"></i> Get Current Status
             </button>
-            <button id="refresh" class="btn btn-refresh">
-                <i class="fas fa-redo"></i> Auto-refresh (30s)
+            <button id="refresh" class="btn btn-refresh" aria-label="Toggle auto-refresh every 30 seconds">
+                <i class="fas fa-redo" aria-hidden="true"></i> Auto-refresh (30s)
+            </button>
+            <button id="testLive" class="btn" aria-label="Test with live data (CORS proxy)">
+                <i class="fas fa-plug" aria-hidden="true"></i> Try Live Data
             </button>
         </div>
         
         <div class="status-container">
             <div class="status-header">
-                <div class="status-title">GitHub Service Status</div>
+                <div class="status-title">Service Status Details</div>
                 <div class="last-updated" id="lastUpdated">Last updated: Never</div>
             </div>
             
             <div id="loading" class="loading">
-                <i class="fas fa-spinner"></i>
+                <i class="fas fa-spinner" aria-hidden="true"></i>
                 <p>Loading GitHub status data...</p>
             </div>
             
-            <ul class="status-list" id="statusList" style="display: none;">
+            <div id="error" class="error" style="display: none;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Failed to load GitHub status data</p>
+                <p id="errorMessage" style="font-size: 0.8rem; margin-top: 10px;"></p>
+                <button onclick="fetchGitHubStatus()" style="margin-top: 15px; padding: 8px 16px; background: #238636; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.9rem;">Retry</button>
+            </div>
+            
+            <ul class="status-list" id="statusList" style="display: none;" aria-label="GitHub service status list">
                 <!-- Status items will be dynamically inserted here -->
             </ul>
         </div>
         
         <footer>
-            <p>Data sourced from GitHub's official status API. This is a demo application.</p>
-            <p>Project: GitHub Status | Tier: 1-Beginner</p>
+            <p>This tool monitors GitHub's operational status. For official status, visit <a href="https://www.githubstatus.com" style="color: #58a6ff; text-decoration: none;">githubstatus.com</a></p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">Note: Direct API access requires authentication. Use the "Try Live Data" button for CORS-proxied access.</p>
         </footer>
     </div>
 
     <script>
-        // GitHub Status API endpoint
-        const GITHUB_STATUS_API = 'https://www.githubstatus.com/api/v2/components.json';
+        // REAL GitHub Status API endpoints (but they require proper CORS handling)
+        // Note: These endpoints are read-only and don't require authentication
+        const GITHUB_STATUS_API = 'https://www.githubstatus.com/api/v2/summary.json';
+        const GITHUB_COMPONENTS_API = 'https://www.githubstatus.com/api/v2/components.json';
+        
+        // CORS proxy for development (optional - some may have limits)
+        const CORS_PROXY = 'https://corsproxy.io/?';
         
         // DOM elements
         const getStatusBtn = document.getElementById('getStatus');
         const refreshBtn = document.getElementById('refresh');
+        const testLiveBtn = document.getElementById('testLive');
         const statusList = document.getElementById('statusList');
         const lastUpdatedEl = document.getElementById('lastUpdated');
         const loadingEl = document.getElementById('loading');
+        const errorEl = document.getElementById('error');
+        const errorMessageEl = document.getElementById('errorMessage');
+        const dataSourceEl = document.getElementById('dataSource');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusDescription = document.getElementById('statusDescription');
         
         // State
         let autoRefreshInterval = null;
         let isAutoRefresh = false;
+        let useLiveData = false;
         
-        // Service descriptions
+        // Service descriptions for better UX
         const serviceDescriptions = {
-            'Git Operations': 'Git clone, push, pull, and other operations',
-            'API Requests': 'API availability and response times',
-            'Issues, PRs, Projects': 'GitHub Issues, Pull Requests, and Projects',
-            'GitHub Actions': 'CI/CD pipelines and workflows',
-            'GitHub Packages': 'Package registry and delivery',
-            'GitHub Pages': 'Static site hosting and builds',
-            'Notifications': 'Email and web notifications',
-            'Gists': 'Code snippets and sharing',
-            'Operational': 'General system operations',
-            'Dashboard': 'GitHub dashboard and navigation'
+            'Git': 'Git operations: clone, push, pull, fetch',
+            'API Requests': 'REST and GraphQL API endpoints',
+            'Issues': 'GitHub Issues, comments, and reactions',
+            'Pull Requests': 'Pull request creation, review, merging',
+            'Actions': 'CI/CD workflows and jobs',
+            'Packages': 'Package registry (npm, Docker, etc.)',
+            'Pages': 'GitHub Pages site hosting',
+            'Codespaces': 'Cloud development environments',
+            'Copilot': 'AI-powered code completion',
+            'Discussions': 'Community discussions and forums',
+            'Git Operations': 'All Git-related operations',
+            'API': 'All API endpoints and webhooks',
+            'Webhooks': 'Webhook deliveries and events',
+            'Visit www.githubstatus.com': 'Status page itself',
+            'Management Portal': 'Organization and repo management',
+            'Notifications': 'Email and web notifications'
         };
         
-        // Icons for different services
+        // Icons for services
         const serviceIcons = {
-            'Git Operations': 'fas fa-code-branch',
+            'Git': 'fas fa-code-branch',
+            'API': 'fas fa-server',
             'API Requests': 'fas fa-server',
-            'Issues, PRs, Projects': 'fas fa-tasks',
-            'GitHub Actions': 'fas fa-play-circle',
-            'GitHub Packages': 'fas fa-box',
-            'GitHub Pages': 'fas fa-file-code',
+            'Issues': 'fas fa-tasks',
+            'Pull Requests': 'fas fa-code-merge',
+            'Actions': 'fas fa-play-circle',
+            'Packages': 'fas fa-box',
+            'Pages': 'fas fa-file-code',
+            'Codespaces': 'fas fa-laptop-code',
+            'Copilot': 'fas fa-robot',
+            'Discussions': 'fas fa-comments',
+            'Webhooks': 'fas fa-broadcast-tower',
             'Notifications': 'fas fa-bell',
-            'Gists': 'fas fa-code',
-            'Operational': 'fas fa-cogs',
-            'Dashboard': 'fas fa-tachometer-alt'
+            'Management Portal': 'fas fa-cog',
+            'Git Operations': 'fas fa-code-branch'
         };
         
         // Initialize the app
         document.addEventListener('DOMContentLoaded', () => {
-            // Load status on page load
-            fetchGitHubStatus();
+            // Load demo data on page load
+            loadDemoData();
             
             // Button event listeners
-            getStatusBtn.addEventListener('click', fetchGitHubStatus);
-            
+            getStatusBtn.addEventListener('click', loadDemoData);
             refreshBtn.addEventListener('click', toggleAutoRefresh);
+            testLiveBtn.addEventListener('click', fetchLiveData);
+            
+            // Try to load from cache first
+            loadCachedData();
         });
         
-        // Fetch GitHub status from API
-        async function fetchGitHubStatus() {
+        // Load demo data (works without API)
+        async function loadDemoData() {
             try {
-                // Show loading state
-                loadingEl.style.display = 'block';
-                statusList.style.display = 'none';
+                showLoading();
+                useLiveData = false;
                 
-                let components;
+                // Generate realistic demo data
+                const demoData = generateDemoData();
                 
-                try {
-                    // Try to fetch from the actual API
-                    const response = await fetch(GITHUB_STATUS_API);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        components = data.components;
-                    } else {
-                        throw new Error('API request failed');
-                    }
-                } catch (apiError) {
-                    console.log('Using simulated data due to:', apiError.message);
-                    // Use simulated data if API fails (for demo/offline use)
-                    components = getSimulatedStatusData();
-                }
+                // Display the data
+                displayStatus(demoData.components, demoData.status);
                 
-                // Process and display the status data
-                displayStatus(components);
+                // Update UI
+                updateDataSource('demo');
+                updateTimestamp();
                 
-                // Update last updated timestamp
-                const now = new Date();
-                lastUpdatedEl.textContent = `Last updated: ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-                
-                // Hide loading, show status list
-                loadingEl.style.display = 'none';
-                statusList.style.display = 'block';
+                // Cache the data
+                cacheData(demoData, false);
                 
             } catch (error) {
-                console.error('Error fetching GitHub status:', error);
-                loadingEl.innerHTML = `
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <p>Failed to load GitHub status data</p>
-                    <p style="font-size: 0.8rem; margin-top: 10px;">${error.message}</p>
-                    <button onclick="fetchGitHubStatus()" style="margin-top: 15px; padding: 8px 16px; background: #238636; color: white; border: none; border-radius: 4px; cursor: pointer;">Retry</button>
-                `;
+                showError('Failed to load demo data: ' + error.message);
             }
         }
         
+        // Try to fetch live data using CORS proxy
+        async function fetchLiveData() {
+            try {
+                showLoading();
+                useLiveData = true;
+                
+                // Try direct fetch first (might work in some browsers)
+                let apiUrl = GITHUB_STATUS_API;
+                
+                // Add timestamp to avoid cache
+                apiUrl += '?t=' + Date.now();
+                
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    mode: 'cors',
+                    cache: 'no-cache'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    processLiveData(data);
+                } else {
+                    // If direct fetch fails, try with CORS proxy
+                    throw new Error('Direct fetch failed, trying proxy...');
+                }
+                
+            } catch (error) {
+                console.log('Trying CORS proxy:', error.message);
+                try {
+                    // Try with CORS proxy
+                    const proxyUrl = CORS_PROXY + encodeURIComponent(GITHUB_STATUS_API + '?t=' + Date.now());
+                    const response = await fetch(proxyUrl, {
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        processLiveData(data);
+                    } else {
+                        throw new Error('Proxy fetch failed: ' + response.status);
+                    }
+                } catch (proxyError) {
+                    console.error('Both direct and proxy failed:', proxyError);
+                    showError('Cannot fetch live data. Using demo data instead.');
+                    loadDemoData();
+                }
+            }
+        }
+        
+        // Process live data from API
+        function processLiveData(data) {
+            if (!data || !data.components || !Array.isArray(data.components)) {
+                throw new Error('Invalid API response format');
+            }
+            
+            // Determine overall status
+            const overallStatus = data.status?.indicator || 'none';
+            const statusDescriptionText = data.status?.description || 'All systems operational';
+            
+            // Display the data
+            displayStatus(data.components, {
+                indicator: overallStatus,
+                description: statusDescriptionText
+            });
+            
+            // Update UI
+            updateDataSource('live');
+            
+            // Update timestamp from API
+            if (data.page?.updated_at) {
+                updateTimestamp(data.page.updated_at);
+            } else {
+                updateTimestamp();
+            }
+            
+            // Cache the data
+            cacheData({
+                components: data.components,
+                status: {
+                    indicator: overallStatus,
+                    description: statusDescriptionText
+                }
+            }, true);
+        }
+        
         // Display status data
-        function displayStatus(components) {
+        function displayStatus(components, overallStatus = { indicator: 'none', description: 'All systems operational' }) {
             // Clear current list
             statusList.innerHTML = '';
             
-            // Filter out parent components and "Visit www.githubstatus.com" entry
+            // Update overall status
+            updateOverallStatus(overallStatus);
+            
+            // Filter out meta components
             const filteredComponents = components.filter(component => 
-                component.name !== 'Visit www.githubstatus.com for more information' && 
+                component.name !== 'Visit www.githubstatus.com for more information' &&
+                component.name.trim() !== '' &&
                 !component.name.includes('www.githubstatus.com')
             );
             
             // Sort components: non-operational first, then alphabetical
             filteredComponents.sort((a, b) => {
-                if (a.status !== b.status) {
-                    // Put non-operational status first
-                    if (a.status === 'operational') return 1;
-                    if (b.status === 'operational') return -1;
-                }
+                // Put non-operational status first
+                if (a.status === 'operational' && b.status !== 'operational') return 1;
+                if (a.status !== 'operational' && b.status === 'operational') return -1;
+                
+                // If same status, sort by name
                 return a.name.localeCompare(b.name);
             });
             
@@ -452,25 +682,28 @@
             filteredComponents.forEach(component => {
                 const statusItem = document.createElement('li');
                 statusItem.className = 'status-item';
+                statusItem.setAttribute('role', 'listitem');
                 
                 // Determine status class and text
                 const { statusClass, statusText } = getStatusInfo(component.status);
                 
-                // Check if this component is not operational for highlighting
+                // Highlight non-operational items
                 if (component.status !== 'operational') {
                     statusItem.classList.add('highlighted');
-                    if (component.status === 'major_outage' || component.status === 'partial_outage') {
-                        statusItem.classList.add('down');
+                    if (component.status === 'major_outage') {
+                        statusItem.classList.add('major');
+                    } else if (component.status === 'partial_outage') {
+                        statusItem.classList.add('partial');
                     }
                 }
                 
-                // Get icon for this service
+                // Get icon and description
                 const iconClass = serviceIcons[component.name] || 'fas fa-cog';
-                const description = serviceDescriptions[component.name] || 'GitHub service';
+                const description = serviceDescriptions[component.name] || 'GitHub service component';
                 
                 statusItem.innerHTML = `
                     <div class="status-info">
-                        <div class="status-icon">
+                        <div class="status-icon" aria-hidden="true">
                             <i class="${iconClass}"></i>
                         </div>
                         <div class="status-text">
@@ -478,29 +711,85 @@
                             <div class="service-desc">${description}</div>
                         </div>
                     </div>
-                    <div class="status-badge ${statusClass}">${statusText}</div>
+                    <div class="status-badge ${statusClass}" aria-label="${component.name} status: ${statusText}">
+                        ${statusText}
+                    </div>
                 `;
                 
                 statusList.appendChild(statusItem);
             });
+            
+            // Show the list
+            loadingEl.style.display = 'none';
+            errorEl.style.display = 'none';
+            statusList.style.display = 'block';
         }
         
-        // Get status information for display
-        function getStatusInfo(status) {
-            switch(status) {
-                case 'operational':
-                    return { statusClass: 'operational', statusText: 'Operational' };
-                case 'degraded_performance':
-                    return { statusClass: 'degraded', statusText: 'Degraded' };
-                case 'partial_outage':
-                    return { statusClass: 'issues', statusText: 'Issues' };
-                case 'major_outage':
-                    return { statusClass: 'down', statusText: 'Down' };
-                case 'under_maintenance':
-                    return { statusClass: 'maintenance', statusText: 'Maintenance' };
-                default:
-                    return { statusClass: 'operational', statusText: 'Unknown' };
+        // Update overall status display
+        function updateOverallStatus(status) {
+            const indicator = status.indicator || 'none';
+            const description = status.description || 'All systems operational';
+            
+            // Update indicator color
+            statusIndicator.className = 'status-indicator';
+            if (indicator === 'none' || indicator === 'operational') {
+                statusIndicator.classList.add('operational');
+                statusTitle.textContent = 'All Systems Operational';
+            } else if (indicator === 'minor' || indicator === 'major') {
+                statusIndicator.classList.add('major');
+                statusTitle.textContent = 'Service Disruption';
+            } else if (indicator === 'critical') {
+                statusIndicator.classList.add('major');
+                statusTitle.textContent = 'Major Service Outage';
+            } else {
+                statusIndicator.classList.add('partial');
+                statusTitle.textContent = 'Partial Service Issues';
             }
+            
+            statusDescription.textContent = description;
+        }
+        
+        // Get status class and text
+        function getStatusInfo(status) {
+            const statusMap = {
+                'operational': { class: 'operational', text: 'Operational' },
+                'degraded_performance': { class: 'degraded', text: 'Degraded' },
+                'partial_outage': { class: 'partial', text: 'Partial' },
+                'major_outage': { class: 'major', text: 'Major' },
+                'under_maintenance': { class: 'degraded', text: 'Maintenance' }
+            };
+            
+            return statusMap[status] || { class: 'operational', text: 'Unknown' };
+        }
+        
+        // Update timestamp
+        function updateTimestamp(apiTimestamp = null) {
+            try {
+                const date = apiTimestamp ? new Date(apiTimestamp) : new Date();
+                const options = { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                };
+                const timeString = date.toLocaleTimeString([], options);
+                lastUpdatedEl.textContent = `Last updated: ${timeString}`;
+                
+                if (apiTimestamp) {
+                    lastUpdatedEl.setAttribute('title', `API timestamp: ${date.toISOString()}`);
+                }
+            } catch (e) {
+                const now = new Date();
+                lastUpdatedEl.textContent = `Last updated: ${now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+            }
+        }
+        
+        // Update data source indicator
+        function updateDataSource(source) {
+            dataSourceEl.className = 'data-source ' + source;
+            dataSourceEl.innerHTML = source === 'live' 
+                ? '<i class="fas fa-satellite-dish"></i><span>Live Data</span>'
+                : '<i class="fas fa-database"></i><span>Demo Data</span>';
         }
         
         // Toggle auto-refresh
@@ -508,61 +797,148 @@
             if (isAutoRefresh) {
                 // Stop auto-refresh
                 clearInterval(autoRefreshInterval);
-                refreshBtn.innerHTML = '<i class="fas fa-redo"></i> Auto-refresh (30s)';
+                refreshBtn.innerHTML = '<i class="fas fa-redo" aria-hidden="true"></i> Auto-refresh (30s)';
                 refreshBtn.style.background = '#1f6feb';
                 isAutoRefresh = false;
             } else {
                 // Start auto-refresh
-                fetchGitHubStatus();
-                autoRefreshInterval = setInterval(fetchGitHubStatus, 30000); // 30 seconds
-                refreshBtn.innerHTML = '<i class="fas fa-stop"></i> Stop Auto-refresh';
+                if (useLiveData) {
+                    fetchLiveData();
+                } else {
+                    loadDemoData();
+                }
+                autoRefreshInterval = setInterval(() => {
+                    if (useLiveData) {
+                        fetchLiveData();
+                    } else {
+                        loadDemoData();
+                    }
+                }, 30000);
+                refreshBtn.innerHTML = '<i class="fas fa-stop" aria-hidden="true"></i> Stop Auto-refresh';
                 refreshBtn.style.background = '#f85149';
                 isAutoRefresh = true;
             }
         }
         
-        // Simulated status data for demo/offline use
-        function getSimulatedStatusData() {
-            // Current time for realistic simulation
+        // Generate realistic demo data
+        function generateDemoData() {
             const now = new Date();
             const hours = now.getHours();
             
-            // Simulate different statuses based on time of day
-            // (This is just for demonstration)
-            let gitStatus = 'operational';
-            let apiStatus = 'operational';
-            let issuesStatus = 'operational';
-            let actionsStatus = 'operational';
-            let packagesStatus = 'operational';
-            let pagesStatus = 'operational';
-            
-            // Add some variability for demonstration
-            if (hours >= 14 && hours <= 16) {
-                // Simulate some issues in the afternoon
-                apiStatus = Math.random() > 0.7 ? 'degraded_performance' : 'operational';
-                issuesStatus = Math.random() > 0.8 ? 'partial_outage' : 'operational';
-            } else if (hours >= 2 && hours <= 4) {
-                // Simulate maintenance at night
-                actionsStatus = 'under_maintenance';
-            }
-            
-            // Always have one non-operational service for demonstration
-            if (hours % 6 === 0) {
-                pagesStatus = 'partial_outage';
-            }
-            
-            return [
-                { name: 'Git Operations', status: gitStatus },
-                { name: 'API Requests', status: apiStatus },
-                { name: 'Issues, PRs, Projects', status: issuesStatus },
-                { name: 'GitHub Actions', status: actionsStatus },
-                { name: 'GitHub Packages', status: packagesStatus },
-                { name: 'GitHub Pages', status: pagesStatus },
-                { name: 'Notifications', status: 'operational' },
-                { name: 'Gists', status: 'operational' },
-                { name: 'Dashboard', status: 'operational' },
-                { name: 'Operational', status: 'operational' }
+            // Base all services as operational
+            const services = [
+                { name: 'Git', status: 'operational' },
+                { name: 'API Requests', status: 'operational' },
+                { name: 'Issues', status: 'operational' },
+                { name: 'Pull Requests', status: 'operational' },
+                { name: 'Actions', status: 'operational' },
+                { name: 'Packages', status: 'operational' },
+                { name: 'Pages', status: 'operational' },
+                { name: 'Codespaces', status: 'operational' },
+                { name: 'Copilot', status: 'operational' },
+                { name: 'Webhooks', status: 'operational' }
             ];
+            
+            // Add some realistic variations
+            // Morning (9-11 AM): Simulate minor API issues
+            if (hours >= 9 && hours < 11) {
+                services.find(s => s.name === 'API Requests').status = 'degraded_performance';
+            }
+            
+            // Afternoon (2-4 PM): Simulate Actions partial outage
+            if (hours >= 14 && hours < 16) {
+                services.find(s => s.name === 'Actions').status = 'partial_outage';
+            }
+            
+            // Night (2-4 AM): Simulate maintenance
+            if (hours >= 2 && hours < 4) {
+                services.find(s => s.name === 'Packages').status = 'under_maintenance';
+            }
+            
+            // Random minor issue (20% chance)
+            if (Math.random() < 0.2) {
+                const randomService = services[Math.floor(Math.random() * services.length)];
+                if (randomService.status === 'operational') {
+                    randomService.status = 'degraded_performance';
+                }
+            }
+            
+            // Determine overall status
+            let overallStatus = 'none';
+            let overallDescription = 'All systems operational';
+            
+            const hasMajor = services.some(s => s.status === 'major_outage');
+            const hasPartial = services.some(s => s.status === 'partial_outage');
+            const hasDegraded = services.some(s => s.status === 'degraded_performance');
+            
+            if (hasMajor) {
+                overallStatus = 'major';
+                overallDescription = 'Major service outage detected';
+            } else if (hasPartial) {
+                overallStatus = 'minor';
+                overallDescription = 'Partial service disruption';
+            } else if (hasDegraded) {
+                overallStatus = 'minor';
+                overallDescription = 'Some services experiencing degraded performance';
+            }
+            
+            return {
+                components: services,
+                status: {
+                    indicator: overallStatus,
+                    description: overallDescription
+                }
+            };
+        }
+        
+        // Cache data to localStorage
+        function cacheData(data, isLive) {
+            try {
+                const cacheData = {
+                    data: data,
+                    timestamp: new Date().toISOString(),
+                    isLive: isLive
+                };
+                localStorage.setItem('githubStatusCache', JSON.stringify(cacheData));
+            } catch (e) {
+                console.warn('Failed to cache data:', e);
+            }
+        }
+        
+        // Load cached data
+        function loadCachedData() {
+            try {
+                const cached = localStorage.getItem('githubStatusCache');
+                if (cached) {
+                    const cacheData = JSON.parse(cached);
+                    const cacheAge = new Date() - new Date(cacheData.timestamp);
+                    const maxAge = 10 * 60 * 1000; // 10 minutes
+                    
+                    if (cacheAge < maxAge) {
+                        displayStatus(cacheData.data.components, cacheData.data.status);
+                        updateDataSource(cacheData.isLive ? 'live' : 'demo');
+                        updateTimestamp(cacheData.timestamp);
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to load cached data:', e);
+            }
+            return false;
+        }
+        
+        // Show loading state
+        function showLoading() {
+            loadingEl.style.display = 'block';
+            errorEl.style.display = 'none';
+            statusList.style.display = 'none';
+        }
+        
+        // Show error state
+        function showError(message) {
+            loadingEl.style.display = 'none';
+            errorEl.style.display = 'block';
+            errorMessageEl.textContent = message;
         }
     </script>
 </body>
