@@ -4,250 +4,550 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photobooth Studio</title>
-    <meta name="author" content="Shanica Gwen Elupre">
     <meta name="description" content="A web-based photobooth application with filters, timer, and collage features. Capture and manage your photos easily.">
     <meta name="keywords" content="photobooth, camera, photo capture, filters, collage, web app, photography">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
-        
         * {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
         }
         
         .gradient-bg {
-            background: linear-gradient(135deg, #FAF8F3 0%, #F5F1E8 50%, #E8DFD0 100%);
+            background: linear-gradient(135deg, 
+                #FFE4E8 0%, 
+                #FFE4F2 25%, 
+                #F8E4FF 50%, 
+                #E4E8FF 75%, 
+                #E4F2FF 100%);
+            min-height: 100vh;
         }
         
-        .card-shadow {
-            box-shadow: 0 4px 24px rgba(139, 115, 85, 0.08);
+        .card-glass {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 32px;
+            box-shadow: 
+                0 20px 80px rgba(255, 107, 157, 0.12),
+                0 8px 32px rgba(255, 182, 193, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
         
-        .hover-lift {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        .hover-lift:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(139, 115, 85, 0.15);
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 40px 120px rgba(255, 107, 157, 0.2),
+                0 16px 48px rgba(255, 182, 193, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #9B8171 0%, #8B7355 100%);
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, 
+                #FF6B9D 0%, 
+                #FF8AB8 50%, 
+                #FF6B9D 100%);
+            color: white;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            border: none;
+            border-radius: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.3), 
+                transparent);
+            transition: left 0.7s ease;
+        }
+        
+        .btn-primary:hover::after {
+            left: 100%;
         }
         
         .btn-primary:hover {
-            background: linear-gradient(135deg, #8B7355 0%, #6D5A44 100%);
-            transform: scale(1.02);
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(255, 107, 157, 0.4);
         }
         
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 182, 193, 0.4);
+            color: #FF6B9D;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            border-radius: 18px;
+            transition: all 0.3s ease;
         }
         
-        video {
-            border-radius: 20px;
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: #FF8AB8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 182, 193, 0.15);
         }
         
         .filter-btn {
-            transition: all 0.2s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 16px;
+            padding: 12px 24px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
         }
         
         .filter-btn.active {
-            background: #8B7355;
+            background: linear-gradient(135deg, #FF6B9D, #FF8AB8);
             color: white;
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
+        }
+        
+        .aspect-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 16px;
+            padding: 12px 24px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+        
+        .aspect-btn.active {
+            background: linear-gradient(135deg, #6C63FF, #8A84FF);
+            color: white;
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.3);
+        }
+        
+        .timer-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 16px;
+            padding: 12px 20px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+        
+        .timer-btn.active {
+            background: linear-gradient(135deg, #36D1DC, #5B86E5);
+            color: white;
+            box-shadow: 0 6px 20px rgba(54, 209, 220, 0.3);
+        }
+        
+        .video-container {
+            border-radius: 28px;
+            overflow: hidden;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.1), 
+                rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .countdown-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(30px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+        
+        .countdown-text {
+            font-size: 72px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.95), 
+                rgba(255, 255, 255, 0.85));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 
+                0 12px 32px rgba(255, 182, 193, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .icon-circle:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 
+                0 20px 48px rgba(255, 182, 193, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        
+        .icon-circle svg {
+            width: 36px;
+            height: 36px;
+            color: #FF6B9D;
         }
         
         .photo-grid-item {
-            position: relative;
+            border-radius: 24px;
             overflow: hidden;
-            border-radius: 16px;
-            transition: all 0.3s ease;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .photo-grid-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 20px 60px rgba(255, 107, 157, 0.2);
+        }
+        
+        .photo-overlay {
+            background: linear-gradient(to top, 
+                rgba(0, 0, 0, 0.8) 0%, 
+                transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         
         .photo-grid-item:hover .photo-overlay {
             opacity: 1;
         }
         
-        .photo-overlay {
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        .action-btn {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 16px;
+            transition: all 0.3s ease;
         }
         
-        .countdown-text {
-            font-size: 120px;
-            font-weight: 700;
-            text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        .action-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         }
         
-        .icon-container {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, #F5F1E8 0%, #E8DFD0 100%);
-            border-radius: 20px;
+        .selected-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #FF6B9D, #FF8AB8);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
+            animation: badgePulse 2s infinite;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .collage-layout-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px;
+            padding: 20px 32px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            font-size: 16px;
+        }
+        
+        .collage-layout-btn.active {
+            background: linear-gradient(135deg, #9D65C9, #C77DFF);
+            color: white;
+            box-shadow: 0 8px 32px rgba(157, 101, 201, 0.3);
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, 
+                rgba(255, 182, 193, 0.2), 
+                rgba(255, 107, 157, 0.1));
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(50px, -50px) rotate(90deg); }
+            50% { transform: translate(0, -100px) rotate(180deg); }
+            75% { transform: translate(-50px, -50px) rotate(270deg); }
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #FF6B9D, #6C63FF, #36D1DC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #FF6B9D, #6C63FF);
+            border-radius: 2px;
+        }
+        
+        .capture-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            border: 4px solid #FF6B9D;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.3);
+        }
+        
+        .capture-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 50px rgba(255, 107, 157, 0.4);
+        }
+        
+        .capture-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FF6B9D, #FF8AB8);
+            border-radius: 50%;
+        }
+        
+        .flash-effect {
+            animation: flash 0.3s ease-out;
+        }
+        
+        @keyframes flash {
+            0% { opacity: 0; background: rgba(255, 255, 255, 0); }
+            50% { opacity: 1; background: rgba(255, 255, 255, 0.9); }
+            100% { opacity: 0; background: rgba(255, 255, 255, 0); }
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen">
+<body class="gradient-bg min-h-screen overflow-x-hidden">
+    <!-- Floating Background Elements -->
+    <div class="floating-element" style="top: 10%; left: 5%;"></div>
+    <div class="floating-element" style="top: 60%; right: 5%; animation-delay: -5s;"></div>
+    <div class="floating-element" style="bottom: 20%; left: 20%; animation-delay: -10s;"></div>
+    
     <!-- Hidden Canvas -->
     <canvas id="photoCanvas" style="display: none;"></canvas>
     
     <!-- Home View -->
-    <div id="homeView" class="container mx-auto px-4 py-12">
+    <div id="homeView" class="container mx-auto px-4 py-12 relative z-10">
         <div class="text-center mb-16 mt-8">
-            <h1 class="text-6xl font-bold text-[#8B7355] mb-4 tracking-tight">Photobooth Studio</h1>
-            <p class="text-xl text-[#A89580]">Create beautiful moments, instantly</p>
+            <h1 class="text-7xl font-bold mb-4 tracking-tight">
+                <span class="text-gradient">Photobooth</span>
+                <span class="text-gray-800"> Studio</span>
+            </h1>
+            <p class="text-xl text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
+                Capture beautiful moments with our aesthetic filters, collage maker, and creative tools. 
+                Perfect for memories, social media, and fun.
+            </p>
         </div>
         
         <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Start Camera Card -->
-            <div class="glass-effect rounded-3xl p-8 card-shadow hover-lift cursor-pointer border border-[#E8DFD0]" onclick="startCamera()">
-                <div class="icon-container mx-auto mb-6">
-                    <svg class="w-8 h-8 text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="card-glass p-10 card-hover cursor-pointer" onclick="startCamera()">
+                <div class="icon-circle">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
                 </div>
-                <h3 class="text-2xl font-bold text-[#8B7355] mb-3 text-center">Start Camera</h3>
-                <p class="text-[#A89580] text-center">Capture amazing photos with filters & effects</p>
+                <h3 class="text-2xl font-bold text-gray-800 mb-3 text-center">Start Camera</h3>
+                <p class="text-gray-600 text-center leading-relaxed">
+                    Capture stunning photos with aesthetic filters, timer options, and creative controls
+                </p>
             </div>
             
             <!-- Gallery Card -->
-            <div class="glass-effect rounded-3xl p-8 card-shadow hover-lift cursor-pointer border border-[#E8DFD0]" onclick="showGallery()">
-                <div class="icon-container mx-auto mb-6">
-                    <svg class="w-8 h-8 text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="card-glass p-10 card-hover cursor-pointer" onclick="showGallery()">
+                <div class="icon-circle">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                 </div>
-                <h3 class="text-2xl font-bold text-[#8B7355] mb-3 text-center">Gallery</h3>
-                <p class="text-[#A89580] text-center">View & manage your <span id="photoCount">0</span> photos</p>
+                <h3 class="text-2xl font-bold text-gray-800 mb-3 text-center">Gallery</h3>
+                <p class="text-gray-600 text-center leading-relaxed">
+                    View and manage your <span class="font-semibold text-[#FF6B9D]" id="photoCount">0</span> photos with favorites and downloads
+                </p>
             </div>
             
             <!-- Collage Card -->
-            <div class="glass-effect rounded-3xl p-8 card-shadow hover-lift cursor-pointer border border-[#E8DFD0]" onclick="showCollageMode()">
-                <div class="icon-container mx-auto mb-6">
-                    <svg class="w-8 h-8 text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="card-glass p-10 card-hover cursor-pointer" onclick="showCollageMode()">
+                <div class="icon-circle">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"/>
                     </svg>
                 </div>
-                <h3 class="text-2xl font-bold text-[#8B7355] mb-3 text-center">Create Collage</h3>
-                <p class="text-[#A89580] text-center">Design beautiful photo layouts</p>
+                <h3 class="text-2xl font-bold text-gray-800 mb-3 text-center">Create Collage</h3>
+                <p class="text-gray-600 text-center leading-relaxed">
+                    Design beautiful photo layouts with multiple templates and creative arrangements
+                </p>
             </div>
         </div>
     </div>
     
     <!-- Camera View -->
-    <div id="cameraView" class="hidden container mx-auto px-4 py-8 max-w-5xl">
-        <div class="glass-effect rounded-3xl overflow-hidden card-shadow border border-[#E8DFD0]">
+    <div id="cameraView" class="hidden container mx-auto px-4 py-8 max-w-5xl relative z-10">
+        <div class="card-glass">
             <!-- Header -->
-            <div class="flex items-center justify-between p-6 border-b border-[#E8DFD0]">
-                <button onclick="closeCamera()" class="w-10 h-10 rounded-full hover:bg-[#F5F1E8] flex items-center justify-center transition">
-                    <svg class="w-6 h-6 text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <div class="flex items-center justify-between p-8 border-b border-gray-100">
+                <button onclick="closeCamera()" class="btn-secondary px-6 py-3 rounded-full flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
+                    Back
                 </button>
-                <h2 class="text-2xl font-bold text-[#8B7355]">Camera Studio</h2>
-                <div class="w-10"></div>
+                <h2 class="text-3xl font-bold text-gray-800">Camera Studio</h2>
+                <div class="w-32"></div>
             </div>
             
             <!-- Video Preview -->
-            <div class="relative bg-black">
+            <div class="relative video-container mx-8 mt-8 mb-6">
                 <video id="video" autoplay playsinline class="w-full"></video>
-                <div id="countdown" class="hidden absolute inset-0 flex items-center justify-center bg-black/70">
-                    <span id="countdownText" class="countdown-text text-white">3</span>
+                <div id="countdown" class="hidden absolute inset-0 flex items-center justify-center bg-black/50 rounded-28">
+                    <div class="countdown-circle">
+                        <span id="countdownText" class="countdown-text">3</span>
+                    </div>
                 </div>
             </div>
             
             <!-- Controls -->
-            <div class="p-6 space-y-6">
+            <div class="p-8 space-y-8">
                 <!-- Filters -->
                 <div>
-                    <p class="text-sm font-medium text-[#8B7355] mb-3">Filters</p>
-                    <div class="flex gap-3 overflow-x-auto pb-2">
-                        <button onclick="setFilter('none')" class="filter-btn active px-6 py-3 rounded-full bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-medium whitespace-nowrap">None</button>
-                        <button onclick="setFilter('bw')" class="filter-btn px-6 py-3 rounded-full bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-medium whitespace-nowrap">Black & White</button>
-                        <button onclick="setFilter('vintage')" class="filter-btn px-6 py-3 rounded-full bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-medium whitespace-nowrap">Vintage</button>
-                        <button onclick="setFilter('vibrant')" class="filter-btn px-6 py-3 rounded-full bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-medium whitespace-nowrap">Vibrant</button>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Aesthetic Filters</h3>
+                    <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        <button onclick="setFilter('none')" class="filter-btn active bg-white text-gray-700 border border-gray-200">Original</button>
+                        <button onclick="setFilter('bw')" class="filter-btn bg-white text-gray-700 border border-gray-200">Monochrome</button>
+                        <button onclick="setFilter('vintage')" class="filter-btn bg-white text-gray-700 border border-gray-200">Vintage</button>
+                        <button onclick="setFilter('vibrant')" class="filter-btn bg-white text-gray-700 border border-gray-200">Vibrant</button>
+                        <button onclick="setFilter('pastel')" class="filter-btn bg-white text-gray-700 border border-gray-200">Pastel</button>
+                        <button onclick="setFilter('dramatic')" class="filter-btn bg-white text-gray-700 border border-gray-200">Dramatic</button>
                     </div>
                 </div>
                 
                 <!-- Aspect Ratio -->
                 <div>
-                    <p class="text-sm font-medium text-[#8B7355] mb-3">Aspect Ratio</p>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Aspect Ratio</h3>
                     <div class="flex gap-3">
-                        <button onclick="setAspectRatio('square')" class="aspect-btn px-6 py-3 rounded-full bg-[#8B7355] text-white font-medium">1:1 Square</button>
-                        <button onclick="setAspectRatio('portrait')" class="aspect-btn px-6 py-3 rounded-full bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-medium">3:4 Portrait</button>
-                        <button onclick="setAspectRatio('landscape')" class="aspect-btn px-6 py-3 rounded-full bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-medium">16:9 Wide</button>
+                        <button onclick="setAspectRatio('square')" class="aspect-btn active px-6 py-3">Square (1:1)</button>
+                        <button onclick="setAspectRatio('portrait')" class="aspect-btn px-6 py-3">Portrait (3:4)</button>
+                        <button onclick="setAspectRatio('landscape')" class="aspect-btn px-6 py-3">Landscape (16:9)</button>
                     </div>
                 </div>
                 
                 <!-- Timer & Mirror -->
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-8">
                     <div class="flex-1">
-                        <p class="text-sm font-medium text-[#8B7355] mb-3">Timer</p>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Timer Settings</h3>
                         <div class="flex gap-3">
-                            <button onclick="setTimer(0)" class="timer-btn px-5 py-3 rounded-full bg-[#8B7355] text-white font-medium">Off</button>
-                            <button onclick="setTimer(3)" class="timer-btn px-5 py-3 rounded-full bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-medium">3s</button>
-                            <button onclick="setTimer(5)" class="timer-btn px-5 py-3 rounded-full bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-medium">5s</button>
-                            <button onclick="setTimer(10)" class="timer-btn px-5 py-3 rounded-full bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-medium">10s</button>
+                            <button onclick="setTimer(0)" class="timer-btn active px-5 py-3">Off</button>
+                            <button onclick="setTimer(3)" class="timer-btn px-5 py-3">3s</button>
+                            <button onclick="setTimer(5)" class="timer-btn px-5 py-3">5s</button>
+                            <button onclick="setTimer(10)" class="timer-btn px-5 py-3">10s</button>
                         </div>
                     </div>
-                    <button onclick="toggleMirror()" class="px-6 py-3 rounded-full bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-medium hover:bg-[#F5F1E8] transition">
+                    <button onclick="toggleMirror()" id="mirrorBtn" class="btn-secondary px-6 py-3">
                         <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                         </svg>
-                        Mirror
+                        Mirror On
                     </button>
                 </div>
                 
                 <!-- Capture Button -->
-                <button onclick="capturePhoto()" class="btn-primary w-full py-5 rounded-full text-white text-lg font-bold shadow-lg">
-                    <svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                    Capture Photo
-                </button>
+                <div class="flex justify-center">
+                    <div class="capture-btn" onclick="capturePhoto()"></div>
+                </div>
             </div>
         </div>
     </div>
     
     <!-- Gallery View -->
-    <div id="galleryView" class="hidden container mx-auto px-4 py-8 max-w-7xl">
-        <div class="glass-effect rounded-3xl p-8 card-shadow border border-[#E8DFD0]">
+    <div id="galleryView" class="hidden container mx-auto px-4 py-8 max-w-7xl relative z-10">
+        <div class="card-glass p-8">
             <!-- Header -->
-            <div class="flex items-center justify-between mb-8">
-                <button onclick="closeGallery()" class="w-10 h-10 rounded-full hover:bg-[#F5F1E8] flex items-center justify-center transition">
-                    <svg class="w-6 h-6 text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <div class="flex items-center justify-between mb-10">
+                <button onclick="closeGallery()" class="btn-secondary px-6 py-3 rounded-full flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
+                    Back
                 </button>
-                <h2 class="text-3xl font-bold text-[#8B7355]">Your Gallery</h2>
-                <button onclick="clearAllPhotos()" class="px-6 py-3 rounded-full bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-medium hover:bg-[#F5F1E8] transition">
+                <h2 class="text-4xl font-bold text-gray-800 section-title">Your Gallery</h2>
+                <button onclick="clearAllPhotos()" class="btn-secondary px-6 py-3">
                     Clear All
                 </button>
             </div>
             
             <!-- Photo Grid -->
-            <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 <!-- Photos will be inserted here -->
             </div>
             
             <!-- Empty State -->
-            <div id="emptyGallery" class="text-center py-20">
-                <div class="icon-container mx-auto mb-6">
-                    <svg class="w-10 h-10 text-[#A89580]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div id="emptyGallery" class="text-center py-24">
+                <div class="icon-circle mx-auto mb-8">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                     </svg>
                 </div>
-                <h3 class="text-2xl font-bold text-[#8B7355] mb-3">No photos yet</h3>
-                <p class="text-[#A89580] mb-6">Start capturing beautiful moments!</p>
-                <button onclick="startCamera()" class="btn-primary px-8 py-4 rounded-full text-white font-bold">
+                <h3 class="text-3xl font-bold text-gray-800 mb-4">No photos yet</h3>
+                <p class="text-gray-600 mb-8 text-lg">Start capturing beautiful moments!</p>
+                <button onclick="startCamera()" class="btn-primary px-10 py-4 rounded-full text-lg">
                     Start Camera
                 </button>
             </div>
@@ -255,40 +555,50 @@
     </div>
     
     <!-- Collage View -->
-    <div id="collageView" class="hidden container mx-auto px-4 py-8 max-w-7xl">
-        <div class="glass-effect rounded-3xl p-8 card-shadow border border-[#E8DFD0]">
-            <div class="flex items-center justify-between mb-8">
-                <button onclick="closeCollage()" class="w-10 h-10 rounded-full hover:bg-[#F5F1E8] flex items-center justify-center transition">
-                    <svg class="w-6 h-6 text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    <div id="collageView" class="hidden container mx-auto px-4 py-8 max-w-7xl relative z-10">
+        <div class="card-glass p-8">
+            <div class="flex items-center justify-between mb-10">
+                <button onclick="closeCollage()" class="btn-secondary px-6 py-3 rounded-full flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
+                    Back
                 </button>
-                <h2 class="text-3xl font-bold text-[#8B7355]">Create Collage</h2>
-                <div class="w-10"></div>
+                <h2 class="text-4xl font-bold text-gray-800 section-title">Create Collage</h2>
+                <div class="w-32"></div>
             </div>
             
             <!-- Layout Selection -->
-            <div class="mb-8">
-                <p class="text-sm font-medium text-[#8B7355] mb-4">Choose Layout</p>
-                <div class="flex gap-4">
-                    <button onclick="setCollageLayout('2x2')" class="collage-layout-btn px-8 py-4 rounded-2xl bg-[#8B7355] text-white font-bold">2×2 Grid</button>
-                    <button onclick="setCollageLayout('3photos')" class="collage-layout-btn px-8 py-4 rounded-2xl bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-bold">3 Photos</button>
-                    <button onclick="setCollageLayout('4strip')" class="collage-layout-btn px-8 py-4 rounded-2xl bg-white border-2 border-[#E8DFD0] text-[#8B7355] font-bold">Photo Strip</button>
+            <div class="mb-10">
+                <h3 class="text-lg font-semibold text-gray-800 mb-6">Choose Layout Style</h3>
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="setCollageLayout('2x2')" class="collage-layout-btn active">2×2 Grid</button>
+                    <button onclick="setCollageLayout('3photos')" class="collage-layout-btn">3 Photos</button>
+                    <button onclick="setCollageLayout('4strip')" class="collage-layout-btn">Photo Strip</button>
+                    <button onclick="setCollageLayout('1big')" class="collage-layout-btn">1 Big + 2 Small</button>
+                    <button onclick="setCollageLayout('diagonal')" class="collage-layout-btn">Diagonal</button>
                 </div>
             </div>
             
-            <p class="text-[#A89580] mb-6">Select photos for your collage (<span id="selectedCount">0</span> selected)</p>
+            <p class="text-gray-600 mb-8 text-lg">Select photos for your collage 
+                <span class="font-semibold text-[#FF6B9D]" id="selectedCount">0</span> selected</p>
             
             <!-- Photo Selection Grid -->
-            <div id="collagePhotoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+            <div id="collagePhotoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-10">
                 <!-- Photos will be inserted here -->
             </div>
             
-            <button onclick="createCollage()" class="btn-primary w-full py-5 rounded-full text-white text-lg font-bold shadow-lg">
-                Create Collage
+            <button onclick="createCollage()" class="btn-primary w-full py-5 rounded-full text-lg font-semibold">
+                <svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Create Beautiful Collage
             </button>
         </div>
     </div>
+    
+    <!-- Flash Effect Container -->
+    <div id="flashEffect" class="hidden fixed inset-0 pointer-events-none z-50"></div>
     
     <script>
         let stream = null;
@@ -309,7 +619,14 @@
         
         async function startCamera() {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }, 
+                    audio: false 
+                });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 video.style.transform = mirrorMode ? 'scaleX(-1)' : 'scaleX(1)';
@@ -334,7 +651,7 @@
             currentFilter = filter;
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('active');
-                btn.classList.add('bg-white', 'border-2', 'border-[#E8DFD0]', 'text-[#8B7355]');
+                btn.classList.add('bg-white', 'border', 'border-gray-200', 'text-gray-700');
             });
             event.target.classList.add('active');
         }
@@ -347,26 +664,29 @@
             else video.style.aspectRatio = '16/9';
             
             document.querySelectorAll('.aspect-btn').forEach(btn => {
-                btn.classList.remove('bg-[#8B7355]', 'text-white');
-                btn.classList.add('bg-white', 'border-2', 'border-[#E8DFD0]', 'text-[#8B7355]');
+                btn.classList.remove('active');
+                btn.classList.add('bg-white', 'border', 'border-gray-200', 'text-gray-700');
             });
-            event.target.classList.remove('bg-white', 'border-2', 'border-[#E8DFD0]', 'text-[#8B7355]');
-            event.target.classList.add('bg-[#8B7355]', 'text-white');
+            event.target.classList.add('active');
         }
         
         function setTimer(seconds) {
             currentTimer = seconds;
             document.querySelectorAll('.timer-btn').forEach(btn => {
-                btn.classList.remove('bg-[#8B7355]', 'text-white');
-                btn.classList.add('bg-white', 'border-2', 'border-[#E8DFD0]', 'text-[#8B7355]');
+                btn.classList.remove('active');
+                btn.classList.add('bg-white', 'border', 'border-gray-200', 'text-gray-700');
             });
-            event.target.classList.remove('bg-white', 'border-2', 'border-[#E8DFD0]', 'text-[#8B7355]');
-            event.target.classList.add('bg-[#8B7355]', 'text-white');
+            event.target.classList.add('active');
         }
         
         function toggleMirror() {
             mirrorMode = !mirrorMode;
-            document.getElementById('video').style.transform = mirrorMode ? 'scaleX(-1)' : 'scaleX(1)';
+            const video = document.getElementById('video');
+            const mirrorBtn = document.getElementById('mirrorBtn');
+            video.style.transform = mirrorMode ? 'scaleX(-1)' : 'scaleX(1)';
+            mirrorBtn.innerHTML = mirrorMode ? 
+                '<svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Mirror On' :
+                '<svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Mirror Off';
         }
         
         function capturePhoto() {
@@ -428,7 +748,12 @@
             applyFilter(ctx, canvas.width, canvas.height);
             
             const photoData = canvas.toDataURL('image/png');
-            photos.push({ id: Date.now(), data: photoData, timestamp: new Date().toISOString() });
+            photos.push({ 
+                id: Date.now(), 
+                data: photoData, 
+                timestamp: new Date().toISOString(),
+                filter: currentFilter 
+            });
             localStorage.setItem('photobooth_photos', JSON.stringify(photos));
             updatePhotoCount();
             
@@ -462,16 +787,34 @@
                         data[i + 2] = Math.min(255, data[i + 2] * 1.3);
                     }
                     break;
+                case 'pastel':
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = Math.min(255, (data[i] + 255) / 2);
+                        data[i + 1] = Math.min(255, (data[i + 1] + 255) / 2);
+                        data[i + 2] = Math.min(255, (data[i + 2] + 255) / 2);
+                    }
+                    break;
+                case 'dramatic':
+                    for (let i = 0; i < data.length; i += 4) {
+                        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                        data[i] = avg * 1.2;
+                        data[i + 1] = avg * 0.8;
+                        data[i + 2] = avg * 0.9;
+                    }
+                    break;
             }
             
             ctx.putImageData(imageData, 0, 0);
         }
         
         function flashEffect() {
-            const flash = document.createElement('div');
-            flash.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:white;opacity:0.9;z-index:9999;pointer-events:none;';
-            document.body.appendChild(flash);
-            setTimeout(() => document.body.removeChild(flash), 100);
+            const flash = document.getElementById('flashEffect');
+            flash.classList.remove('hidden');
+            flash.classList.add('flash-effect');
+            setTimeout(() => {
+                flash.classList.remove('flash-effect');
+                flash.classList.add('hidden');
+            }, 300);
         }
         
         function showGallery() {
@@ -499,20 +842,25 @@
                 grid.innerHTML = photos.map(photo => `
                     <div class="photo-grid-item group cursor-pointer" onclick="viewPhoto(${photo.id})">
                         <img src="${photo.data}" class="w-full h-64 object-cover">
-                        <div class="photo-overlay absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
+                        <div class="photo-overlay absolute inset-0 flex items-end p-4">
                             <div class="flex gap-2 w-full">
-                                <button onclick="event.stopPropagation(); toggleFavorite(${photo.id})" class="flex-1 p-3 rounded-xl bg-white/90 hover:bg-white transition">
-                                    <svg class="w-5 h-5 mx-auto ${favorites.has(photo.id) ? 'fill-red-500 text-red-500' : 'text-[#8B7355]'}" fill="${favorites.has(photo.id) ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
+                                <button onclick="event.stopPropagation(); toggleFavorite(${photo.id})" 
+                                        class="action-btn flex-1 p-3">
+                                    <svg class="w-5 h-5 mx-auto ${favorites.has(photo.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}" 
+                                         fill="${favorites.has(photo.id) ? 'currentColor' : 'none'}" 
+                                         stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                                     </svg>
                                 </button>
-                                <button onclick="event.stopPropagation(); downloadPhoto(${photo.id})" class="flex-1 p-3 rounded-xl bg-white/90 hover:bg-white transition">
-                                    <svg class="w-5 h-5 mx-auto text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button onclick="event.stopPropagation(); downloadPhoto(${photo.id})" 
+                                        class="action-btn flex-1 p-3">
+                                    <svg class="w-5 h-5 mx-auto text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                     </svg>
                                 </button>
-                                <button onclick="event.stopPropagation(); deletePhoto(${photo.id})" class="flex-1 p-3 rounded-xl bg-white/90 hover:bg-white transition">
-                                    <svg class="w-5 h-5 mx-auto text-[#8B7355]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <button onclick="event.stopPropagation(); deletePhoto(${photo.id})" 
+                                        class="action-btn flex-1 p-3">
+                                    <svg class="w-5 h-5 mx-auto text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                     </svg>
                                 </button>
@@ -537,17 +885,19 @@
             const photo = photos.find(p => p.id === photoId);
             const link = document.createElement('a');
             link.href = photo.data;
-            link.download = `photo-${photoId}.png`;
+            link.download = `photobooth-${photoId}.png`;
             link.click();
         }
         
         function deletePhoto(photoId) {
-            photos = photos.filter(p => p.id !== photoId);
-            favorites.delete(photoId);
-            localStorage.setItem('photobooth_photos', JSON.stringify(photos));
-            localStorage.setItem('photobooth_favorites', JSON.stringify([...favorites]));
-            updatePhotoCount();
-            renderGallery();
+            if (confirm('Delete this photo?')) {
+                photos = photos.filter(p => p.id !== photoId);
+                favorites.delete(photoId);
+                localStorage.setItem('photobooth_photos', JSON.stringify(photos));
+                localStorage.setItem('photobooth_favorites', JSON.stringify([...favorites]));
+                updatePhotoCount();
+                renderGallery();
+            }
         }
         
         function clearAllPhotos() {
@@ -576,19 +926,20 @@
         function setCollageLayout(layout) {
             collageLayout = layout;
             document.querySelectorAll('.collage-layout-btn').forEach(btn => {
-                btn.classList.remove('bg-[#8B7355]', 'text-white');
-                btn.classList.add('bg-white', 'border-2', 'border-[#E8DFD0]', 'text-[#8B7355]');
+                btn.classList.remove('active');
             });
-            event.target.classList.remove('bg-white', 'border-2', 'border-[#E8DFD0]', 'text-[#8B7355]');
-            event.target.classList.add('bg-[#8B7355]', 'text-white');
+            event.target.classList.add('active');
         }
         
         function renderCollageGrid() {
             const grid = document.getElementById('collagePhotoGrid');
             grid.innerHTML = photos.map(photo => `
-                <div onclick="toggleCollagePhoto(${photo.id})" class="photo-grid-item cursor-pointer ${collagePhotos.includes(photo.id) ? 'ring-4 ring-[#8B7355]' : ''}">
+                <div onclick="toggleCollagePhoto(${photo.id})" 
+                     class="photo-grid-item cursor-pointer relative ${collagePhotos.includes(photo.id) ? 'ring-4 ring-[#FF6B9D] ring-opacity-50' : ''}">
                     <img src="${photo.data}" class="w-full h-64 object-cover">
-                    ${collagePhotos.includes(photo.id) ? '<div class="absolute top-4 right-4 w-8 h-8 bg-[#8B7355] rounded-full flex items-center justify-center"><svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>' : ''}
+                    ${collagePhotos.includes(photo.id) ? 
+                        '<div class="selected-badge"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>' : 
+                        ''}
                 </div>
             `).join('');
         }
@@ -613,9 +964,11 @@
             const ctx = canvas.getContext('2d');
             
             const layouts = {
-                '2x2': { cols: 2, rows: 2, count: 4 },
-                '3photos': { cols: 3, rows: 1, count: 3 },
-                '4strip': { cols: 1, rows: 4, count: 4 }
+                '2x2': { cols: 2, rows: 2, count: 4, bg: '#FFE4E8' },
+                '3photos': { cols: 3, rows: 1, count: 3, bg: '#E4F2FF' },
+                '4strip': { cols: 1, rows: 4, count: 4, bg: '#F8E4FF' },
+                '1big': { cols: 2, rows: 2, count: 3, bg: '#FFE4F2' },
+                'diagonal': { cols: 3, rows: 3, count: 4, bg: '#E4E8FF' }
             };
             
             const layout = layouts[collageLayout];
@@ -624,23 +977,73 @@
             canvas.width = cellSize * layout.cols;
             canvas.height = cellSize * layout.rows;
             
-            ctx.fillStyle = '#FAF8F3';
+            // Gradient background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, layout.bg);
+            gradient.addColorStop(1, '#ffffff');
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             let loaded = 0;
             collagePhotos.slice(0, layout.count).forEach((photoId, idx) => {
                 const photo = photos.find(p => p.id === photoId);
-                const col = idx % layout.cols;
-                const row = Math.floor(idx / layout.cols);
                 const img = new Image();
                 img.src = photo.data;
                 img.onload = () => {
-                    ctx.drawImage(img, col * cellSize + padding, row * cellSize + padding, cellSize - padding * 2, cellSize - padding * 2);
+                    let x, y, width, height;
+                    
+                    switch(layout.name || collageLayout) {
+                        case '2x2':
+                            const col = idx % 2;
+                            const row = Math.floor(idx / 2);
+                            x = col * cellSize + padding;
+                            y = row * cellSize + padding;
+                            width = height = cellSize - padding * 2;
+                            break;
+                        case '3photos':
+                            x = idx * cellSize + padding;
+                            y = padding;
+                            width = cellSize - padding * 2;
+                            height = cellSize - padding * 2;
+                            break;
+                        case '1big':
+                            if (idx === 0) {
+                                x = padding;
+                                y = padding;
+                                width = cellSize * 2 - padding * 3;
+                                height = cellSize * 2 - padding * 3;
+                            } else {
+                                x = cellSize * 2 - padding;
+                                y = (idx - 1) * cellSize + padding;
+                                width = cellSize - padding * 2;
+                                height = cellSize - padding * 2;
+                            }
+                            break;
+                        default:
+                            x = padding;
+                            y = idx * cellSize + padding;
+                            width = cellSize - padding * 2;
+                            height = cellSize - padding * 2;
+                    }
+                    
+                    // Rounded corners
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.roundRect(x, y, width, height, 20);
+                    ctx.clip();
+                    ctx.drawImage(img, x, y, width, height);
+                    ctx.restore();
+                    
+                    // Border
+                    ctx.strokeStyle = '#FF6B9D';
+                    ctx.lineWidth = 4;
+                    ctx.strokeRect(x, y, width, height);
+                    
                     loaded++;
                     if (loaded === Math.min(collagePhotos.length, layout.count)) {
                         const link = document.createElement('a');
                         link.href = canvas.toDataURL('image/png');
-                        link.download = 'collage.png';
+                        link.download = `collage-${Date.now()}.png`;
                         link.click();
                     }
                 };
