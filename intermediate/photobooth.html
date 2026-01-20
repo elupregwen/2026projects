@@ -4,634 +4,689 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photobooth Studio</title>
-    <meta name="description" content="A single-screen photobooth application with camera, gallery, and collage features.">
+    <meta name="description" content="A web-based photobooth application with filters, timer, and collage features. Capture and manage your photos easily.">
+    <meta name="keywords" content="photobooth, camera, photo capture, filters, collage, web app, photography">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
             font-family: 'Inter', sans-serif;
         }
         
-        h1, h2, h3, h4, button {
+        h1, h2, h3, h4, h5, h6 {
             font-family: 'Poppins', sans-serif;
         }
         
-        body {
-            height: 100vh;
-            overflow: hidden;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        .gradient-bg {
+            background: linear-gradient(135deg, 
+                #FFE4E8 0%, 
+                #FFE4F2 25%, 
+                #F8E4FF 50%, 
+                #E4E8FF 75%, 
+                #E4F2FF 100%);
+            min-height: 100vh;
         }
         
-        .container-height {
-            height: calc(100vh - 2rem);
-            max-height: calc(100vh - 2rem);
+        .card-glass {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 32px;
+            box-shadow: 
+                0 20px 80px rgba(255, 107, 157, 0.12),
+                0 8px 32px rgba(255, 182, 193, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
         
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        .tab-button {
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 40px 120px rgba(255, 107, 157, 0.2),
+                0 16px 48px rgba(255, 182, 193, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, 
+                #FF6B9D 0%, 
+                #FF8AB8 50%, 
+                #FF6B9D 100%);
+            color: white;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            border: none;
+            border-radius: 20px;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
         
-        .tab-button.active {
-            background: rgba(255, 255, 255, 0.9);
-            color: #667eea;
-            font-weight: 600;
-        }
-        
-        .tab-button.active::after {
+        .btn-primary::after {
             content: '';
             position: absolute;
-            bottom: 0;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.3), 
+                transparent);
+            transition: left 0.7s ease;
+        }
+        
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(255, 107, 157, 0.4);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 182, 193, 0.4);
+            color: #FF6B9D;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+            border-radius: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: #FF8AB8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(255, 182, 193, 0.15);
+        }
+        
+        .filter-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 16px;
+            padding: 12px 24px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+        
+        .filter-btn.active {
+            background: linear-gradient(135deg, #FF6B9D, #FF8AB8);
+            color: white;
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
+        }
+        
+        .aspect-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 16px;
+            padding: 12px 24px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+        
+        .aspect-btn.active {
+            background: linear-gradient(135deg, #6C63FF, #8A84FF);
+            color: white;
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.3);
+        }
+        
+        .timer-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 16px;
+            padding: 12px 20px;
+            font-weight: 500;
+            letter-spacing: -0.01em;
+        }
+        
+        .timer-btn.active {
+            background: linear-gradient(135deg, #36D1DC, #5B86E5);
+            color: white;
+            box-shadow: 0 6px 20px rgba(54, 209, 220, 0.3);
+        }
+        
+        .video-container {
+            border-radius: 28px;
+            overflow: hidden;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.1), 
+                rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .countdown-circle {
+            position: absolute;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(30px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+        
+        .countdown-text {
+            font-size: 72px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.95), 
+                rgba(255, 255, 255, 0.85));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 
+                0 12px 32px rgba(255, 182, 193, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .icon-circle:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 
+                0 20px 48px rgba(255, 182, 193, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+        
+        .icon-circle svg {
+            width: 36px;
+            height: 36px;
+            color: #FF6B9D;
+        }
+        
+        .photo-grid-item {
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .photo-grid-item:hover {
+            transform: scale(1.03);
+            box-shadow: 0 20px 60px rgba(255, 107, 157, 0.2);
+        }
+        
+        .photo-overlay {
+            background: linear-gradient(to top, 
+                rgba(0, 0, 0, 0.8) 0%, 
+                transparent 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .photo-grid-item:hover .photo-overlay {
+            opacity: 1;
+        }
+        
+        .action-btn {
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+        
+        .selected-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
             width: 40px;
-            height: 3px;
-            background: #667eea;
+            height: 40px;
+            background: linear-gradient(135deg, #FF6B9D, #FF8AB8);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
+            animation: badgePulse 2s infinite;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .collage-layout-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 20px;
+            padding: 20px 32px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            font-size: 16px;
+        }
+        
+        .collage-layout-btn.active {
+            background: linear-gradient(135deg, #9D65C9, #C77DFF);
+            color: white;
+            box-shadow: 0 8px 32px rgba(157, 101, 201, 0.3);
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, 
+                rgba(255, 182, 193, 0.2), 
+                rgba(255, 107, 157, 0.1));
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(50px, -50px) rotate(90deg); }
+            50% { transform: translate(0, -100px) rotate(180deg); }
+            75% { transform: translate(-50px, -50px) rotate(270deg); }
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #FF6B9D, #6C63FF, #36D1DC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #FF6B9D, #6C63FF);
             border-radius: 2px;
         }
         
-        .camera-container {
-            aspect-ratio: 4/3;
-            max-height: 55vh;
-        }
-        
-        .capture-button {
-            width: 70px;
-            height: 70px;
+        .capture-btn {
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             background: white;
-            border: 4px solid #667eea;
+            border: 4px solid #FF6B9D;
             position: relative;
+            cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 10px 40px rgba(255, 107, 157, 0.3);
         }
         
-        .capture-button:hover {
+        .capture-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 15px 50px rgba(255, 107, 157, 0.4);
         }
         
-        .capture-button::after {
+        .capture-btn::after {
             content: '';
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FF6B9D, #FF8AB8);
             border-radius: 50%;
-        }
-        
-        .filter-chip {
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(102, 126, 234, 0.2);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .filter-chip.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border-color: transparent;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .gallery-grid {
-            height: 50vh;
-            overflow-y: auto;
-            padding-right: 4px;
-        }
-        
-        .gallery-grid::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        .gallery-grid::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
-            border-radius: 10px;
-        }
-        
-        .gallery-grid::-webkit-scrollbar-thumb {
-            background: rgba(102, 126, 234, 0.3);
-            border-radius: 10px;
-        }
-        
-        .photo-item {
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .photo-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-        
-        .photo-actions {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .photo-item:hover .photo-actions {
-            opacity: 1;
-        }
-        
-        .collage-templates {
-            height: 50vh;
-            overflow-y: auto;
-        }
-        
-        .template-item {
-            border-radius: 12px;
-            overflow: hidden;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .template-item:hover {
-            border-color: #667eea;
-            transform: scale(1.02);
-        }
-        
-        .template-item.active {
-            border-color: #667eea;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-        }
-        
-        .countdown-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-        }
-        
-        .countdown-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
         }
         
         .flash-effect {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: white;
-            opacity: 0;
-            z-index: 100;
-            pointer-events: none;
-        }
-        
-        .flash {
             animation: flash 0.3s ease-out;
         }
         
         @keyframes flash {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-        
-        .selected-overlay {
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            width: 28px;
-            height: 28px;
-            background: #667eea;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-        }
-        
-        .empty-state {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
-            color: #666;
-        }
-        
-        .tab-content {
-            display: none;
-            height: 100%;
-        }
-        
-        .tab-content.active {
-            display: block;
+            0% { opacity: 0; background: rgba(255, 255, 255, 0); }
+            50% { opacity: 1; background: rgba(255, 255, 255, 0.9); }
+            100% { opacity: 0; background: rgba(255, 255, 255, 0); }
         }
     </style>
 </head>
-<body class="flex items-center justify-center p-4">
+<body class="gradient-bg min-h-screen overflow-x-hidden">
+    <!-- Floating Background Elements -->
+    <div class="floating-element" style="top: 10%; left: 5%;"></div>
+    <div class="floating-element" style="top: 60%; right: 5%; animation-delay: -5s;"></div>
+    <div class="floating-element" style="bottom: 20%; left: 20%; animation-delay: -10s;"></div>
+    
     <!-- Hidden Canvas -->
     <canvas id="photoCanvas" style="display: none;"></canvas>
     
-    <!-- Flash Effect -->
-    <div id="flashEffect" class="flash-effect"></div>
+    <!-- Home View -->
+    <div id="homeView" class="container mx-auto px-4 py-12 relative z-10">
+        <div class="text-center mb-16 mt-8">
+            <h1 class="text-7xl font-bold mb-4 tracking-tight">
+                <span class="text-gradient">Photobooth</span>
+                <span class="text-gray-800"> Studio</span>
+            </h1>
+            <p class="text-xl text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
+                Capture beautiful moments with our aesthetic filters, collage maker, and creative tools. 
+                Perfect for memories, social media, and fun.
+            </p>
+        </div>
+        
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Start Camera Card -->
+            <div class="card-glass p-10 card-hover cursor-pointer" onclick="startCamera()">
+                <div class="icon-circle">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-3 text-center">Start Camera</h3>
+                <p class="text-gray-600 text-center leading-relaxed">
+                    Capture stunning photos with aesthetic filters, timer options, and creative controls
+                </p>
+            </div>
+            
+            <!-- Gallery Card -->
+            <div class="card-glass p-10 card-hover cursor-pointer" onclick="showGallery()">
+                <div class="icon-circle">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-3 text-center">Gallery</h3>
+                <p class="text-gray-600 text-center leading-relaxed">
+                    View and manage your <span class="font-semibold text-[#FF6B9D]" id="photoCount">0</span> photos with favorites and downloads
+                </p>
+            </div>
+            
+            <!-- Collage Card -->
+            <div class="card-glass p-10 card-hover cursor-pointer" onclick="showCollageMode()">
+                <div class="icon-circle">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"/>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-3 text-center">Create Collage</h3>
+                <p class="text-gray-600 text-center leading-relaxed">
+                    Design beautiful photo layouts with multiple templates and creative arrangements
+                </p>
+            </div>
+        </div>
+    </div>
     
-    <!-- Main Container -->
-    <div class="w-full max-w-6xl container-height">
-        <div class="glass-card rounded-3xl h-full p-6 flex flex-col">
+    <!-- Camera View -->
+    <div id="cameraView" class="hidden container mx-auto px-4 py-8 max-w-5xl relative z-10">
+        <div class="card-glass">
             <!-- Header -->
-            <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center justify-between p-8 border-b border-gray-100">
+                <button onclick="closeCamera()" class="btn-secondary px-6 py-3 rounded-full flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back
+                </button>
+                <h2 class="text-3xl font-bold text-gray-800">Camera Studio</h2>
+                <div class="w-32"></div>
+            </div>
+            
+            <!-- Video Preview -->
+            <div class="relative video-container mx-8 mt-8 mb-6">
+                <video id="video" autoplay playsinline class="w-full"></video>
+                <div id="countdown" class="hidden absolute inset-0 flex items-center justify-center bg-black/50 rounded-28">
+                    <div class="countdown-circle">
+                        <span id="countdownText" class="countdown-text">3</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Controls -->
+            <div class="p-8 space-y-8">
+                <!-- Filters -->
                 <div>
-                    <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
-                        Photobooth Studio
-                    </h1>
-                    <p class="text-gray-600 text-sm">Capture • Edit • Create</p>
-                </div>
-                <div class="flex gap-2">
-                    <button id="downloadAll" class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition">
-                        <span class="hidden sm:inline">Export All</span>
-                        <svg class="w-5 h-5 sm:ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-                        </svg>
-                    </button>
-                    <button id="clearAll" class="px-4 py-2 rounded-full bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium transition">
-                        <span class="hidden sm:inline">Clear All</span>
-                        <svg class="w-5 h-5 sm:ml-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Tab Navigation -->
-            <div class="flex gap-2 mb-6 bg-gray-100 rounded-2xl p-1">
-                <button class="tab-button flex-1 py-3 rounded-xl text-center font-medium text-gray-600 active" data-tab="camera">
-                    <div class="flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                        <span>Camera</span>
-                    </div>
-                </button>
-                <button class="tab-button flex-1 py-3 rounded-xl text-center font-medium text-gray-600" data-tab="gallery">
-                    <div class="flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        <span>Gallery</span>
-                    </div>
-                </button>
-                <button class="tab-button flex-1 py-3 rounded-xl text-center font-medium text-gray-600" data-tab="collage">
-                    <div class="flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"/>
-                        </svg>
-                        <span>Collage</span>
-                    </div>
-                </button>
-            </div>
-            
-            <!-- Tab Content -->
-            <div class="flex-1 overflow-hidden">
-                <!-- Camera Tab -->
-                <div id="cameraTab" class="tab-content active h-full flex flex-col">
-                    <!-- Camera Preview -->
-                    <div class="camera-container rounded-2xl overflow-hidden bg-gray-900 mb-4 relative">
-                        <video id="video" autoplay playsinline class="w-full h-full object-cover"></video>
-                        
-                        <!-- Countdown Overlay -->
-                        <div id="countdownOverlay" class="countdown-overlay hidden">
-                            <div class="countdown-circle">
-                                <span id="countdownText" class="text-white text-6xl font-bold">3</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Camera Controls -->
-                    <div class="flex-1 flex flex-col">
-                        <!-- Filters -->
-                        <div class="mb-4">
-                            <p class="text-sm font-medium text-gray-700 mb-2">Filters</p>
-                            <div class="flex gap-2 overflow-x-auto pb-2">
-                                <button class="filter-chip active" data-filter="none">Original</button>
-                                <button class="filter-chip" data-filter="bw">Black & White</button>
-                                <button class="filter-chip" data-filter="vintage">Vintage</button>
-                                <button class="filter-chip" data-filter="vibrant">Vibrant</button>
-                                <button class="filter-chip" data-filter="warm">Warm</button>
-                                <button class="filter-chip" data-filter="cool">Cool</button>
-                            </div>
-                        </div>
-                        
-                        <!-- Timer & Settings -->
-                        <div class="grid grid-cols-2 gap-4 mb-6">
-                            <div>
-                                <p class="text-sm font-medium text-gray-700 mb-2">Timer</p>
-                                <div class="flex gap-2">
-                                    <button class="filter-chip active" data-timer="0">Off</button>
-                                    <button class="filter-chip" data-timer="3">3s</button>
-                                    <button class="filter-chip" data-timer="5">5s</button>
-                                    <button class="filter-chip" data-timer="10">10s</button>
-                                </div>
-                            </div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-700 mb-2">Settings</p>
-                                <div class="flex gap-2">
-                                    <button id="mirrorToggle" class="filter-chip active" data-setting="mirror">
-                                        Mirror
-                                    </button>
-                                    <button id="gridToggle" class="filter-chip" data-setting="grid">
-                                        Grid
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Capture Button -->
-                        <div class="flex-1 flex items-center justify-center">
-                            <div class="capture-button" id="captureButton"></div>
-                        </div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Aesthetic Filters</h3>
+                    <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        <button onclick="setFilter('none')" class="filter-btn active bg-white text-gray-700 border border-gray-200">Original</button>
+                        <button onclick="setFilter('bw')" class="filter-btn bg-white text-gray-700 border border-gray-200">Monochrome</button>
+                        <button onclick="setFilter('vintage')" class="filter-btn bg-white text-gray-700 border border-gray-200">Vintage</button>
+                        <button onclick="setFilter('vibrant')" class="filter-btn bg-white text-gray-700 border border-gray-200">Vibrant</button>
+                        <button onclick="setFilter('pastel')" class="filter-btn bg-white text-gray-700 border border-gray-200">Pastel</button>
+                        <button onclick="setFilter('dramatic')" class="filter-btn bg-white text-gray-700 border border-gray-200">Dramatic</button>
                     </div>
                 </div>
                 
-                <!-- Gallery Tab -->
-                <div id="galleryTab" class="tab-content h-full">
-                    <div class="h-full flex flex-col">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-800">
-                                Your Photos <span id="photoCount" class="text-gray-500 font-normal">(0)</span>
-                            </h3>
-                            <button id="selectAll" class="px-4 py-2 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition">
-                                Select All
-                            </button>
-                        </div>
-                        
-                        <div id="galleryGrid" class="gallery-grid">
-                            <div id="emptyGallery" class="empty-state">
-                                <svg class="w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                                <p class="text-gray-600 mb-2">No photos yet</p>
-                                <p class="text-gray-500 text-sm">Switch to Camera tab to start capturing</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex gap-2 mt-4">
-                            <button id="downloadSelected" class="flex-1 py-3 rounded-xl bg-gray-800 hover:bg-gray-900 text-white font-medium transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                                Download Selected
-                            </button>
-                            <button id="deleteSelected" class="flex-1 py-3 rounded-xl bg-red-100 hover:bg-red-200 text-red-600 font-medium transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                                Delete Selected
-                            </button>
-                        </div>
+                <!-- Aspect Ratio -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Aspect Ratio</h3>
+                    <div class="flex gap-3">
+                        <button onclick="setAspectRatio('square')" class="aspect-btn active px-6 py-3">Square (1:1)</button>
+                        <button onclick="setAspectRatio('portrait')" class="aspect-btn px-6 py-3">Portrait (3:4)</button>
+                        <button onclick="setAspectRatio('landscape')" class="aspect-btn px-6 py-3">Landscape (16:9)</button>
                     </div>
                 </div>
                 
-                <!-- Collage Tab -->
-                <div id="collageTab" class="tab-content h-full">
-                    <div class="h-full flex flex-col">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Create Collage</h3>
-                        
-                        <!-- Template Selection -->
-                        <div class="mb-4">
-                            <p class="text-sm font-medium text-gray-700 mb-2">Choose Template</p>
-                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-                                <div class="template-item active" data-template="2x2">
-                                    <div class="grid grid-cols-2 gap-1 h-32 bg-gray-100 rounded-lg p-2">
-                                        <div class="bg-gray-300 rounded"></div>
-                                        <div class="bg-gray-300 rounded"></div>
-                                        <div class="bg-gray-300 rounded"></div>
-                                        <div class="bg-gray-300 rounded"></div>
-                                    </div>
-                                    <p class="text-center text-xs mt-2">2×2 Grid</p>
-                                </div>
-                                <div class="template-item" data-template="3vertical">
-                                    <div class="grid grid-cols-3 gap-1 h-32 bg-gray-100 rounded-lg p-2">
-                                        <div class="bg-gray-300 rounded"></div>
-                                        <div class="bg-gray-300 rounded"></div>
-                                        <div class="bg-gray-300 rounded"></div>
-                                    </div>
-                                    <p class="text-center text-xs mt-2">3 Vertical</p>
-                                </div>
-                                <div class="template-item" data-template="bigsmall">
-                                    <div class="grid grid-cols-2 gap-1 h-32 bg-gray-100 rounded-lg p-2">
-                                        <div class="bg-gray-300 rounded col-span-2"></div>
-                                        <div class="bg-gray-300 rounded"></div>
-                                        <div class="bg-gray-300 rounded"></div>
-                                    </div>
-                                    <p class="text-center text-xs mt-2">Big + Small</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Photo Selection -->
-                        <div class="mb-4 flex-1">
-                            <p class="text-sm font-medium text-gray-700 mb-2">
-                                Select Photos <span id="selectedCount" class="text-gray-500">(0/4)</span>
-                            </p>
-                            <div id="collageGrid" class="collage-templates grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <!-- Photos will be dynamically added -->
-                            </div>
-                        </div>
-                        
-                        <!-- Collage Actions -->
-                        <div class="flex gap-2">
-                            <button id="createCollage" class="flex-1 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 hover:opacity-90 text-white font-medium transition disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                                Create Collage
-                            </button>
+                <!-- Timer & Mirror -->
+                <div class="flex items-center gap-8">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Timer Settings</h3>
+                        <div class="flex gap-3">
+                            <button onclick="setTimer(0)" class="timer-btn active px-5 py-3">Off</button>
+                            <button onclick="setTimer(3)" class="timer-btn px-5 py-3">3s</button>
+                            <button onclick="setTimer(5)" class="timer-btn px-5 py-3">5s</button>
+                            <button onclick="setTimer(10)" class="timer-btn px-5 py-3">10s</button>
                         </div>
                     </div>
+                    <button onclick="toggleMirror()" id="mirrorBtn" class="btn-secondary px-6 py-3">
+                        <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                        </svg>
+                        Mirror On
+                    </button>
+                </div>
+                
+                <!-- Capture Button -->
+                <div class="flex justify-center">
+                    <div class="capture-btn" onclick="capturePhoto()"></div>
                 </div>
             </div>
         </div>
     </div>
     
+    <!-- Gallery View -->
+    <div id="galleryView" class="hidden container mx-auto px-4 py-8 max-w-7xl relative z-10">
+        <div class="card-glass p-8">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-10">
+                <button onclick="closeGallery()" class="btn-secondary px-6 py-3 rounded-full flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back
+                </button>
+                <h2 class="text-4xl font-bold text-gray-800 section-title">Your Gallery</h2>
+                <button onclick="clearAllPhotos()" class="btn-secondary px-6 py-3">
+                    Clear All
+                </button>
+            </div>
+            
+            <!-- Photo Grid -->
+            <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                <!-- Photos will be inserted here -->
+            </div>
+            
+            <!-- Empty State -->
+            <div id="emptyGallery" class="text-center py-24">
+                <div class="icon-circle mx-auto mb-8">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <h3 class="text-3xl font-bold text-gray-800 mb-4">No photos yet</h3>
+                <p class="text-gray-600 mb-8 text-lg">Start capturing beautiful moments!</p>
+                <button onclick="startCamera()" class="btn-primary px-10 py-4 rounded-full text-lg">
+                    Start Camera
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Collage View -->
+    <div id="collageView" class="hidden container mx-auto px-4 py-8 max-w-7xl relative z-10">
+        <div class="card-glass p-8">
+            <div class="flex items-center justify-between mb-10">
+                <button onclick="closeCollage()" class="btn-secondary px-6 py-3 rounded-full flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Back
+                </button>
+                <h2 class="text-4xl font-bold text-gray-800 section-title">Create Collage</h2>
+                <div class="w-32"></div>
+            </div>
+            
+            <!-- Layout Selection -->
+            <div class="mb-10">
+                <h3 class="text-lg font-semibold text-gray-800 mb-6">Choose Layout Style</h3>
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="setCollageLayout('2x2')" class="collage-layout-btn active">2×2 Grid</button>
+                    <button onclick="setCollageLayout('3photos')" class="collage-layout-btn">3 Photos</button>
+                    <button onclick="setCollageLayout('4strip')" class="collage-layout-btn">Photo Strip</button>
+                    <button onclick="setCollageLayout('1big')" class="collage-layout-btn">1 Big + 2 Small</button>
+                    <button onclick="setCollageLayout('diagonal')" class="collage-layout-btn">Diagonal</button>
+                </div>
+            </div>
+            
+            <p class="text-gray-600 mb-8 text-lg">Select photos for your collage 
+                <span class="font-semibold text-[#FF6B9D]" id="selectedCount">0</span> selected</p>
+            
+            <!-- Photo Selection Grid -->
+            <div id="collagePhotoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-10">
+                <!-- Photos will be inserted here -->
+            </div>
+            
+            <button onclick="createCollage()" class="btn-primary w-full py-5 rounded-full text-lg font-semibold">
+                <svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Create Beautiful Collage
+            </button>
+        </div>
+    </div>
+    
+    <!-- Flash Effect Container -->
+    <div id="flashEffect" class="hidden fixed inset-0 pointer-events-none z-50"></div>
+    
     <script>
-        // Global State
         let stream = null;
         let photos = JSON.parse(localStorage.getItem('photobooth_photos') || '[]');
-        let selectedPhotos = new Set();
-        let collagePhotos = [];
+        let favorites = new Set(JSON.parse(localStorage.getItem('photobooth_favorites') || '[]'));
         let currentFilter = 'none';
+        let currentAspectRatio = 'square';
         let currentTimer = 0;
-        let mirrorEnabled = true;
-        let gridEnabled = false;
-        let currentTab = 'camera';
-        let selectedTemplate = '2x2';
+        let mirrorMode = true;
+        let collagePhotos = [];
+        let collageLayout = '2x2';
         
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            updatePhotoCount();
-            updateGallery();
-            setupEventListeners();
-        });
+        updatePhotoCount();
         
-        function setupEventListeners() {
-            // Tab Navigation
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const tab = btn.dataset.tab;
-                    switchTab(tab);
-                });
-            });
-            
-            // Camera Controls
-            document.querySelectorAll('.filter-chip[data-filter]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-chip[data-filter]').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    currentFilter = btn.dataset.filter;
-                });
-            });
-            
-            document.querySelectorAll('.filter-chip[data-timer]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-chip[data-timer]').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    currentTimer = parseInt(btn.dataset.timer);
-                });
-            });
-            
-            document.getElementById('mirrorToggle').addEventListener('click', toggleMirror);
-            document.getElementById('gridToggle').addEventListener('click', toggleGrid);
-            
-            // Capture Button
-            document.getElementById('captureButton').addEventListener('click', capturePhoto);
-            
-            // Gallery Actions
-            document.getElementById('selectAll').addEventListener('click', selectAllPhotos);
-            document.getElementById('downloadSelected').addEventListener('click', downloadSelectedPhotos);
-            document.getElementById('deleteSelected').addEventListener('click', deleteSelectedPhotos);
-            
-            // Collage Actions
-            document.querySelectorAll('.template-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    document.querySelectorAll('.template-item').forEach(i => i.classList.remove('active'));
-                    item.classList.add('active');
-                    selectedTemplate = item.dataset.template;
-                });
-            });
-            
-            document.getElementById('createCollage').addEventListener('click', createCollage);
-            
-            // Header Actions
-            document.getElementById('downloadAll').addEventListener('click', downloadAllPhotos);
-            document.getElementById('clearAll').addEventListener('click', clearAllPhotos);
-            
-            // Request camera permission on camera tab
-            document.getElementById('cameraTab').addEventListener('click', () => {
-                if (!stream && currentTab === 'camera') {
-                    startCamera();
-                }
-            });
-        }
-        
-        function switchTab(tab) {
-            // Update active tab button
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.tab === tab) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // Hide all tab content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Show selected tab
-            document.getElementById(tab + 'Tab').classList.add('active');
-            currentTab = tab;
-            
-            // Start camera if switching to camera tab
-            if (tab === 'camera' && !stream) {
-                startCamera();
-            }
-            
-            // Update gallery if switching to gallery/collage
-            if (tab === 'gallery') {
-                updateGallery();
-            }
-            if (tab === 'collage') {
-                updateCollageGrid();
-            }
+        function updatePhotoCount() {
+            document.getElementById('photoCount').textContent = photos.length;
         }
         
         async function startCamera() {
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'user' }, 
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }, 
                     audio: false 
                 });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
-                video.style.transform = mirrorEnabled ? 'scaleX(-1)' : 'scaleX(1)';
+                video.style.transform = mirrorMode ? 'scaleX(-1)' : 'scaleX(1)';
+                
+                document.getElementById('homeView').classList.add('hidden');
+                document.getElementById('cameraView').classList.remove('hidden');
             } catch (err) {
                 alert('Camera access denied. Please allow camera permissions.');
             }
         }
         
-        function toggleMirror() {
-            mirrorEnabled = !mirrorEnabled;
-            const btn = document.getElementById('mirrorToggle');
-            const video = document.getElementById('video');
-            
-            video.style.transform = mirrorEnabled ? 'scaleX(-1)' : 'scaleX(1)';
-            btn.classList.toggle('active');
-            btn.textContent = mirrorEnabled ? 'Mirror On' : 'Mirror Off';
+        function closeCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            document.getElementById('cameraView').classList.add('hidden');
+            document.getElementById('homeView').classList.remove('hidden');
         }
         
-        function toggleGrid() {
-            gridEnabled = !gridEnabled;
-            const btn = document.getElementById('gridToggle');
-            const cameraContainer = document.querySelector('.camera-container');
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('bg-white', 'border', 'border-gray-200', 'text-gray-700');
+            });
+            event.target.classList.add('active');
+        }
+        
+        function setAspectRatio(ratio) {
+            currentAspectRatio = ratio;
+            const video = document.getElementById('video');
+            if (ratio === 'square') video.style.aspectRatio = '1/1';
+            else if (ratio === 'portrait') video.style.aspectRatio = '3/4';
+            else video.style.aspectRatio = '16/9';
             
-            if (gridEnabled) {
-                cameraContainer.style.backgroundImage = `
-                    linear-gradient(rgba(102, 126, 234, 0.1) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(102, 126, 234, 0.1) 1px, transparent 1px)
-                `;
-                cameraContainer.style.backgroundSize = '20px 20px';
-            } else {
-                cameraContainer.style.backgroundImage = 'none';
-            }
-            
-            btn.classList.toggle('active');
-            btn.textContent = gridEnabled ? 'Grid On' : 'Grid Off';
+            document.querySelectorAll('.aspect-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('bg-white', 'border', 'border-gray-200', 'text-gray-700');
+            });
+            event.target.classList.add('active');
+        }
+        
+        function setTimer(seconds) {
+            currentTimer = seconds;
+            document.querySelectorAll('.timer-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('bg-white', 'border', 'border-gray-200', 'text-gray-700');
+            });
+            event.target.classList.add('active');
+        }
+        
+        function toggleMirror() {
+            mirrorMode = !mirrorMode;
+            const video = document.getElementById('video');
+            const mirrorBtn = document.getElementById('mirrorBtn');
+            video.style.transform = mirrorMode ? 'scaleX(-1)' : 'scaleX(1)';
+            mirrorBtn.innerHTML = mirrorMode ? 
+                '<svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Mirror On' :
+                '<svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Mirror Off';
         }
         
         function capturePhoto() {
@@ -643,7 +698,7 @@
         }
         
         function startCountdown() {
-            const countdownEl = document.getElementById('countdownOverlay');
+            const countdownEl = document.getElementById('countdown');
             const countdownText = document.getElementById('countdownText');
             let count = currentTimer;
             
@@ -663,42 +718,44 @@
         }
         
         function takePhoto() {
-            if (!stream) return;
-            
             const video = document.getElementById('video');
             const canvas = document.getElementById('photoCanvas');
             const ctx = canvas.getContext('2d');
             
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0);
+            let width = video.videoWidth;
+            let height = video.videoHeight;
             
-            if (mirrorEnabled) {
+            if (currentAspectRatio === 'square') {
+                const size = Math.min(width, height);
+                canvas.width = size;
+                canvas.height = size;
+                ctx.drawImage(video, (width - size) / 2, (height - size) / 2, size, size, 0, 0, size, size);
+            } else if (currentAspectRatio === 'portrait') {
+                canvas.width = height * 0.75;
+                canvas.height = height;
+                ctx.drawImage(video, (width - canvas.width) / 2, 0, canvas.width, height, 0, 0, canvas.width, height);
+            } else {
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(video, 0, 0, width, height);
+            }
+            
+            if (mirrorMode) {
                 ctx.scale(-1, 1);
                 ctx.drawImage(canvas, -canvas.width, 0);
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
             }
             
             applyFilter(ctx, canvas.width, canvas.height);
             
             const photoData = canvas.toDataURL('image/png');
-            const photoId = Date.now();
             photos.push({ 
-                id: photoId, 
+                id: Date.now(), 
                 data: photoData, 
                 timestamp: new Date().toISOString(),
                 filter: currentFilter 
             });
-            
             localStorage.setItem('photobooth_photos', JSON.stringify(photos));
             updatePhotoCount();
-            
-            if (currentTab === 'gallery') {
-                updateGallery();
-            }
-            if (currentTab === 'collage') {
-                updateCollageGrid();
-            }
             
             flashEffect();
         }
@@ -730,15 +787,19 @@
                         data[i + 2] = Math.min(255, data[i + 2] * 1.3);
                     }
                     break;
-                case 'warm':
+                case 'pastel':
                     for (let i = 0; i < data.length; i += 4) {
-                        data[i] = Math.min(255, data[i] * 1.2);
-                        data[i + 1] = Math.min(255, data[i + 1] * 1.1);
+                        data[i] = Math.min(255, (data[i] + 255) / 2);
+                        data[i + 1] = Math.min(255, (data[i + 1] + 255) / 2);
+                        data[i + 2] = Math.min(255, (data[i + 2] + 255) / 2);
                     }
                     break;
-                case 'cool':
+                case 'dramatic':
                     for (let i = 0; i < data.length; i += 4) {
-                        data[i + 2] = Math.min(255, data[i + 2] * 1.2);
+                        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+                        data[i] = avg * 1.2;
+                        data[i + 1] = avg * 0.8;
+                        data[i + 2] = avg * 0.9;
                     }
                     break;
             }
@@ -748,250 +809,224 @@
         
         function flashEffect() {
             const flash = document.getElementById('flashEffect');
-            flash.classList.remove('flash');
-            void flash.offsetWidth; // Trigger reflow
-            flash.classList.add('flash');
+            flash.classList.remove('hidden');
+            flash.classList.add('flash-effect');
+            setTimeout(() => {
+                flash.classList.remove('flash-effect');
+                flash.classList.add('hidden');
+            }, 300);
         }
         
-        function updatePhotoCount() {
-            document.getElementById('photoCount').textContent = `(${photos.length})`;
+        function showGallery() {
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('galleryView').classList.remove('hidden');
+            renderGallery();
         }
         
-        function updateGallery() {
-            const galleryGrid = document.getElementById('galleryGrid');
-            const emptyGallery = document.getElementById('emptyGallery');
+        function closeGallery() {
+            document.getElementById('galleryView').classList.add('hidden');
+            document.getElementById('homeView').classList.remove('hidden');
+        }
+        
+        function renderGallery() {
+            const grid = document.getElementById('photoGrid');
+            const empty = document.getElementById('emptyGallery');
             
             if (photos.length === 0) {
-                emptyGallery.classList.remove('hidden');
-                galleryGrid.innerHTML = '';
-                galleryGrid.appendChild(emptyGallery);
+                grid.classList.add('hidden');
+                empty.classList.remove('hidden');
             } else {
-                emptyGallery.classList.add('hidden');
-                galleryGrid.innerHTML = '';
+                grid.classList.remove('hidden');
+                empty.classList.add('hidden');
                 
-                photos.forEach((photo, index) => {
-                    const photoItem = document.createElement('div');
-                    photoItem.className = 'photo-item';
-                    photoItem.innerHTML = `
-                        <img src="${photo.data}" class="w-full h-32 object-cover rounded-lg">
-                        ${selectedPhotos.has(photo.id) ? 
-                            `<div class="selected-overlay">${Array.from(selectedPhotos).indexOf(photo.id) + 1}</div>` : 
-                            ''}
-                        <div class="photo-actions">
-                            <button onclick="togglePhotoSelection(${photo.id}, event)" class="w-8 h-8 rounded-full bg-white hover:bg-gray-100 flex items-center justify-center shadow">
-                                <svg class="w-4 h-4 ${selectedPhotos.has(photo.id) ? 'text-purple-600' : 'text-gray-600'}" fill="${selectedPhotos.has(photo.id) ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                            </button>
+                grid.innerHTML = photos.map(photo => `
+                    <div class="photo-grid-item group cursor-pointer" onclick="viewPhoto(${photo.id})">
+                        <img src="${photo.data}" class="w-full h-64 object-cover">
+                        <div class="photo-overlay absolute inset-0 flex items-end p-4">
+                            <div class="flex gap-2 w-full">
+                                <button onclick="event.stopPropagation(); toggleFavorite(${photo.id})" 
+                                        class="action-btn flex-1 p-3">
+                                    <svg class="w-5 h-5 mx-auto ${favorites.has(photo.id) ? 'fill-red-500 text-red-500' : 'text-gray-600'}" 
+                                         fill="${favorites.has(photo.id) ? 'currentColor' : 'none'}" 
+                                         stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                    </svg>
+                                </button>
+                                <button onclick="event.stopPropagation(); downloadPhoto(${photo.id})" 
+                                        class="action-btn flex-1 p-3">
+                                    <svg class="w-5 h-5 mx-auto text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                    </svg>
+                                </button>
+                                <button onclick="event.stopPropagation(); deletePhoto(${photo.id})" 
+                                        class="action-btn flex-1 p-3">
+                                    <svg class="w-5 h-5 mx-auto text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                    `;
-                    galleryGrid.appendChild(photoItem);
-                });
+                    </div>
+                `).join('');
             }
-            
-            updateGalleryButtons();
         }
         
-        function togglePhotoSelection(photoId, event) {
-            event.stopPropagation();
-            
-            if (selectedPhotos.has(photoId)) {
-                selectedPhotos.delete(photoId);
+        function toggleFavorite(photoId) {
+            if (favorites.has(photoId)) {
+                favorites.delete(photoId);
             } else {
-                selectedPhotos.add(photoId);
+                favorites.add(photoId);
             }
-            
-            updateGallery();
+            localStorage.setItem('photobooth_favorites', JSON.stringify([...favorites]));
+            renderGallery();
         }
         
-        function selectAllPhotos() {
-            if (selectedPhotos.size === photos.length) {
-                selectedPhotos.clear();
-            } else {
-                photos.forEach(photo => selectedPhotos.add(photo.id));
-            }
-            updateGallery();
+        function downloadPhoto(photoId) {
+            const photo = photos.find(p => p.id === photoId);
+            const link = document.createElement('a');
+            link.href = photo.data;
+            link.download = `photobooth-${photoId}.png`;
+            link.click();
         }
         
-        function updateGalleryButtons() {
-            const hasSelected = selectedPhotos.size > 0;
-            document.getElementById('downloadSelected').disabled = !hasSelected;
-            document.getElementById('deleteSelected').disabled = !hasSelected;
-            document.getElementById('selectAll').textContent = 
-                selectedPhotos.size === photos.length ? 'Deselect All' : 'Select All';
-        }
-        
-        function downloadSelectedPhotos() {
-            selectedPhotos.forEach(photoId => {
-                const photo = photos.find(p => p.id === photoId);
-                const link = document.createElement('a');
-                link.href = photo.data;
-                link.download = `photo-${photoId}.png`;
-                link.click();
-            });
-        }
-        
-        function deleteSelectedPhotos() {
-            if (confirm(`Delete ${selectedPhotos.size} selected photo(s)?`)) {
-                photos = photos.filter(photo => !selectedPhotos.has(photo.id));
-                selectedPhotos.clear();
+        function deletePhoto(photoId) {
+            if (confirm('Delete this photo?')) {
+                photos = photos.filter(p => p.id !== photoId);
+                favorites.delete(photoId);
                 localStorage.setItem('photobooth_photos', JSON.stringify(photos));
+                localStorage.setItem('photobooth_favorites', JSON.stringify([...favorites]));
                 updatePhotoCount();
-                updateGallery();
+                renderGallery();
             }
-        }
-        
-        function downloadAllPhotos() {
-            photos.forEach(photo => {
-                const link = document.createElement('a');
-                link.href = photo.data;
-                link.download = `photo-${photo.id}.png`;
-                link.click();
-            });
         }
         
         function clearAllPhotos() {
-            if (photos.length === 0) return;
-            
-            if (confirm(`Delete all ${photos.length} photos?`)) {
+            if (confirm('Are you sure you want to delete all photos?')) {
                 photos = [];
-                selectedPhotos.clear();
+                favorites = new Set();
                 localStorage.setItem('photobooth_photos', JSON.stringify(photos));
+                localStorage.setItem('photobooth_favorites', JSON.stringify([...favorites]));
                 updatePhotoCount();
-                updateGallery();
-                updateCollageGrid();
+                renderGallery();
             }
         }
         
-        function updateCollageGrid() {
-            const collageGrid = document.getElementById('collageGrid');
-            collageGrid.innerHTML = '';
-            
-            if (photos.length === 0) {
-                collageGrid.innerHTML = `
-                    <div class="col-span-4 empty-state h-64">
-                        <p class="text-gray-600 mb-2">No photos yet</p>
-                        <p class="text-gray-500 text-sm">Capture some photos first</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            photos.forEach((photo, index) => {
-                const photoItem = document.createElement('div');
-                photoItem.className = 'photo-item relative';
-                photoItem.innerHTML = `
-                    <img src="${photo.data}" class="w-full h-32 object-cover rounded-lg cursor-pointer" 
-                         onclick="toggleCollagePhoto(${photo.id})">
-                    ${collagePhotos.includes(photo.id) ? 
-                        `<div class="selected-overlay">${collagePhotos.indexOf(photo.id) + 1}</div>` : 
-                        ''}
-                `;
-                collageGrid.appendChild(photoItem);
+        function showCollageMode() {
+            document.getElementById('homeView').classList.add('hidden');
+            document.getElementById('collageView').classList.remove('hidden');
+            renderCollageGrid();
+        }
+        
+        function closeCollage() {
+            document.getElementById('collageView').classList.add('hidden');
+            document.getElementById('homeView').classList.remove('hidden');
+            collagePhotos = [];
+        }
+        
+        function setCollageLayout(layout) {
+            collageLayout = layout;
+            document.querySelectorAll('.collage-layout-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
-            
-            updateCollageButton();
+            event.target.classList.add('active');
+        }
+        
+        function renderCollageGrid() {
+            const grid = document.getElementById('collagePhotoGrid');
+            grid.innerHTML = photos.map(photo => `
+                <div onclick="toggleCollagePhoto(${photo.id})" 
+                     class="photo-grid-item cursor-pointer relative ${collagePhotos.includes(photo.id) ? 'ring-4 ring-[#FF6B9D] ring-opacity-50' : ''}">
+                    <img src="${photo.data}" class="w-full h-64 object-cover">
+                    ${collagePhotos.includes(photo.id) ? 
+                        '<div class="selected-badge"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>' : 
+                        ''}
+                </div>
+            `).join('');
         }
         
         function toggleCollagePhoto(photoId) {
             if (collagePhotos.includes(photoId)) {
                 collagePhotos = collagePhotos.filter(id => id !== photoId);
             } else {
-                const templateRequirements = {
-                    '2x2': 4,
-                    '3vertical': 3,
-                    'bigsmall': 3
-                };
-                
-                if (collagePhotos.length >= templateRequirements[selectedTemplate]) {
-                    collagePhotos.shift();
-                }
                 collagePhotos.push(photoId);
             }
-            
-            updateCollageGrid();
-            document.getElementById('selectedCount').textContent = 
-                `(${collagePhotos.length}/${getTemplateRequirement()})`;
-        }
-        
-        function getTemplateRequirement() {
-            const requirements = {
-                '2x2': 4,
-                '3vertical': 3,
-                'bigsmall': 3
-            };
-            return requirements[selectedTemplate] || 4;
-        }
-        
-        function updateCollageButton() {
-            const requirement = getTemplateRequirement();
-            const btn = document.getElementById('createCollage');
-            btn.disabled = collagePhotos.length !== requirement;
+            document.getElementById('selectedCount').textContent = collagePhotos.length;
+            renderCollageGrid();
         }
         
         function createCollage() {
+            if (collagePhotos.length === 0) {
+                alert('Please select at least one photo');
+                return;
+            }
+            
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
             const layouts = {
-                '2x2': { cols: 2, rows: 2, spacing: 20 },
-                '3vertical': { cols: 3, rows: 1, spacing: 15 },
-                'bigsmall': { cols: 2, rows: 2, spacing: 15 }
+                '2x2': { cols: 2, rows: 2, count: 4, bg: '#FFE4E8' },
+                '3photos': { cols: 3, rows: 1, count: 3, bg: '#E4F2FF' },
+                '4strip': { cols: 1, rows: 4, count: 4, bg: '#F8E4FF' },
+                '1big': { cols: 2, rows: 2, count: 3, bg: '#FFE4F2' },
+                'diagonal': { cols: 3, rows: 3, count: 4, bg: '#E4E8FF' }
             };
             
-            const layout = layouts[selectedTemplate];
-            const spacing = layout.spacing;
-            const totalWidth = 1200;
-            const totalHeight = 800;
-            canvas.width = totalWidth;
-            canvas.height = totalHeight;
+            const layout = layouts[collageLayout];
+            const cellSize = 500;
+            const padding = 20;
+            canvas.width = cellSize * layout.cols;
+            canvas.height = cellSize * layout.rows;
             
-            // Background
-            const gradient = ctx.createLinearGradient(0, 0, totalWidth, totalHeight);
-            gradient.addColorStop(0, '#667eea');
-            gradient.addColorStop(1, '#764ba2');
+            // Gradient background
+            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            gradient.addColorStop(0, layout.bg);
+            gradient.addColorStop(1, '#ffffff');
             ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, totalWidth, totalHeight);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
             
             let loaded = 0;
-            collagePhotos.forEach((photoId, index) => {
+            collagePhotos.slice(0, layout.count).forEach((photoId, idx) => {
                 const photo = photos.find(p => p.id === photoId);
                 const img = new Image();
                 img.src = photo.data;
                 img.onload = () => {
                     let x, y, width, height;
                     
-                    switch(selectedTemplate) {
+                    switch(layout.name || collageLayout) {
                         case '2x2':
-                            const col2 = index % 2;
-                            const row2 = Math.floor(index / 2);
-                            width = (totalWidth - spacing * 3) / 2;
-                            height = (totalHeight - spacing * 3) / 2;
-                            x = spacing + col2 * (width + spacing);
-                            y = spacing + row2 * (height + spacing);
+                            const col = idx % 2;
+                            const row = Math.floor(idx / 2);
+                            x = col * cellSize + padding;
+                            y = row * cellSize + padding;
+                            width = height = cellSize - padding * 2;
                             break;
-                        case '3vertical':
-                            width = (totalWidth - spacing * 4) / 3;
-                            height = totalHeight - spacing * 2;
-                            x = spacing + index * (width + spacing);
-                            y = spacing;
+                        case '3photos':
+                            x = idx * cellSize + padding;
+                            y = padding;
+                            width = cellSize - padding * 2;
+                            height = cellSize - padding * 2;
                             break;
-                        case 'bigsmall':
-                            if (index === 0) {
-                                width = (totalWidth - spacing * 3) / 2 * 2;
-                                height = (totalHeight - spacing * 3) / 2;
-                                x = spacing;
-                                y = spacing;
+                        case '1big':
+                            if (idx === 0) {
+                                x = padding;
+                                y = padding;
+                                width = cellSize * 2 - padding * 3;
+                                height = cellSize * 2 - padding * 3;
                             } else {
-                                width = (totalWidth - spacing * 3) / 2;
-                                height = (totalHeight - spacing * 3) / 2;
-                                x = spacing + (index - 1) * (width + spacing);
-                                y = spacing * 2 + height;
+                                x = cellSize * 2 - padding;
+                                y = (idx - 1) * cellSize + padding;
+                                width = cellSize - padding * 2;
+                                height = cellSize - padding * 2;
                             }
                             break;
+                        default:
+                            x = padding;
+                            y = idx * cellSize + padding;
+                            width = cellSize - padding * 2;
+                            height = cellSize - padding * 2;
                     }
                     
-                    // Draw with rounded corners
+                    // Rounded corners
                     ctx.save();
                     ctx.beginPath();
                     ctx.roundRect(x, y, width, height, 20);
@@ -1000,12 +1035,12 @@
                     ctx.restore();
                     
                     // Border
-                    ctx.strokeStyle = 'white';
+                    ctx.strokeStyle = '#FF6B9D';
                     ctx.lineWidth = 4;
                     ctx.strokeRect(x, y, width, height);
                     
                     loaded++;
-                    if (loaded === collagePhotos.length) {
+                    if (loaded === Math.min(collagePhotos.length, layout.count)) {
                         const link = document.createElement('a');
                         link.href = canvas.toDataURL('image/png');
                         link.download = `collage-${Date.now()}.png`;
@@ -1014,9 +1049,6 @@
                 };
             });
         }
-        
-        // Initialize camera on load
-        startCamera();
     </script>
 </body>
 </html>
