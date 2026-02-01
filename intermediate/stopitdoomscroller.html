@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mindful Screen Time - Break the Scroll</title>
+    <title>Mindful Screen Time - AI Detection</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh@0.0.5"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap');
         
@@ -35,7 +38,6 @@
             position: relative;
         }
         
-        /* Animated background */
         body::before {
             content: '';
             position: fixed;
@@ -59,7 +61,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 2rem;
             position: relative;
@@ -101,9 +103,25 @@
             font-family: 'DM Mono', monospace;
         }
         
+        .ai-badge {
+            display: inline-block;
+            background: var(--gradient-main);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-family: 'DM Mono', monospace;
+            margin-top: 1rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
         .main-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 2fr 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
             animation: fadeInUp 0.8s ease-out 0.2s both;
@@ -187,11 +205,17 @@
         }
         
         #canvas {
-            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
         }
         
         .camera-placeholder {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100%;
@@ -200,6 +224,39 @@
             font-size: 1.2rem;
             text-align: center;
             padding: 2rem;
+            gap: 1rem;
+        }
+        
+        .loading-indicator {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 10;
+        }
+        
+        .loading-indicator.active {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(78, 205, 196, 0.3);
+            border-top: 4px solid var(--accent-calm);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .status-indicator {
@@ -223,10 +280,10 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            animation: pulse 2s ease-in-out infinite;
+            animation: statusPulse 2s ease-in-out infinite;
         }
         
-        @keyframes pulse {
+        @keyframes statusPulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
@@ -235,20 +292,68 @@
             background: var(--accent-calm);
         }
         
-        .status-indicator.detected .status-dot {
+        .status-indicator.phone-detected .status-dot {
             background: var(--accent-warning);
+            animation: alertPulse 0.5s ease-in-out infinite;
+        }
+        
+        @keyframes alertPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        
+        .status-indicator.looking .status-dot {
+            background: #ff4757;
         }
         
         .status-indicator.clear .status-dot {
             background: var(--accent-success);
         }
         
+        /* Detection Info Overlay */
+        .detection-info {
+            position: absolute;
+            bottom: 1rem;
+            left: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            border-radius: 10px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.85rem;
+            display: none;
+            z-index: 10;
+        }
+        
+        .detection-info.active {
+            display: block;
+        }
+        
+        .detection-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detection-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .detection-value {
+            color: var(--accent-calm);
+            font-weight: 500;
+        }
+        
+        .detection-value.alert {
+            color: var(--accent-warning);
+        }
+        
         /* Stats */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr;
             gap: 1rem;
-            margin-top: 1rem;
         }
         
         .stat-box {
@@ -257,6 +362,12 @@
             padding: 1.5rem;
             text-align: center;
             border: 1px solid rgba(78, 205, 196, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .stat-box:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-calm);
         }
         
         .stat-value {
@@ -266,6 +377,10 @@
             font-family: 'DM Mono', monospace;
             line-height: 1;
             margin-bottom: 0.5rem;
+        }
+        
+        .stat-value.warning {
+            color: var(--accent-warning);
         }
         
         .stat-label {
@@ -298,6 +413,11 @@
             overflow: hidden;
         }
         
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
         button::before {
             content: '';
             position: absolute;
@@ -311,7 +431,7 @@
             transition: width 0.6s, height 0.6s;
         }
         
-        button:hover::before {
+        button:not(:disabled):hover::before {
             width: 300px;
             height: 300px;
         }
@@ -326,7 +446,7 @@
             color: white;
         }
         
-        .btn-primary:hover {
+        .btn-primary:not(:disabled):hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(78, 205, 196, 0.3);
         }
@@ -337,7 +457,7 @@
             border: 2px solid var(--accent-calm);
         }
         
-        .btn-secondary:hover {
+        .btn-secondary:not(:disabled):hover {
             background: rgba(78, 205, 196, 0.1);
         }
         
@@ -354,6 +474,8 @@
             text-align: center;
             display: none;
             animation: slideIn 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
         }
         
         @keyframes slideIn {
@@ -391,21 +513,35 @@
             color: var(--text-muted);
         }
         
-        /* Timer Settings */
-        .timer-settings {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        /* Settings */
+        .settings-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(78, 205, 196, 0.2);
+        }
+        
+        .settings-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .setting-item {
             margin-bottom: 1rem;
         }
         
-        .timer-settings label {
+        .setting-item label {
+            display: block;
             font-family: 'DM Mono', monospace;
             color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
         }
         
-        .timer-settings input {
-            flex: 1;
+        .setting-item input,
+        .setting-item select {
+            width: 100%;
             padding: 0.8rem;
             border-radius: 10px;
             border: 2px solid rgba(78, 205, 196, 0.3);
@@ -415,14 +551,15 @@
             font-size: 1rem;
         }
         
-        .timer-settings input:focus {
+        .setting-item input:focus,
+        .setting-item select:focus {
             outline: none;
             border-color: var(--accent-calm);
         }
         
         /* Log */
         .log-container {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             margin-top: 1rem;
         }
@@ -448,17 +585,24 @@
             background: rgba(255, 107, 107, 0.05);
         }
         
+        .log-entry.success {
+            border-left-color: var(--accent-success);
+            background: rgba(149, 225, 211, 0.05);
+        }
+        
         .log-time {
             color: var(--text-muted);
             margin-right: 0.5rem;
         }
         
         /* Responsive */
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .main-grid {
                 grid-template-columns: 1fr;
             }
-            
+        }
+        
+        @media (max-width: 768px) {
             h1 {
                 font-size: 2.5rem;
             }
@@ -491,7 +635,7 @@
     <div class="container">
         <header>
             <h1>Mindful Screen Time</h1>
-            <p class="tagline">Break the scroll, reclaim your focus</p>
+            <p class="tagline">AI-powered phone detection & gaze tracking</p>
         </header>
         
         <div class="main-grid">
@@ -499,17 +643,40 @@
             <div class="card">
                 <h2 class="card-title">
                     <span class="icon">📸</span>
-                    Phone Detection
+                    AI Detection System
                 </h2>
                 <div id="camera-container">
                     <div class="camera-placeholder" id="placeholder">
-                        Click "Start Monitoring" to activate camera detection
+                        <div>Click "Start Monitoring" to activate AI detection</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">Requires camera access</div>
                     </div>
                     <video id="video" autoplay playsinline></video>
                     <canvas id="canvas"></canvas>
+                    
+                    <div class="loading-indicator" id="loadingIndicator">
+                        <div class="spinner"></div>
+                        <div>Loading AI models...</div>
+                        <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">This may take a moment</div>
+                    </div>
+                    
                     <div class="status-indicator monitoring" id="status">
                         <div class="status-dot"></div>
                         <span id="status-text">Ready</span>
+                    </div>
+                    
+                    <div class="detection-info" id="detectionInfo">
+                        <div class="detection-item">
+                            <span>Phone Detected:</span>
+                            <span class="detection-value" id="phoneDetectedInfo">No</span>
+                        </div>
+                        <div class="detection-item">
+                            <span>Eyes on Screen:</span>
+                            <span class="detection-value" id="gazeInfo">Unknown</span>
+                        </div>
+                        <div class="detection-item">
+                            <span>Confidence:</span>
+                            <span class="detection-value" id="confidenceInfo">0%</span>
+                        </div>
                     </div>
                 </div>
                 <div class="controls">
@@ -530,33 +697,48 @@
                 </h2>
                 <div class="stats-grid">
                     <div class="stat-box">
-                        <div class="stat-value" id="detections">0</div>
-                        <div class="stat-label">Phone Detected</div>
+                        <div class="stat-value" id="sessionTime">0m</div>
+                        <div class="stat-label">Active Session</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-value" id="phoneTime">0m</div>
-                        <div class="stat-label">Time on Phone</div>
+                        <div class="stat-value warning" id="phoneTime">0m</div>
+                        <div class="stat-label">Time Looking at Phone</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="focusTime">0m</div>
+                        <div class="stat-label">Focus Time</div>
                     </div>
                     <div class="stat-box">
                         <div class="stat-value" id="breakStreak">0</div>
                         <div class="stat-label">Break Streak</div>
                     </div>
                     <div class="stat-box">
-                        <div class="stat-value" id="focusTime">0m</div>
-                        <div class="stat-label">Focus Time</div>
+                        <div class="stat-value" id="detectionCount">0</div>
+                        <div class="stat-label">Phone Detections</div>
                     </div>
                 </div>
                 
-                <div class="timer-settings">
-                    <label for="alertTime">Alert after (seconds):</label>
-                    <input type="number" id="alertTime" value="10" min="5" max="300">
+                <div class="settings-section">
+                    <div class="settings-title">⚙️ Settings</div>
+                    <div class="setting-item">
+                        <label for="alertTime">Alert after (seconds):</label>
+                        <input type="number" id="alertTime" value="15" min="5" max="300">
+                    </div>
+                    <div class="setting-item">
+                        <label for="sensitivity">Detection Sensitivity:</label>
+                        <select id="sensitivity">
+                            <option value="0.5">Low</option>
+                            <option value="0.6" selected>Medium</option>
+                            <option value="0.7">High</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             
             <!-- Alert Box -->
             <div class="alert-box" id="alertBox">
-                <h3 id="alertTitle">📱 Phone Detected!</h3>
-                <p id="alertMessage">You've been scrolling for a while. Time for a break?</p>
+                <h3 id="alertTitle">📱 Phone Usage Alert!</h3>
+                <p id="alertMessage">You've been looking at your phone for a while. Time for a break?</p>
             </div>
             
             <!-- Activity Log -->
@@ -568,7 +750,7 @@
                 <div class="log-container" id="logContainer">
                     <div class="log-entry">
                         <span class="log-time">--:--:--</span>
-                        <span>Monitoring system ready. Start monitoring to begin tracking.</span>
+                        <span>System ready. Click Start Monitoring to begin AI detection.</span>
                     </div>
                 </div>
             </div>
@@ -580,15 +762,21 @@
         const state = {
             isMonitoring: false,
             phoneDetected: false,
+            lookingAtPhone: false,
             detectionCount: 0,
             phoneStartTime: null,
+            lookingStartTime: null,
             totalPhoneTime: 0,
+            sessionStartTime: null,
             focusStartTime: null,
             totalFocusTime: 0,
             breakStreak: 0,
-            alertThreshold: 10000, // milliseconds
+            alertThreshold: 15000,
             lastAlertTime: 0,
-            stream: null
+            stream: null,
+            objectModel: null,
+            faceMeshModel: null,
+            detectionSensitivity: 0.6
         };
         
         // DOM elements
@@ -600,36 +788,80 @@
         const status = document.getElementById('status');
         const statusText = document.getElementById('status-text');
         const placeholder = document.getElementById('placeholder');
+        const loadingIndicator = document.getElementById('loadingIndicator');
         const alertBox = document.getElementById('alertBox');
         const logContainer = document.getElementById('logContainer');
+        const detectionInfo = document.getElementById('detectionInfo');
         const alertTime = document.getElementById('alertTime');
+        const sensitivity = document.getElementById('sensitivity');
         
         // Stats elements
-        const detectionsEl = document.getElementById('detections');
+        const sessionTimeEl = document.getElementById('sessionTime');
         const phoneTimeEl = document.getElementById('phoneTime');
-        const breakStreakEl = document.getElementById('breakStreak');
         const focusTimeEl = document.getElementById('focusTime');
+        const breakStreakEl = document.getElementById('breakStreak');
+        const detectionCountEl = document.getElementById('detectionCount');
+        
+        // Detection info elements
+        const phoneDetectedInfo = document.getElementById('phoneDetectedInfo');
+        const gazeInfo = document.getElementById('gazeInfo');
+        const confidenceInfo = document.getElementById('confidenceInfo');
+        
+        // Load AI models
+        async function loadModels() {
+            try {
+                loadingIndicator.classList.add('active');
+                addLog('Loading AI models...');
+                
+                // Load COCO-SSD for object detection (detects cell phones)
+                state.objectModel = await cocoSsd.load();
+                addLog('✓ Object detection model loaded');
+                
+                // Load FaceMesh for eye gaze tracking
+                state.faceMeshModel = await facemesh.load();
+                addLog('✓ Face mesh model loaded');
+                
+                loadingIndicator.classList.remove('active');
+                addLog('🤖 All AI models loaded successfully', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error loading models:', error);
+                addLog('❌ Error loading AI models: ' + error.message, 'warning');
+                loadingIndicator.classList.remove('active');
+                return false;
+            }
+        }
         
         // Camera initialization
         async function startCamera() {
             try {
                 state.stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'user' },
+                    video: { 
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
                     audio: false 
                 });
                 video.srcObject = state.stream;
-                video.classList.add('active');
-                placeholder.style.display = 'none';
                 
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                
-                addLog('Camera activated successfully');
-                return true;
+                return new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        video.classList.add('active');
+                        placeholder.style.display = 'none';
+                        
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        
+                        addLog('📹 Camera activated successfully');
+                        resolve(true);
+                    };
+                });
             } catch (error) {
                 console.error('Error accessing camera:', error);
-                addLog('Error: Could not access camera. Please grant camera permissions.', 'warning');
-                alert('Please grant camera permissions to use phone detection.');
+                addLog('❌ Error: Could not access camera. Please grant camera permissions.', 'warning');
+                alert('Please grant camera permissions to use AI detection.');
                 return false;
             }
         }
@@ -639,63 +871,162 @@
                 state.stream.getTracks().forEach(track => track.stop());
                 video.classList.remove('active');
                 placeholder.style.display = 'flex';
+                detectionInfo.classList.remove('active');
                 addLog('Camera deactivated');
             }
         }
         
-        // Phone detection using simple motion and object detection
-        let lastFrame = null;
-        let motionThreshold = 30; // Sensitivity for motion detection
+        // Calculate if eyes are looking downward (at phone)
+        function isLookingAtPhone(face) {
+            if (!face || !face.annotations) return false;
+            
+            try {
+                // Get key facial landmarks
+                const leftEye = face.annotations.leftEyeUpper0;
+                const rightEye = face.annotations.rightEyeUpper0;
+                const noseTip = face.annotations.noseTip;
+                
+                if (!leftEye || !rightEye || !noseTip) return false;
+                
+                // Calculate average eye position
+                const avgEyeY = (leftEye[0][1] + rightEye[0][1]) / 2;
+                const noseTipY = noseTip[0][1];
+                
+                // If nose is significantly below eyes, person is looking down
+                const lookingDown = noseTipY > avgEyeY + 20;
+                
+                // Additional check: get eye aspect ratio to see if eyes are open
+                const leftEyeLower = face.annotations.leftEyeLower0;
+                const rightEyeLower = face.annotations.rightEyeLower0;
+                
+                if (!leftEyeLower || !rightEyeLower) return lookingDown;
+                
+                // Calculate eye openness
+                const leftEyeHeight = Math.abs(leftEye[2][1] - leftEyeLower[2][1]);
+                const rightEyeHeight = Math.abs(rightEye[2][1] - rightEyeLower[2][1]);
+                const avgEyeHeight = (leftEyeHeight + rightEyeHeight) / 2;
+                
+                // Eyes should be reasonably open
+                const eyesOpen = avgEyeHeight > 3;
+                
+                return lookingDown && eyesOpen;
+            } catch (error) {
+                console.error('Error in gaze detection:', error);
+                return false;
+            }
+        }
         
-        function detectPhone() {
+        // Main detection loop
+        async function detectPhoneAndGaze() {
             if (!state.isMonitoring) return;
             
-            // Draw current frame to canvas
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const currentFrame = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            
-            if (lastFrame) {
-                // Calculate motion/change between frames
-                let motionLevel = 0;
-                const centerRegionStart = Math.floor(canvas.width * 0.3);
-                const centerRegionEnd = Math.floor(canvas.width * 0.7);
-                const verticalStart = Math.floor(canvas.height * 0.2);
-                const verticalEnd = Math.floor(canvas.height * 0.8);
+            try {
+                // Clear canvas
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Focus on center region where phone would typically be
-                for (let y = verticalStart; y < verticalEnd; y += 4) {
-                    for (let x = centerRegionStart; x < centerRegionEnd; x += 4) {
-                        const i = (y * canvas.width + x) * 4;
-                        const diff = Math.abs(currentFrame.data[i] - lastFrame.data[i]) +
-                                   Math.abs(currentFrame.data[i + 1] - lastFrame.data[i + 1]) +
-                                   Math.abs(currentFrame.data[i + 2] - lastFrame.data[i + 2]);
-                        motionLevel += diff;
+                // Detect objects (looking for cell phones)
+                const predictions = await state.objectModel.detect(video);
+                
+                // Filter for cell phone detections
+                const phoneDetections = predictions.filter(pred => 
+                    pred.class === 'cell phone' && 
+                    pred.score >= state.detectionSensitivity
+                );
+                
+                let phoneDetectedNow = phoneDetections.length > 0;
+                let highestConfidence = 0;
+                
+                // Draw bounding boxes for detected phones
+                if (phoneDetectedNow) {
+                    phoneDetections.forEach(detection => {
+                        const [x, y, width, height] = detection.bbox;
+                        highestConfidence = Math.max(highestConfidence, detection.score);
+                        
+                        // Draw bounding box
+                        ctx.strokeStyle = '#ff6b6b';
+                        ctx.lineWidth = 3;
+                        ctx.strokeRect(x, y, width, height);
+                        
+                        // Draw label
+                        ctx.fillStyle = '#ff6b6b';
+                        ctx.fillRect(x, y - 25, width, 25);
+                        ctx.fillStyle = '#fff';
+                        ctx.font = '16px DM Mono';
+                        ctx.fillText(`Phone ${Math.round(detection.score * 100)}%`, x + 5, y - 7);
+                    });
+                }
+                
+                // Detect face and gaze direction
+                const faces = await state.faceMeshModel.estimateFaces(video);
+                let lookingAtPhoneNow = false;
+                
+                if (faces.length > 0) {
+                    const face = faces[0];
+                    lookingAtPhoneNow = isLookingAtPhone(face);
+                    
+                    // Draw face mesh points
+                    if (face.scaledMesh) {
+                        ctx.fillStyle = lookingAtPhoneNow ? '#ff6b6b' : '#4ecdc4';
+                        face.scaledMesh.forEach(point => {
+                            ctx.beginPath();
+                            ctx.arc(point[0], point[1], 1, 0, 2 * Math.PI);
+                            ctx.fill();
+                        });
                     }
                 }
                 
-                // Normalize motion level
-                motionLevel = motionLevel / ((verticalEnd - verticalStart) * (centerRegionEnd - centerRegionStart));
+                // Update detection info
+                phoneDetectedInfo.textContent = phoneDetectedNow ? 'Yes' : 'No';
+                phoneDetectedInfo.className = phoneDetectedNow ? 'detection-value alert' : 'detection-value';
                 
-                // Detect if phone is likely in view (based on motion patterns)
-                const phoneDetected = motionLevel > motionThreshold;
+                gazeInfo.textContent = faces.length === 0 ? 'No Face' : (lookingAtPhoneNow ? 'Looking Down' : 'Looking Up');
+                gazeInfo.className = lookingAtPhoneNow ? 'detection-value alert' : 'detection-value';
                 
-                if (phoneDetected && !state.phoneDetected) {
-                    onPhoneDetected();
-                } else if (!phoneDetected && state.phoneDetected) {
-                    onPhoneRemoved();
+                confidenceInfo.textContent = phoneDetectedNow ? `${Math.round(highestConfidence * 100)}%` : '0%';
+                
+                // Determine if user is actively using phone (phone detected AND looking at it)
+                const activelyUsingPhone = phoneDetectedNow && lookingAtPhoneNow;
+                
+                // Handle state changes
+                if (activelyUsingPhone && !state.lookingAtPhone) {
+                    onPhoneUsageStart();
+                } else if (!activelyUsingPhone && state.lookingAtPhone) {
+                    onPhoneUsageEnd();
                 }
+                
+                // Update phone detection status (even if not looking)
+                if (phoneDetectedNow && !state.phoneDetected) {
+                    state.phoneDetected = true;
+                    state.detectionCount++;
+                    detectionCountEl.textContent = state.detectionCount;
+                    addLog('📱 Phone detected in frame', 'warning');
+                } else if (!phoneDetectedNow && state.phoneDetected) {
+                    state.phoneDetected = false;
+                }
+                
+                // Update status indicator
+                if (activelyUsingPhone) {
+                    status.className = 'status-indicator looking';
+                    statusText.textContent = '⚠️ Using Phone';
+                } else if (phoneDetectedNow) {
+                    status.className = 'status-indicator phone-detected';
+                    statusText.textContent = 'Phone Visible';
+                } else {
+                    status.className = 'status-indicator clear';
+                    statusText.textContent = '✓ Focused';
+                }
+                
+            } catch (error) {
+                console.error('Detection error:', error);
             }
             
-            lastFrame = currentFrame;
-            
             // Continue detection loop
-            requestAnimationFrame(detectPhone);
+            requestAnimationFrame(detectPhoneAndGaze);
         }
         
-        function onPhoneDetected() {
-            state.phoneDetected = true;
-            state.detectionCount++;
-            state.phoneStartTime = Date.now();
+        function onPhoneUsageStart() {
+            state.lookingAtPhone = true;
+            state.lookingStartTime = Date.now();
             
             if (state.focusStartTime) {
                 const focusDuration = Date.now() - state.focusStartTime;
@@ -703,36 +1034,31 @@
                 state.focusStartTime = null;
             }
             
-            status.className = 'status-indicator detected';
-            statusText.textContent = 'Phone in View';
-            detectionsEl.textContent = state.detectionCount;
-            
-            addLog('📱 Phone detected in view', 'warning');
+            addLog('🚨 Started looking at phone', 'warning');
         }
         
-        function onPhoneRemoved() {
-            state.phoneDetected = false;
+        function onPhoneUsageEnd() {
+            state.lookingAtPhone = false;
             
-            if (state.phoneStartTime) {
-                const phoneDuration = Date.now() - state.phoneStartTime;
-                state.totalPhoneTime += phoneDuration;
-                state.phoneStartTime = null;
+            if (state.lookingStartTime) {
+                const usageDuration = Date.now() - state.lookingStartTime;
+                state.totalPhoneTime += usageDuration;
+                state.lookingStartTime = null;
                 
-                // Check if they put phone away quickly (< 30 seconds)
-                if (phoneDuration < 30000) {
+                const durationSeconds = Math.round(usageDuration / 1000);
+                
+                // Check if they stopped quickly (< 20 seconds)
+                if (usageDuration < 20000) {
                     state.breakStreak++;
-                    showAlert('success', '✨ Great job!', 'You put your phone away quickly. Keep it up!');
+                    showAlert('success', '✨ Nice job!', `You only looked at your phone for ${durationSeconds}s. Keep it up!`);
+                    addLog(`✅ Quick check (${durationSeconds}s) - streak increased`, 'success');
                 } else {
                     state.breakStreak = 0;
+                    addLog(`Phone session ended (${durationSeconds}s)`);
                 }
             }
             
             state.focusStartTime = Date.now();
-            
-            status.className = 'status-indicator clear';
-            statusText.textContent = 'Focused';
-            
-            addLog('✅ Phone removed - back to focus mode');
         }
         
         // Alert system
@@ -765,15 +1091,23 @@
         
         // Update stats periodically
         function updateStats() {
-            // Update phone time
-            let totalTime = state.totalPhoneTime;
-            if (state.phoneStartTime) {
-                totalTime += Date.now() - state.phoneStartTime;
-            }
-            const phoneMinutes = Math.floor(totalTime / 60000);
-            phoneTimeEl.textContent = phoneMinutes + 'm';
+            if (!state.sessionStartTime) return;
             
-            // Update focus time
+            // Session time
+            const sessionDuration = Date.now() - state.sessionStartTime;
+            const sessionMinutes = Math.floor(sessionDuration / 60000);
+            sessionTimeEl.textContent = sessionMinutes + 'm';
+            
+            // Phone time
+            let totalPhoneTime = state.totalPhoneTime;
+            if (state.lookingStartTime) {
+                totalPhoneTime += Date.now() - state.lookingStartTime;
+            }
+            const phoneMinutes = Math.floor(totalPhoneTime / 60000);
+            const phoneSeconds = Math.floor((totalPhoneTime % 60000) / 1000);
+            phoneTimeEl.textContent = phoneMinutes > 0 ? `${phoneMinutes}m ${phoneSeconds}s` : `${phoneSeconds}s`;
+            
+            // Focus time
             let focusTotal = state.totalFocusTime;
             if (state.focusStartTime) {
                 focusTotal += Date.now() - state.focusStartTime;
@@ -781,65 +1115,97 @@
             const focusMinutes = Math.floor(focusTotal / 60000);
             focusTimeEl.textContent = focusMinutes + 'm';
             
-            // Update break streak
+            // Break streak
             breakStreakEl.textContent = state.breakStreak;
             
             // Check if alert threshold exceeded
-            if (state.phoneDetected && state.phoneStartTime) {
-                const phoneDuration = Date.now() - state.phoneStartTime;
+            if (state.lookingAtPhone && state.lookingStartTime) {
+                const lookingDuration = Date.now() - state.lookingStartTime;
                 const threshold = parseInt(alertTime.value) * 1000;
                 
-                if (phoneDuration > threshold && Date.now() - state.lastAlertTime > 60000) {
-                    showAlert('warning', '⏰ Time Check', `You've been on your phone for ${Math.floor(phoneDuration/1000)} seconds. Consider taking a break!`);
+                if (lookingDuration > threshold && Date.now() - state.lastAlertTime > 60000) {
+                    const durationSec = Math.floor(lookingDuration / 1000);
+                    showAlert('warning', '⏰ Mindfulness Check', 
+                        `You've been looking at your phone for ${durationSec} seconds. Maybe take a break?`);
                     state.lastAlertTime = Date.now();
+                    addLog(`⚠️ Alert triggered after ${durationSec}s of phone use`, 'warning');
                 }
             }
         }
         
         // Event listeners
         startBtn.addEventListener('click', async () => {
+            startBtn.disabled = true;
+            
+            // Load models if not already loaded
+            if (!state.objectModel || !state.faceMeshModel) {
+                const modelsLoaded = await loadModels();
+                if (!modelsLoaded) {
+                    startBtn.disabled = false;
+                    return;
+                }
+            }
+            
+            // Start camera
             const cameraStarted = await startCamera();
             if (cameraStarted) {
                 state.isMonitoring = true;
+                state.sessionStartTime = Date.now();
                 state.focusStartTime = Date.now();
+                
                 startBtn.style.display = 'none';
                 stopBtn.style.display = 'block';
+                detectionInfo.classList.add('active');
+                
                 status.className = 'status-indicator monitoring';
-                statusText.textContent = 'Monitoring';
+                statusText.textContent = 'Monitoring Active';
                 
-                addLog('📹 Monitoring started');
+                addLog('🚀 Monitoring started with AI detection', 'success');
                 
-                // Wait for video to be ready
-                video.addEventListener('loadeddata', () => {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    detectPhone();
-                }, { once: true });
+                // Start detection
+                detectPhoneAndGaze();
                 
                 // Start stats update interval
                 setInterval(updateStats, 1000);
+            } else {
+                startBtn.disabled = false;
             }
         });
         
         stopBtn.addEventListener('click', () => {
             state.isMonitoring = false;
-            stopCamera();
-            startBtn.style.display = 'block';
-            stopBtn.style.display = 'none';
-            status.className = 'status-indicator';
-            statusText.textContent = 'Stopped';
             
             if (state.focusStartTime) {
                 state.totalFocusTime += Date.now() - state.focusStartTime;
                 state.focusStartTime = null;
             }
             
-            addLog('Monitoring stopped');
+            if (state.lookingStartTime) {
+                state.totalPhoneTime += Date.now() - state.lookingStartTime;
+                state.lookingStartTime = null;
+            }
+            
+            stopCamera();
+            
+            startBtn.style.display = 'block';
+            startBtn.disabled = false;
+            stopBtn.style.display = 'none';
+            
+            status.className = 'status-indicator';
+            statusText.textContent = 'Stopped';
+            
+            addLog('⏹️ Monitoring stopped');
         });
         
         alertTime.addEventListener('change', (e) => {
             state.alertThreshold = parseInt(e.target.value) * 1000;
             addLog(`Alert threshold updated to ${e.target.value} seconds`);
+        });
+        
+        sensitivity.addEventListener('change', (e) => {
+            state.detectionSensitivity = parseFloat(e.target.value);
+            const level = e.target.options[e.target.selectedIndex].text;
+            addLog(`Detection sensitivity set to ${level}`);
         });
     </script>
 </body>
