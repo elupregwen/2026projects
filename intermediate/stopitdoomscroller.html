@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mindful Screen Time - AI Detection</title>
+    <title>screentime ✧˖°</title>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh@0.0.5"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Outfit:wght@300;400;500&display=swap');
         
         * {
             margin: 0;
@@ -17,180 +17,136 @@
         }
         
         :root {
-            --bg-primary: #0a0e27;
-            --bg-secondary: #1a1f3a;
-            --accent-calm: #4ecdc4;
-            --accent-warning: #ff6b6b;
-            --accent-success: #95e1d3;
-            --text-primary: #f7f9fc;
-            --text-muted: #8892b0;
-            --gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --gradient-calm: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
-            --gradient-alert: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            --cream: #fef9f3;
+            --pink-soft: #ffd6e8;
+            --pink-main: #ffb3d9;
+            --pink-deep: #ff8ac7;
+            --pink-accent: #ff69b4;
+            --text-dark: #4a3f4c;
+            --text-muted: #9b8a9e;
+            --shadow: rgba(255, 179, 217, 0.15);
+            --border: rgba(255, 179, 217, 0.25);
         }
         
         body {
-            font-family: 'Crimson Pro', serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            background: var(--cream);
+            color: var(--text-dark);
             min-height: 100vh;
-            overflow-x: hidden;
             position: relative;
+            overflow-x: hidden;
         }
         
+        /* Subtle background gradient */
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
             background: 
-                radial-gradient(circle at 20% 50%, rgba(78, 205, 196, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 40% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%);
-            animation: drift 20s ease-in-out infinite;
+                radial-gradient(circle at 30% 20%, rgba(255, 214, 232, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(255, 179, 217, 0.2) 0%, transparent 50%);
+            animation: float 30s ease-in-out infinite;
             pointer-events: none;
             z-index: 0;
         }
         
-        @keyframes drift {
-            0%, 100% { transform: translate(0, 0); }
-            33% { transform: translate(30px, -30px); }
-            66% { transform: translate(-20px, 20px); }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(3%, -3%) rotate(1deg); }
+            66% { transform: translate(-2%, 2%) rotate(-1deg); }
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 900px;
             margin: 0 auto;
-            padding: 2rem;
+            padding: 3rem 1.5rem;
             position: relative;
             z-index: 1;
         }
         
         header {
             text-align: center;
-            margin-bottom: 3rem;
-            animation: fadeInDown 0.8s ease-out;
+            margin-bottom: 4rem;
+            animation: fadeIn 1s ease-out;
         }
         
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         h1 {
-            font-size: 3.5rem;
-            font-weight: 700;
-            background: var(--gradient-calm);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem;
+            font-weight: 300;
+            color: var(--text-dark);
             margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
+            letter-spacing: 0.02em;
+        }
+        
+        .sparkle {
+            display: inline-block;
+            color: var(--pink-accent);
+            animation: sparkle 2s ease-in-out infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
         }
         
         .tagline {
-            font-size: 1.3rem;
+            font-size: 1rem;
             color: var(--text-muted);
-            font-weight: 400;
-            font-family: 'DM Mono', monospace;
+            font-weight: 300;
+            letter-spacing: 0.05em;
         }
         
         .ai-badge {
-            display: inline-block;
-            background: var(--gradient-main);
-            padding: 0.5rem 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 0.6rem 1.2rem;
+            background: linear-gradient(135deg, var(--pink-soft) 0%, var(--pink-main) 100%);
             border-radius: 50px;
-            font-size: 0.9rem;
-            font-family: 'DM Mono', monospace;
-            margin-top: 1rem;
-            animation: pulse 2s ease-in-out infinite;
+            font-size: 0.75rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-dark);
+            border: 1px solid var(--border);
         }
         
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        .main-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 2rem;
+        /* Main Card */
+        .main-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 2.5rem;
             margin-bottom: 2rem;
-            animation: fadeInUp 0.8s ease-out 0.2s both;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px var(--shadow);
+            animation: fadeInUp 1s ease-out 0.2s both;
         }
         
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .card {
-            background: var(--bg-secondary);
-            border-radius: 20px;
-            padding: 2rem;
-            border: 1px solid rgba(78, 205, 196, 0.2);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--gradient-calm);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            pointer-events: none;
-        }
-        
-        .card:hover {
-            border-color: var(--accent-calm);
-            transform: translateY(-5px);
-        }
-        
-        .card:hover::before {
-            opacity: 0.05;
-        }
-        
-        .card-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .icon {
-            font-size: 1.5rem;
-        }
-        
-        /* Camera Feed */
+        /* Camera Section */
         #camera-container {
             position: relative;
-            border-radius: 15px;
+            border-radius: 20px;
             overflow: hidden;
-            background: #000;
-            aspect-ratio: 16/9;
-            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--pink-soft) 0%, var(--pink-main) 100%);
+            aspect-ratio: 16/10;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px var(--shadow);
         }
         
         #video {
@@ -219,12 +175,27 @@
             align-items: center;
             justify-content: center;
             height: 100%;
-            background: var(--gradient-main);
-            color: white;
-            font-size: 1.2rem;
+            color: var(--text-dark);
             text-align: center;
-            padding: 2rem;
+            padding: 3rem;
             gap: 1rem;
+        }
+        
+        .camera-placeholder-icon {
+            font-size: 3rem;
+            opacity: 0.6;
+        }
+        
+        .camera-placeholder-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+        
+        .camera-placeholder-sub {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            font-weight: 300;
         }
         
         .loading-indicator {
@@ -233,11 +204,13 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.8);
-            padding: 2rem;
-            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2.5rem;
+            border-radius: 20px;
             text-align: center;
             z-index: 10;
+            border: 1px solid var(--border);
         }
         
         .loading-indicator.active {
@@ -245,8 +218,8 @@
         }
         
         .spinner {
-            border: 4px solid rgba(78, 205, 196, 0.3);
-            border-top: 4px solid var(--accent-calm);
+            border: 3px solid var(--pink-soft);
+            border-top: 3px solid var(--pink-accent);
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -259,166 +232,184 @@
             100% { transform: rotate(360deg); }
         }
         
-        .status-indicator {
+        .loading-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .loading-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+        
+        /* Status Badge */
+        .status-badge {
             position: absolute;
-            top: 1rem;
-            right: 1rem;
-            padding: 0.5rem 1rem;
+            top: 1.5rem;
+            right: 1.5rem;
+            padding: 0.6rem 1.2rem;
             border-radius: 50px;
-            font-family: 'DM Mono', monospace;
-            font-size: 0.9rem;
-            font-weight: 500;
+            font-size: 0.85rem;
+            font-weight: 400;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            background: rgba(0, 0, 0, 0.7);
+            gap: 0.6rem;
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             z-index: 10;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 20px var(--shadow);
         }
         
         .status-dot {
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            animation: statusPulse 2s ease-in-out infinite;
+            animation: breathe 2s ease-in-out infinite;
         }
         
-        @keyframes statusPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        @keyframes breathe {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
         }
         
-        .status-indicator.monitoring .status-dot {
-            background: var(--accent-calm);
+        .status-badge.monitoring .status-dot {
+            background: var(--pink-main);
         }
         
-        .status-indicator.phone-detected .status-dot {
-            background: var(--accent-warning);
-            animation: alertPulse 0.5s ease-in-out infinite;
+        .status-badge.phone-detected .status-dot {
+            background: var(--pink-deep);
         }
         
-        @keyframes alertPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.3); }
+        .status-badge.looking .status-dot {
+            background: var(--pink-accent);
+            animation: alert 0.6s ease-in-out infinite;
         }
         
-        .status-indicator.looking .status-dot {
-            background: #ff4757;
+        @keyframes alert {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
         }
         
-        .status-indicator.clear .status-dot {
-            background: var(--accent-success);
+        .status-badge.clear .status-dot {
+            background: #a8dadc;
         }
         
-        /* Detection Info Overlay */
+        /* Detection Info */
         .detection-info {
             position: absolute;
-            bottom: 1rem;
-            left: 1rem;
-            right: 1rem;
-            background: rgba(0, 0, 0, 0.8);
+            bottom: 1.5rem;
+            left: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            padding: 1rem;
-            border-radius: 10px;
-            font-family: 'DM Mono', monospace;
+            padding: 1.2rem;
+            border-radius: 15px;
             font-size: 0.85rem;
             display: none;
             z-index: 10;
+            border: 1px solid var(--border);
         }
         
         .detection-info.active {
-            display: block;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
         }
         
         .detection-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
+            text-align: center;
         }
         
-        .detection-item:last-child {
-            margin-bottom: 0;
+        .detection-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
         
         .detection-value {
-            color: var(--accent-calm);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            color: var(--text-dark);
             font-weight: 500;
         }
         
         .detection-value.alert {
-            color: var(--accent-warning);
+            color: var(--pink-accent);
         }
         
-        /* Stats */
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 1rem;
+            margin-bottom: 2rem;
         }
         
         .stat-box {
-            background: rgba(78, 205, 196, 0.1);
-            border-radius: 15px;
-            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 1.5rem 1rem;
             text-align: center;
-            border: 1px solid rgba(78, 205, 196, 0.2);
+            border: 1px solid var(--border);
             transition: all 0.3s ease;
         }
         
         .stat-box:hover {
-            transform: translateY(-3px);
-            border-color: var(--accent-calm);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px var(--shadow);
+            background: rgba(255, 255, 255, 0.8);
         }
         
         .stat-value {
+            font-family: 'Cormorant Garamond', serif;
             font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--accent-calm);
-            font-family: 'DM Mono', monospace;
+            font-weight: 400;
+            color: var(--pink-accent);
             line-height: 1;
             margin-bottom: 0.5rem;
         }
         
         .stat-value.warning {
-            color: var(--accent-warning);
+            color: var(--pink-deep);
         }
         
         .stat-label {
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-family: 'DM Mono', monospace;
+            letter-spacing: 0.08em;
+            font-weight: 400;
         }
         
         /* Controls */
         .controls {
             display: flex;
             gap: 1rem;
-            flex-wrap: wrap;
+            margin-bottom: 2rem;
         }
         
         button {
             flex: 1;
-            min-width: 150px;
             padding: 1rem 2rem;
             border: none;
             border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
-            font-family: 'Crimson Pro', serif;
+            font-size: 0.95rem;
+            font-weight: 400;
+            font-family: 'Outfit', sans-serif;
             cursor: pointer;
             transition: all 0.3s ease;
+            letter-spacing: 0.05em;
             position: relative;
             overflow: hidden;
         }
         
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        button::before {
+        button::after {
             content: '';
             position: absolute;
             top: 50%;
@@ -426,12 +417,12 @@
             width: 0;
             height: 0;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.5);
             transform: translate(-50%, -50%);
             transition: width 0.6s, height 0.6s;
         }
         
-        button:not(:disabled):hover::before {
+        button:not(:disabled):hover::after {
             width: 300px;
             height: 300px;
         }
@@ -441,52 +432,100 @@
             z-index: 1;
         }
         
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
         .btn-primary {
-            background: var(--gradient-calm);
+            background: linear-gradient(135deg, var(--pink-main) 0%, var(--pink-accent) 100%);
             color: white;
+            border: 1px solid var(--pink-accent);
+            box-shadow: 0 4px 20px var(--shadow);
         }
         
         .btn-primary:not(:disabled):hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(78, 205, 196, 0.3);
+            box-shadow: 0 6px 30px rgba(255, 105, 180, 0.3);
         }
         
         .btn-secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 2px solid var(--accent-calm);
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--text-dark);
+            border: 1px solid var(--border);
         }
         
         .btn-secondary:not(:disabled):hover {
-            background: rgba(78, 205, 196, 0.1);
+            background: rgba(255, 255, 255, 0.9);
+            border-color: var(--pink-main);
         }
         
-        .btn-danger {
-            background: var(--gradient-alert);
-            color: white;
+        /* Settings */
+        .settings-section {
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
         }
         
-        /* Alert System */
+        .settings-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+        }
+        
+        .settings-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .setting-item label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .setting-item input,
+        .setting-item select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 50px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--text-dark);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        
+        .setting-item input:focus,
+        .setting-item select:focus {
+            outline: none;
+            border-color: var(--pink-main);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(255, 179, 217, 0.1);
+        }
+        
+        /* Alert Box */
         .alert-box {
-            grid-column: 1 / -1;
-            padding: 2rem;
-            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
             text-align: center;
             display: none;
-            animation: slideIn 0.5s ease-out;
-            position: relative;
-            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 15px 50px var(--shadow);
+            animation: slideDown 0.5s ease-out;
         }
         
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .alert-box.active {
@@ -494,264 +533,239 @@
         }
         
         .alert-box.warning {
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(238, 90, 111, 0.2) 100%);
-            border: 2px solid var(--accent-warning);
+            border-color: var(--pink-accent);
         }
         
         .alert-box.success {
-            background: linear-gradient(135deg, rgba(149, 225, 211, 0.2) 0%, rgba(68, 160, 141, 0.2) 100%);
-            border: 2px solid var(--accent-success);
+            border-color: #a8dadc;
         }
         
         .alert-box h3 {
+            font-family: 'Cormorant Garamond', serif;
             font-size: 2rem;
+            font-weight: 400;
             margin-bottom: 1rem;
+            color: var(--text-dark);
         }
         
         .alert-box p {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-        }
-        
-        /* Settings */
-        .settings-section {
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(78, 205, 196, 0.2);
-        }
-        
-        .settings-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-        }
-        
-        .setting-item {
-            margin-bottom: 1rem;
-        }
-        
-        .setting-item label {
-            display: block;
-            font-family: 'DM Mono', monospace;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .setting-item input,
-        .setting-item select {
-            width: 100%;
-            padding: 0.8rem;
-            border-radius: 10px;
-            border: 2px solid rgba(78, 205, 196, 0.3);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: 'DM Mono', monospace;
             font-size: 1rem;
-        }
-        
-        .setting-item input:focus,
-        .setting-item select:focus {
-            outline: none;
-            border-color: var(--accent-calm);
+            color: var(--text-muted);
+            line-height: 1.6;
         }
         
         /* Log */
+        .log-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 2.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 60px var(--shadow);
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+        
+        .log-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+        }
+        
         .log-container {
-            max-height: 400px;
+            max-height: 300px;
             overflow-y: auto;
-            margin-top: 1rem;
+            padding-right: 0.5rem;
         }
         
         .log-entry {
             padding: 1rem;
-            margin-bottom: 0.5rem;
-            background: rgba(78, 205, 196, 0.05);
-            border-left: 3px solid var(--accent-calm);
-            border-radius: 5px;
-            font-family: 'DM Mono', monospace;
+            margin-bottom: 0.8rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-left: 2px solid var(--pink-main);
+            border-radius: 10px;
             font-size: 0.9rem;
-            animation: fadeIn 0.3s ease-out;
+            animation: slideIn 0.3s ease-out;
+            line-height: 1.5;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         
         .log-entry.warning {
-            border-left-color: var(--accent-warning);
-            background: rgba(255, 107, 107, 0.05);
+            border-left-color: var(--pink-accent);
+            background: rgba(255, 214, 232, 0.3);
         }
         
         .log-entry.success {
-            border-left-color: var(--accent-success);
-            background: rgba(149, 225, 211, 0.05);
+            border-left-color: #a8dadc;
+            background: rgba(168, 218, 220, 0.2);
         }
         
         .log-time {
             color: var(--text-muted);
-            margin-right: 0.5rem;
+            margin-right: 0.8rem;
+            font-size: 0.85rem;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 179, 217, 0.1);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--pink-main);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--pink-accent);
         }
         
         /* Responsive */
-        @media (max-width: 1024px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        
         @media (max-width: 768px) {
             h1 {
-                font-size: 2.5rem;
+                font-size: 2.8rem;
+            }
+            
+            .main-card,
+            .log-card {
+                padding: 1.8rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .controls {
                 flex-direction: column;
             }
             
-            button {
-                width: 100%;
+            .detection-info.active {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
             }
-        }
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent-calm);
-            border-radius: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Mindful Screen Time</h1>
-            <p class="tagline">AI-powered phone detection & gaze tracking</p>
+            <h1>screentime <span class="sparkle">✧˖°</span></h1>
+            <p class="tagline">your mindful companion</p>
+            <div class="ai-badge">
+                <span>✦</span>
+                <span>ai detection</span>
+            </div>
         </header>
         
-        <div class="main-grid">
-            <!-- Camera Section -->
-            <div class="card">
-                <h2 class="card-title">
-                    <span class="icon">📸</span>
-                    AI Detection System
-                </h2>
-                <div id="camera-container">
-                    <div class="camera-placeholder" id="placeholder">
-                        <div>Click "Start Monitoring" to activate AI detection</div>
-                        <div style="font-size: 0.9rem; opacity: 0.8;">Requires camera access</div>
-                    </div>
-                    <video id="video" autoplay playsinline></video>
-                    <canvas id="canvas"></canvas>
-                    
-                    <div class="loading-indicator" id="loadingIndicator">
-                        <div class="spinner"></div>
-                        <div>Loading AI models...</div>
-                        <div style="font-size: 0.9rem; opacity: 0.7; margin-top: 0.5rem;">This may take a moment</div>
-                    </div>
-                    
-                    <div class="status-indicator monitoring" id="status">
-                        <div class="status-dot"></div>
-                        <span id="status-text">Ready</span>
-                    </div>
-                    
-                    <div class="detection-info" id="detectionInfo">
-                        <div class="detection-item">
-                            <span>Phone Detected:</span>
-                            <span class="detection-value" id="phoneDetectedInfo">No</span>
-                        </div>
-                        <div class="detection-item">
-                            <span>Eyes on Screen:</span>
-                            <span class="detection-value" id="gazeInfo">Unknown</span>
-                        </div>
-                        <div class="detection-item">
-                            <span>Confidence:</span>
-                            <span class="detection-value" id="confidenceInfo">0%</span>
-                        </div>
-                    </div>
+        <div class="alert-box" id="alertBox">
+            <h3 id="alertTitle">gentle reminder ♡</h3>
+            <p id="alertMessage">you've been scrolling for a while, maybe take a little break?</p>
+        </div>
+        
+        <div class="main-card">
+            <div id="camera-container">
+                <div class="camera-placeholder" id="placeholder">
+                    <div class="camera-placeholder-icon">✧</div>
+                    <div class="camera-placeholder-text">ready when you are</div>
+                    <div class="camera-placeholder-sub">tap start to begin mindful monitoring</div>
                 </div>
-                <div class="controls">
-                    <button class="btn-primary" id="startBtn">
-                        <span>Start Monitoring</span>
-                    </button>
-                    <button class="btn-secondary" id="stopBtn" style="display: none;">
-                        <span>Stop</span>
-                    </button>
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas"></canvas>
+                
+                <div class="loading-indicator" id="loadingIndicator">
+                    <div class="spinner"></div>
+                    <div class="loading-text">loading ai models</div>
+                    <div class="loading-sub">just a moment ♡</div>
+                </div>
+                
+                <div class="status-badge monitoring" id="status">
+                    <div class="status-dot"></div>
+                    <span id="status-text">ready</span>
+                </div>
+                
+                <div class="detection-info" id="detectionInfo">
+                    <div class="detection-item">
+                        <div class="detection-label">phone</div>
+                        <div class="detection-value" id="phoneDetectedInfo">no</div>
+                    </div>
+                    <div class="detection-item">
+                        <div class="detection-label">looking</div>
+                        <div class="detection-value" id="gazeInfo">—</div>
+                    </div>
+                    <div class="detection-item">
+                        <div class="detection-label">confidence</div>
+                        <div class="detection-value" id="confidenceInfo">0%</div>
+                    </div>
                 </div>
             </div>
             
-            <!-- Stats Section -->
-            <div class="card">
-                <h2 class="card-title">
-                    <span class="icon">📊</span>
-                    Your Progress
-                </h2>
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-value" id="sessionTime">0m</div>
-                        <div class="stat-label">Active Session</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value warning" id="phoneTime">0m</div>
-                        <div class="stat-label">Time Looking at Phone</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="focusTime">0m</div>
-                        <div class="stat-label">Focus Time</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="breakStreak">0</div>
-                        <div class="stat-label">Break Streak</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-value" id="detectionCount">0</div>
-                        <div class="stat-label">Phone Detections</div>
-                    </div>
+            <div class="controls">
+                <button class="btn-primary" id="startBtn">
+                    <span>start monitoring</span>
+                </button>
+                <button class="btn-secondary" id="stopBtn" style="display: none;">
+                    <span>stop</span>
+                </button>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-value" id="sessionTime">0m</div>
+                    <div class="stat-label">session</div>
                 </div>
-                
-                <div class="settings-section">
-                    <div class="settings-title">⚙️ Settings</div>
+                <div class="stat-box">
+                    <div class="stat-value warning" id="phoneTime">0s</div>
+                    <div class="stat-label">scrolling</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="focusTime">0m</div>
+                    <div class="stat-label">focused</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="breakStreak">0</div>
+                    <div class="stat-label">streak</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="detectionCount">0</div>
+                    <div class="stat-label">checks</div>
+                </div>
+            </div>
+            
+            <div class="settings-section">
+                <div class="settings-title">settings</div>
+                <div class="settings-grid">
                     <div class="setting-item">
-                        <label for="alertTime">Alert after (seconds):</label>
+                        <label for="alertTime">remind me after (seconds)</label>
                         <input type="number" id="alertTime" value="15" min="5" max="300">
                     </div>
                     <div class="setting-item">
-                        <label for="sensitivity">Detection Sensitivity:</label>
+                        <label for="sensitivity">detection sensitivity</label>
                         <select id="sensitivity">
-                            <option value="0.5">Low</option>
-                            <option value="0.6" selected>Medium</option>
-                            <option value="0.7">High</option>
+                            <option value="0.5">gentle</option>
+                            <option value="0.6" selected>balanced</option>
+                            <option value="0.7">precise</option>
                         </select>
                     </div>
                 </div>
             </div>
-            
-            <!-- Alert Box -->
-            <div class="alert-box" id="alertBox">
-                <h3 id="alertTitle">📱 Phone Usage Alert!</h3>
-                <p id="alertMessage">You've been looking at your phone for a while. Time for a break?</p>
-            </div>
-            
-            <!-- Activity Log -->
-            <div class="card" style="grid-column: 1 / -1;">
-                <h2 class="card-title">
-                    <span class="icon">📝</span>
-                    Activity Log
-                </h2>
-                <div class="log-container" id="logContainer">
-                    <div class="log-entry">
-                        <span class="log-time">--:--:--</span>
-                        <span>System ready. Click Start Monitoring to begin AI detection.</span>
-                    </div>
+        </div>
+        
+        <div class="log-card">
+            <div class="log-title">activity journal</div>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry">
+                    <span class="log-time">—</span>
+                    <span>ready to help you stay mindful ♡</span>
                 </div>
             </div>
         </div>
@@ -811,22 +825,22 @@
         async function loadModels() {
             try {
                 loadingIndicator.classList.add('active');
-                addLog('Loading AI models...');
+                addLog('loading ai models...');
                 
                 // Load COCO-SSD for object detection (detects cell phones)
                 state.objectModel = await cocoSsd.load();
-                addLog('✓ Object detection model loaded');
+                addLog('object detection ready ✓');
                 
                 // Load FaceMesh for eye gaze tracking
                 state.faceMeshModel = await facemesh.load();
-                addLog('✓ Face mesh model loaded');
+                addLog('face tracking ready ✓');
                 
                 loadingIndicator.classList.remove('active');
-                addLog('🤖 All AI models loaded successfully', 'success');
+                addLog('all systems ready ♡', 'success');
                 return true;
             } catch (error) {
                 console.error('Error loading models:', error);
-                addLog('❌ Error loading AI models: ' + error.message, 'warning');
+                addLog('couldn\'t load ai models: ' + error.message, 'warning');
                 loadingIndicator.classList.remove('active');
                 return false;
             }
@@ -854,14 +868,14 @@
                         canvas.width = video.videoWidth;
                         canvas.height = video.videoHeight;
                         
-                        addLog('📹 Camera activated successfully');
+                        addLog('camera activated ✓');
                         resolve(true);
                     };
                 });
             } catch (error) {
                 console.error('Error accessing camera:', error);
-                addLog('❌ Error: Could not access camera. Please grant camera permissions.', 'warning');
-                alert('Please grant camera permissions to use AI detection.');
+                addLog('couldn\'t access camera, please check permissions', 'warning');
+                alert('please allow camera access to use mindful detection ♡');
                 return false;
             }
         }
@@ -872,7 +886,7 @@
                 video.classList.remove('active');
                 placeholder.style.display = 'flex';
                 detectionInfo.classList.remove('active');
-                addLog('Camera deactivated');
+                addLog('camera stopped');
             }
         }
         
@@ -881,32 +895,26 @@
             if (!face || !face.annotations) return false;
             
             try {
-                // Get key facial landmarks
                 const leftEye = face.annotations.leftEyeUpper0;
                 const rightEye = face.annotations.rightEyeUpper0;
                 const noseTip = face.annotations.noseTip;
                 
                 if (!leftEye || !rightEye || !noseTip) return false;
                 
-                // Calculate average eye position
                 const avgEyeY = (leftEye[0][1] + rightEye[0][1]) / 2;
                 const noseTipY = noseTip[0][1];
                 
-                // If nose is significantly below eyes, person is looking down
                 const lookingDown = noseTipY > avgEyeY + 20;
                 
-                // Additional check: get eye aspect ratio to see if eyes are open
                 const leftEyeLower = face.annotations.leftEyeLower0;
                 const rightEyeLower = face.annotations.rightEyeLower0;
                 
                 if (!leftEyeLower || !rightEyeLower) return lookingDown;
                 
-                // Calculate eye openness
                 const leftEyeHeight = Math.abs(leftEye[2][1] - leftEyeLower[2][1]);
                 const rightEyeHeight = Math.abs(rightEye[2][1] - rightEyeLower[2][1]);
                 const avgEyeHeight = (leftEyeHeight + rightEyeHeight) / 2;
                 
-                // Eyes should be reasonably open
                 const eyesOpen = avgEyeHeight > 3;
                 
                 return lookingDown && eyesOpen;
@@ -921,13 +929,10 @@
             if (!state.isMonitoring) return;
             
             try {
-                // Clear canvas
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Detect objects (looking for cell phones)
                 const predictions = await state.objectModel.detect(video);
                 
-                // Filter for cell phone detections
                 const phoneDetections = predictions.filter(pred => 
                     pred.class === 'cell phone' && 
                     pred.score >= state.detectionSensitivity
@@ -936,27 +941,23 @@
                 let phoneDetectedNow = phoneDetections.length > 0;
                 let highestConfidence = 0;
                 
-                // Draw bounding boxes for detected phones
                 if (phoneDetectedNow) {
                     phoneDetections.forEach(detection => {
                         const [x, y, width, height] = detection.bbox;
                         highestConfidence = Math.max(highestConfidence, detection.score);
                         
-                        // Draw bounding box
-                        ctx.strokeStyle = '#ff6b6b';
-                        ctx.lineWidth = 3;
+                        ctx.strokeStyle = '#ff8ac7';
+                        ctx.lineWidth = 2;
                         ctx.strokeRect(x, y, width, height);
                         
-                        // Draw label
-                        ctx.fillStyle = '#ff6b6b';
-                        ctx.fillRect(x, y - 25, width, 25);
+                        ctx.fillStyle = 'rgba(255, 179, 217, 0.9)';
+                        ctx.fillRect(x, y - 24, width, 24);
                         ctx.fillStyle = '#fff';
-                        ctx.font = '16px DM Mono';
-                        ctx.fillText(`Phone ${Math.round(detection.score * 100)}%`, x + 5, y - 7);
+                        ctx.font = '14px Outfit';
+                        ctx.fillText(`phone ${Math.round(detection.score * 100)}%`, x + 8, y - 8);
                     });
                 }
                 
-                // Detect face and gaze direction
                 const faces = await state.faceMeshModel.estimateFaces(video);
                 let lookingAtPhoneNow = false;
                 
@@ -964,63 +965,56 @@
                     const face = faces[0];
                     lookingAtPhoneNow = isLookingAtPhone(face);
                     
-                    // Draw face mesh points
                     if (face.scaledMesh) {
-                        ctx.fillStyle = lookingAtPhoneNow ? '#ff6b6b' : '#4ecdc4';
+                        ctx.fillStyle = lookingAtPhoneNow ? 'rgba(255, 138, 199, 0.5)' : 'rgba(255, 214, 232, 0.5)';
                         face.scaledMesh.forEach(point => {
                             ctx.beginPath();
-                            ctx.arc(point[0], point[1], 1, 0, 2 * Math.PI);
+                            ctx.arc(point[0], point[1], 0.8, 0, 2 * Math.PI);
                             ctx.fill();
                         });
                     }
                 }
                 
-                // Update detection info
-                phoneDetectedInfo.textContent = phoneDetectedNow ? 'Yes' : 'No';
+                phoneDetectedInfo.textContent = phoneDetectedNow ? 'yes' : 'no';
                 phoneDetectedInfo.className = phoneDetectedNow ? 'detection-value alert' : 'detection-value';
                 
-                gazeInfo.textContent = faces.length === 0 ? 'No Face' : (lookingAtPhoneNow ? 'Looking Down' : 'Looking Up');
+                gazeInfo.textContent = faces.length === 0 ? '—' : (lookingAtPhoneNow ? 'down ↓' : 'up ↑');
                 gazeInfo.className = lookingAtPhoneNow ? 'detection-value alert' : 'detection-value';
                 
                 confidenceInfo.textContent = phoneDetectedNow ? `${Math.round(highestConfidence * 100)}%` : '0%';
                 
-                // Determine if user is actively using phone (phone detected AND looking at it)
                 const activelyUsingPhone = phoneDetectedNow && lookingAtPhoneNow;
                 
-                // Handle state changes
                 if (activelyUsingPhone && !state.lookingAtPhone) {
                     onPhoneUsageStart();
                 } else if (!activelyUsingPhone && state.lookingAtPhone) {
                     onPhoneUsageEnd();
                 }
                 
-                // Update phone detection status (even if not looking)
                 if (phoneDetectedNow && !state.phoneDetected) {
                     state.phoneDetected = true;
                     state.detectionCount++;
                     detectionCountEl.textContent = state.detectionCount;
-                    addLog('📱 Phone detected in frame', 'warning');
+                    addLog('phone detected in view', 'warning');
                 } else if (!phoneDetectedNow && state.phoneDetected) {
                     state.phoneDetected = false;
                 }
                 
-                // Update status indicator
                 if (activelyUsingPhone) {
-                    status.className = 'status-indicator looking';
-                    statusText.textContent = '⚠️ Using Phone';
+                    status.className = 'status-badge looking';
+                    statusText.textContent = 'scrolling';
                 } else if (phoneDetectedNow) {
-                    status.className = 'status-indicator phone-detected';
-                    statusText.textContent = 'Phone Visible';
+                    status.className = 'status-badge phone-detected';
+                    statusText.textContent = 'phone visible';
                 } else {
-                    status.className = 'status-indicator clear';
-                    statusText.textContent = '✓ Focused';
+                    status.className = 'status-badge clear';
+                    statusText.textContent = 'focused ✓';
                 }
                 
             } catch (error) {
                 console.error('Detection error:', error);
             }
             
-            // Continue detection loop
             requestAnimationFrame(detectPhoneAndGaze);
         }
         
@@ -1034,7 +1028,7 @@
                 state.focusStartTime = null;
             }
             
-            addLog('🚨 Started looking at phone', 'warning');
+            addLog('started scrolling', 'warning');
         }
         
         function onPhoneUsageEnd() {
@@ -1047,21 +1041,19 @@
                 
                 const durationSeconds = Math.round(usageDuration / 1000);
                 
-                // Check if they stopped quickly (< 20 seconds)
                 if (usageDuration < 20000) {
                     state.breakStreak++;
-                    showAlert('success', '✨ Nice job!', `You only looked at your phone for ${durationSeconds}s. Keep it up!`);
-                    addLog(`✅ Quick check (${durationSeconds}s) - streak increased`, 'success');
+                    showAlert('success', 'lovely! ♡', `you only scrolled for ${durationSeconds}s, keep it up!`);
+                    addLog(`quick check (${durationSeconds}s) - streak up!`, 'success');
                 } else {
                     state.breakStreak = 0;
-                    addLog(`Phone session ended (${durationSeconds}s)`);
+                    addLog(`scrolling session ended (${durationSeconds}s)`);
                 }
             }
             
             state.focusStartTime = Date.now();
         }
         
-        // Alert system
         function showAlert(type, title, message) {
             alertBox.className = `alert-box ${type} active`;
             document.getElementById('alertTitle').textContent = title;
@@ -1072,10 +1064,13 @@
             }, 5000);
         }
         
-        // Logging
         function addLog(message, type = '') {
             const now = new Date();
-            const timeStr = now.toLocaleTimeString();
+            const timeStr = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+            });
             
             const entry = document.createElement('div');
             entry.className = `log-entry ${type}`;
@@ -1083,22 +1078,18 @@
             
             logContainer.insertBefore(entry, logContainer.firstChild);
             
-            // Keep only last 50 entries
             while (logContainer.children.length > 50) {
                 logContainer.removeChild(logContainer.lastChild);
             }
         }
         
-        // Update stats periodically
         function updateStats() {
             if (!state.sessionStartTime) return;
             
-            // Session time
             const sessionDuration = Date.now() - state.sessionStartTime;
             const sessionMinutes = Math.floor(sessionDuration / 60000);
-            sessionTimeEl.textContent = sessionMinutes + 'm';
+            sessionTimeEl.textContent = sessionMinutes > 0 ? sessionMinutes + 'm' : '<1m';
             
-            // Phone time
             let totalPhoneTime = state.totalPhoneTime;
             if (state.lookingStartTime) {
                 totalPhoneTime += Date.now() - state.lookingStartTime;
@@ -1107,37 +1098,32 @@
             const phoneSeconds = Math.floor((totalPhoneTime % 60000) / 1000);
             phoneTimeEl.textContent = phoneMinutes > 0 ? `${phoneMinutes}m ${phoneSeconds}s` : `${phoneSeconds}s`;
             
-            // Focus time
             let focusTotal = state.totalFocusTime;
             if (state.focusStartTime) {
                 focusTotal += Date.now() - state.focusStartTime;
             }
             const focusMinutes = Math.floor(focusTotal / 60000);
-            focusTimeEl.textContent = focusMinutes + 'm';
+            focusTimeEl.textContent = focusMinutes > 0 ? focusMinutes + 'm' : '<1m';
             
-            // Break streak
             breakStreakEl.textContent = state.breakStreak;
             
-            // Check if alert threshold exceeded
             if (state.lookingAtPhone && state.lookingStartTime) {
                 const lookingDuration = Date.now() - state.lookingStartTime;
                 const threshold = parseInt(alertTime.value) * 1000;
                 
                 if (lookingDuration > threshold && Date.now() - state.lastAlertTime > 60000) {
                     const durationSec = Math.floor(lookingDuration / 1000);
-                    showAlert('warning', '⏰ Mindfulness Check', 
-                        `You've been looking at your phone for ${durationSec} seconds. Maybe take a break?`);
+                    showAlert('warning', 'gentle reminder ♡', 
+                        `you've been scrolling for ${durationSec} seconds. maybe take a little break?`);
                     state.lastAlertTime = Date.now();
-                    addLog(`⚠️ Alert triggered after ${durationSec}s of phone use`, 'warning');
+                    addLog(`reminder sent after ${durationSec}s`, 'warning');
                 }
             }
         }
         
-        // Event listeners
         startBtn.addEventListener('click', async () => {
             startBtn.disabled = true;
             
-            // Load models if not already loaded
             if (!state.objectModel || !state.faceMeshModel) {
                 const modelsLoaded = await loadModels();
                 if (!modelsLoaded) {
@@ -1146,7 +1132,6 @@
                 }
             }
             
-            // Start camera
             const cameraStarted = await startCamera();
             if (cameraStarted) {
                 state.isMonitoring = true;
@@ -1157,15 +1142,12 @@
                 stopBtn.style.display = 'block';
                 detectionInfo.classList.add('active');
                 
-                status.className = 'status-indicator monitoring';
-                statusText.textContent = 'Monitoring Active';
+                status.className = 'status-badge monitoring';
+                statusText.textContent = 'monitoring';
                 
-                addLog('🚀 Monitoring started with AI detection', 'success');
+                addLog('monitoring started ✓', 'success');
                 
-                // Start detection
                 detectPhoneAndGaze();
-                
-                // Start stats update interval
                 setInterval(updateStats, 1000);
             } else {
                 startBtn.disabled = false;
@@ -1191,21 +1173,21 @@
             startBtn.disabled = false;
             stopBtn.style.display = 'none';
             
-            status.className = 'status-indicator';
-            statusText.textContent = 'Stopped';
+            status.className = 'status-badge';
+            statusText.textContent = 'stopped';
             
-            addLog('⏹️ Monitoring stopped');
+            addLog('monitoring stopped');
         });
         
         alertTime.addEventListener('change', (e) => {
             state.alertThreshold = parseInt(e.target.value) * 1000;
-            addLog(`Alert threshold updated to ${e.target.value} seconds`);
+            addLog(`reminder set to ${e.target.value} seconds`);
         });
         
         sensitivity.addEventListener('change', (e) => {
             state.detectionSensitivity = parseFloat(e.target.value);
             const level = e.target.options[e.target.selectedIndex].text;
-            addLog(`Detection sensitivity set to ${level}`);
+            addLog(`sensitivity: ${level}`);
         });
     </script>
 </body>
