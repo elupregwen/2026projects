@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindful Screen Time - Break the Scroll</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0a0e27;
+            --bg-secondary: #1a1f3a;
+            --accent-calm: #4ecdc4;
+            --accent-warning: #ff6b6b;
+            --accent-success: #95e1d3;
+            --text-primary: #f7f9fc;
+            --text-muted: #8892b0;
+            --gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-calm: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            --gradient-alert: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        }
+        
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(78, 205, 196, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(255, 107, 107, 0.1) 0%, transparent 50%);
+            animation: drift 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        @keyframes drift {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(30px, -30px); }
+            66% { transform: translate(-20px, 20px); }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: var(--gradient-calm);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .tagline {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            font-family: 'DM Mono', monospace;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(78, 205, 196, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--gradient-calm);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        .card:hover {
+            border-color: var(--accent-calm);
+            transform: translateY(-5px);
+        }
+        
+        .card:hover::before {
+            opacity: 0.05;
+        }
+        
+        .card-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .icon {
+            font-size: 1.5rem;
+        }
+        
+        /* Camera Feed */
+        #camera-container {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #000;
+            aspect-ratio: 16/9;
+            margin-bottom: 1rem;
+        }
+        
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        
+        #video.active {
+            display: block;
+        }
+        
+        #canvas {
+            display: none;
+        }
+        
+        .camera-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: var(--gradient-main);
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .status-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .status-indicator.monitoring .status-dot {
+            background: var(--accent-calm);
+        }
+        
+        .status-indicator.detected .status-dot {
+            background: var(--accent-warning);
+        }
+        
+        .status-indicator.clear .status-dot {
+            background: var(--accent-success);
+        }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat-box {
+            background: rgba(78, 205, 196, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(78, 205, 196, 0.2);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-calm);
+            font-family: 'DM Mono', monospace;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'DM Mono', monospace;
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            flex: 1;
+            min-width: 150px;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Crimson Pro', serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        button span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-calm);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(78, 205, 196, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--accent-calm);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(78, 205, 196, 0.1);
+        }
+        
+        .btn-danger {
+            background: var(--gradient-alert);
+            color: white;
+        }
+        
+        /* Alert System */
+        .alert-box {
+            grid-column: 1 / -1;
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-box.active {
+            display: block;
+        }
+        
+        .alert-box.warning {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(238, 90, 111, 0.2) 100%);
+            border: 2px solid var(--accent-warning);
+        }
+        
+        .alert-box.success {
+            background: linear-gradient(135deg, rgba(149, 225, 211, 0.2) 0%, rgba(68, 160, 141, 0.2) 100%);
+            border: 2px solid var(--accent-success);
+        }
+        
+        .alert-box h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-box p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+        
+        /* Timer Settings */
+        .timer-settings {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .timer-settings label {
+            font-family: 'DM Mono', monospace;
+            color: var(--text-muted);
+        }
+        
+        .timer-settings input {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: 2px solid rgba(78, 205, 196, 0.3);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'DM Mono', monospace;
+            font-size: 1rem;
+        }
+        
+        .timer-settings input:focus {
+            outline: none;
+            border-color: var(--accent-calm);
+        }
+        
+        /* Log */
+        .log-container {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        
+        .log-entry {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            background: rgba(78, 205, 196, 0.05);
+            border-left: 3px solid var(--accent-calm);
+            border-radius: 5px;
+            font-family: 'DM Mono', monospace;
+            font-size: 0.9rem;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .log-entry.warning {
+            border-left-color: var(--accent-warning);
+            background: rgba(255, 107, 107, 0.05);
+        }
+        
+        .log-time {
+            color: var(--text-muted);
+            margin-right: 0.5rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-calm);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Mindful Screen Time</h1>
+            <p class="tagline">Break the scroll, reclaim your focus</p>
+        </header>
+        
+        <div class="main-grid">
+            <!-- Camera Section -->
+            <div class="card">
+                <h2 class="card-title">
+                    <span class="icon">📸</span>
+                    Phone Detection
+                </h2>
+                <div id="camera-container">
+                    <div class="camera-placeholder" id="placeholder">
+                        Click "Start Monitoring" to activate camera detection
+                    </div>
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas"></canvas>
+                    <div class="status-indicator monitoring" id="status">
+                        <div class="status-dot"></div>
+                        <span id="status-text">Ready</span>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn-primary" id="startBtn">
+                        <span>Start Monitoring</span>
+                    </button>
+                    <button class="btn-secondary" id="stopBtn" style="display: none;">
+                        <span>Stop</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Stats Section -->
+            <div class="card">
+                <h2 class="card-title">
+                    <span class="icon">📊</span>
+                    Your Progress
+                </h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value" id="detections">0</div>
+                        <div class="stat-label">Phone Detected</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="phoneTime">0m</div>
+                        <div class="stat-label">Time on Phone</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="breakStreak">0</div>
+                        <div class="stat-label">Break Streak</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value" id="focusTime">0m</div>
+                        <div class="stat-label">Focus Time</div>
+                    </div>
+                </div>
+                
+                <div class="timer-settings">
+                    <label for="alertTime">Alert after (seconds):</label>
+                    <input type="number" id="alertTime" value="10" min="5" max="300">
+                </div>
+            </div>
+            
+            <!-- Alert Box -->
+            <div class="alert-box" id="alertBox">
+                <h3 id="alertTitle">📱 Phone Detected!</h3>
+                <p id="alertMessage">You've been scrolling for a while. Time for a break?</p>
+            </div>
+            
+            <!-- Activity Log -->
+            <div class="card" style="grid-column: 1 / -1;">
+                <h2 class="card-title">
+                    <span class="icon">📝</span>
+                    Activity Log
+                </h2>
+                <div class="log-container" id="logContainer">
+                    <div class="log-entry">
+                        <span class="log-time">--:--:--</span>
+                        <span>Monitoring system ready. Start monitoring to begin tracking.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // State management
+        const state = {
+            isMonitoring: false,
+            phoneDetected: false,
+            detectionCount: 0,
+            phoneStartTime: null,
+            totalPhoneTime: 0,
+            focusStartTime: null,
+            totalFocusTime: 0,
+            breakStreak: 0,
+            alertThreshold: 10000, // milliseconds
+            lastAlertTime: 0,
+            stream: null
+        };
+        
+        // DOM elements
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const status = document.getElementById('status');
+        const statusText = document.getElementById('status-text');
+        const placeholder = document.getElementById('placeholder');
+        const alertBox = document.getElementById('alertBox');
+        const logContainer = document.getElementById('logContainer');
+        const alertTime = document.getElementById('alertTime');
+        
+        // Stats elements
+        const detectionsEl = document.getElementById('detections');
+        const phoneTimeEl = document.getElementById('phoneTime');
+        const breakStreakEl = document.getElementById('breakStreak');
+        const focusTimeEl = document.getElementById('focusTime');
+        
+        // Camera initialization
+        async function startCamera() {
+            try {
+                state.stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user' },
+                    audio: false 
+                });
+                video.srcObject = state.stream;
+                video.classList.add('active');
+                placeholder.style.display = 'none';
+                
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                addLog('Camera activated successfully');
+                return true;
+            } catch (error) {
+                console.error('Error accessing camera:', error);
+                addLog('Error: Could not access camera. Please grant camera permissions.', 'warning');
+                alert('Please grant camera permissions to use phone detection.');
+                return false;
+            }
+        }
+        
+        function stopCamera() {
+            if (state.stream) {
+                state.stream.getTracks().forEach(track => track.stop());
+                video.classList.remove('active');
+                placeholder.style.display = 'flex';
+                addLog('Camera deactivated');
+            }
+        }
+        
+        // Phone detection using simple motion and object detection
+        let lastFrame = null;
+        let motionThreshold = 30; // Sensitivity for motion detection
+        
+        function detectPhone() {
+            if (!state.isMonitoring) return;
+            
+            // Draw current frame to canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const currentFrame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            if (lastFrame) {
+                // Calculate motion/change between frames
+                let motionLevel = 0;
+                const centerRegionStart = Math.floor(canvas.width * 0.3);
+                const centerRegionEnd = Math.floor(canvas.width * 0.7);
+                const verticalStart = Math.floor(canvas.height * 0.2);
+                const verticalEnd = Math.floor(canvas.height * 0.8);
+                
+                // Focus on center region where phone would typically be
+                for (let y = verticalStart; y < verticalEnd; y += 4) {
+                    for (let x = centerRegionStart; x < centerRegionEnd; x += 4) {
+                        const i = (y * canvas.width + x) * 4;
+                        const diff = Math.abs(currentFrame.data[i] - lastFrame.data[i]) +
+                                   Math.abs(currentFrame.data[i + 1] - lastFrame.data[i + 1]) +
+                                   Math.abs(currentFrame.data[i + 2] - lastFrame.data[i + 2]);
+                        motionLevel += diff;
+                    }
+                }
+                
+                // Normalize motion level
+                motionLevel = motionLevel / ((verticalEnd - verticalStart) * (centerRegionEnd - centerRegionStart));
+                
+                // Detect if phone is likely in view (based on motion patterns)
+                const phoneDetected = motionLevel > motionThreshold;
+                
+                if (phoneDetected && !state.phoneDetected) {
+                    onPhoneDetected();
+                } else if (!phoneDetected && state.phoneDetected) {
+                    onPhoneRemoved();
+                }
+            }
+            
+            lastFrame = currentFrame;
+            
+            // Continue detection loop
+            requestAnimationFrame(detectPhone);
+        }
+        
+        function onPhoneDetected() {
+            state.phoneDetected = true;
+            state.detectionCount++;
+            state.phoneStartTime = Date.now();
+            
+            if (state.focusStartTime) {
+                const focusDuration = Date.now() - state.focusStartTime;
+                state.totalFocusTime += focusDuration;
+                state.focusStartTime = null;
+            }
+            
+            status.className = 'status-indicator detected';
+            statusText.textContent = 'Phone in View';
+            detectionsEl.textContent = state.detectionCount;
+            
+            addLog('📱 Phone detected in view', 'warning');
+        }
+        
+        function onPhoneRemoved() {
+            state.phoneDetected = false;
+            
+            if (state.phoneStartTime) {
+                const phoneDuration = Date.now() - state.phoneStartTime;
+                state.totalPhoneTime += phoneDuration;
+                state.phoneStartTime = null;
+                
+                // Check if they put phone away quickly (< 30 seconds)
+                if (phoneDuration < 30000) {
+                    state.breakStreak++;
+                    showAlert('success', '✨ Great job!', 'You put your phone away quickly. Keep it up!');
+                } else {
+                    state.breakStreak = 0;
+                }
+            }
+            
+            state.focusStartTime = Date.now();
+            
+            status.className = 'status-indicator clear';
+            statusText.textContent = 'Focused';
+            
+            addLog('✅ Phone removed - back to focus mode');
+        }
+        
+        // Alert system
+        function showAlert(type, title, message) {
+            alertBox.className = `alert-box ${type} active`;
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertMessage').textContent = message;
+            
+            setTimeout(() => {
+                alertBox.classList.remove('active');
+            }, 5000);
+        }
+        
+        // Logging
+        function addLog(message, type = '') {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+            
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.innerHTML = `<span class="log-time">${timeStr}</span><span>${message}</span>`;
+            
+            logContainer.insertBefore(entry, logContainer.firstChild);
+            
+            // Keep only last 50 entries
+            while (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+        
+        // Update stats periodically
+        function updateStats() {
+            // Update phone time
+            let totalTime = state.totalPhoneTime;
+            if (state.phoneStartTime) {
+                totalTime += Date.now() - state.phoneStartTime;
+            }
+            const phoneMinutes = Math.floor(totalTime / 60000);
+            phoneTimeEl.textContent = phoneMinutes + 'm';
+            
+            // Update focus time
+            let focusTotal = state.totalFocusTime;
+            if (state.focusStartTime) {
+                focusTotal += Date.now() - state.focusStartTime;
+            }
+            const focusMinutes = Math.floor(focusTotal / 60000);
+            focusTimeEl.textContent = focusMinutes + 'm';
+            
+            // Update break streak
+            breakStreakEl.textContent = state.breakStreak;
+            
+            // Check if alert threshold exceeded
+            if (state.phoneDetected && state.phoneStartTime) {
+                const phoneDuration = Date.now() - state.phoneStartTime;
+                const threshold = parseInt(alertTime.value) * 1000;
+                
+                if (phoneDuration > threshold && Date.now() - state.lastAlertTime > 60000) {
+                    showAlert('warning', '⏰ Time Check', `You've been on your phone for ${Math.floor(phoneDuration/1000)} seconds. Consider taking a break!`);
+                    state.lastAlertTime = Date.now();
+                }
+            }
+        }
+        
+        // Event listeners
+        startBtn.addEventListener('click', async () => {
+            const cameraStarted = await startCamera();
+            if (cameraStarted) {
+                state.isMonitoring = true;
+                state.focusStartTime = Date.now();
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'block';
+                status.className = 'status-indicator monitoring';
+                statusText.textContent = 'Monitoring';
+                
+                addLog('📹 Monitoring started');
+                
+                // Wait for video to be ready
+                video.addEventListener('loadeddata', () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    detectPhone();
+                }, { once: true });
+                
+                // Start stats update interval
+                setInterval(updateStats, 1000);
+            }
+        });
+        
+        stopBtn.addEventListener('click', () => {
+            state.isMonitoring = false;
+            stopCamera();
+            startBtn.style.display = 'block';
+            stopBtn.style.display = 'none';
+            status.className = 'status-indicator';
+            statusText.textContent = 'Stopped';
+            
+            if (state.focusStartTime) {
+                state.totalFocusTime += Date.now() - state.focusStartTime;
+                state.focusStartTime = null;
+            }
+            
+            addLog('Monitoring stopped');
+        });
+        
+        alertTime.addEventListener('change', (e) => {
+            state.alertThreshold = parseInt(e.target.value) * 1000;
+            addLog(`Alert threshold updated to ${e.target.value} seconds`);
+        });
+    </script>
+</body>
+</html>
