@@ -1,60 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photobooth Studio</title>
-    <meta name="description" content="A web-based photobooth application with filters, timer, and collage features. Capture and manage your photos easily.">
+    <meta name="description"
+        content="A web-based photobooth application with filters, timer, and collage features. Capture and manage your photos easily.">
     <meta name="keywords" content="photobooth, camera, photo capture, filters, collage, web app, photography">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
     <style>
         * {
             font-family: 'Inter', sans-serif;
         }
-        
-        h1, h2, h3, h4, h5, h6 {
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
             font-family: 'Poppins', sans-serif;
         }
-        
+
         .gradient-bg {
-            background: linear-gradient(135deg, 
-                #FFE4E8 0%, 
-                #FFE4F2 25%, 
-                #F8E4FF 50%, 
-                #E4E8FF 75%, 
-                #E4F2FF 100%);
+            background: linear-gradient(135deg,
+                    #FFE4E8 0%,
+                    #FFE4F2 25%,
+                    #F8E4FF 50%,
+                    #E4E8FF 75%,
+                    #E4F2FF 100%);
             min-height: 100vh;
         }
-        
+
         .card-glass {
             background: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(40px);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 32px;
-            box-shadow: 
+            box-shadow:
                 0 20px 80px rgba(255, 107, 157, 0.12),
                 0 8px 32px rgba(255, 182, 193, 0.08),
                 inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
-        
+
         .card-hover {
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        
+
         .card-hover:hover {
             transform: translateY(-8px);
-            box-shadow: 
+            box-shadow:
                 0 40px 120px rgba(255, 107, 157, 0.2),
                 0 16px 48px rgba(255, 182, 193, 0.15),
                 inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
-        
+
         .btn-primary {
-            background: linear-gradient(135deg, 
-                #FF6B9D 0%, 
-                #FF8AB8 50%, 
-                #FF6B9D 100%);
+            background: linear-gradient(135deg,
+                    #FF6B9D 0%,
+                    #FF8AB8 50%,
+                    #FF6B9D 100%);
             color: white;
             font-weight: 600;
             letter-spacing: -0.01em;
@@ -64,7 +73,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .btn-primary::after {
             content: '';
             position: absolute;
@@ -72,22 +81,22 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(255, 255, 255, 0.3), 
-                transparent);
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.3),
+                    transparent);
             transition: left 0.7s ease;
         }
-        
+
         .btn-primary:hover::after {
             left: 100%;
         }
-        
+
         .btn-primary:hover {
             transform: scale(1.05);
             box-shadow: 0 12px 40px rgba(255, 107, 157, 0.4);
         }
-        
+
         .btn-secondary {
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid rgba(255, 182, 193, 0.4);
@@ -97,14 +106,14 @@
             border-radius: 18px;
             transition: all 0.3s ease;
         }
-        
+
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 1);
             border-color: #FF8AB8;
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(255, 182, 193, 0.15);
         }
-        
+
         .filter-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 16px;
@@ -112,13 +121,13 @@
             font-weight: 500;
             letter-spacing: -0.01em;
         }
-        
+
         .filter-btn.active {
             background: linear-gradient(135deg, #FF6B9D, #FF8AB8);
             color: white;
             box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
         }
-        
+
         .aspect-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 16px;
@@ -126,13 +135,13 @@
             font-weight: 500;
             letter-spacing: -0.01em;
         }
-        
+
         .aspect-btn.active {
             background: linear-gradient(135deg, #6C63FF, #8A84FF);
             color: white;
             box-shadow: 0 6px 20px rgba(108, 99, 255, 0.3);
         }
-        
+
         .timer-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 16px;
@@ -140,23 +149,23 @@
             font-weight: 500;
             letter-spacing: -0.01em;
         }
-        
+
         .timer-btn.active {
             background: linear-gradient(135deg, #36D1DC, #5B86E5);
             color: white;
             box-shadow: 0 6px 20px rgba(54, 209, 220, 0.3);
         }
-        
+
         .video-container {
             border-radius: 28px;
             overflow: hidden;
-            background: linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.1), 
-                rgba(255, 255, 255, 0.05));
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.1),
+                    rgba(255, 255, 255, 0.05));
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
         .countdown-circle {
             position: absolute;
             top: 50%;
@@ -172,49 +181,56 @@
             justify-content: center;
             animation: pulse 1s ease-in-out infinite;
         }
-        
+
         @keyframes pulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.05); }
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.05);
+            }
         }
-        
+
         .countdown-text {
             font-size: 72px;
             font-weight: 700;
             color: white;
             text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
-        
+
         .icon-circle {
             width: 80px;
             height: 80px;
             border-radius: 24px;
-            background: linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.95), 
-                rgba(255, 255, 255, 0.85));
+            background: linear-gradient(135deg,
+                    rgba(255, 255, 255, 0.95),
+                    rgba(255, 255, 255, 0.85));
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 0 auto 24px;
-            box-shadow: 
+            box-shadow:
                 0 12px 32px rgba(255, 182, 193, 0.15),
                 inset 0 1px 0 rgba(255, 255, 255, 0.8);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        
+
         .icon-circle:hover {
             transform: scale(1.1) rotate(5deg);
-            box-shadow: 
+            box-shadow:
                 0 20px 48px rgba(255, 182, 193, 0.25),
                 inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
-        
+
         .icon-circle svg {
             width: 36px;
             height: 36px;
             color: #FF6B9D;
         }
-        
+
         .photo-grid-item {
             border-radius: 24px;
             overflow: hidden;
@@ -224,24 +240,24 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        
+
         .photo-grid-item:hover {
             transform: scale(1.03);
             box-shadow: 0 20px 60px rgba(255, 107, 157, 0.2);
         }
-        
+
         .photo-overlay {
-            background: linear-gradient(to top, 
-                rgba(0, 0, 0, 0.8) 0%, 
-                transparent 100%);
+            background: linear-gradient(to top,
+                    rgba(0, 0, 0, 0.8) 0%,
+                    transparent 100%);
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        
+
         .photo-grid-item:hover .photo-overlay {
             opacity: 1;
         }
-        
+
         .action-btn {
             backdrop-filter: blur(20px);
             background: rgba(255, 255, 255, 0.9);
@@ -249,13 +265,13 @@
             border-radius: 16px;
             transition: all 0.3s ease;
         }
-        
+
         .action-btn:hover {
             background: white;
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
         }
-        
+
         .selected-badge {
             position: absolute;
             top: 16px;
@@ -270,12 +286,19 @@
             box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3);
             animation: badgePulse 2s infinite;
         }
-        
+
         @keyframes badgePulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
         }
-        
+
         .collage-layout-btn {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 20px;
@@ -284,45 +307,58 @@
             letter-spacing: -0.01em;
             font-size: 16px;
         }
-        
+
         .collage-layout-btn.active {
             background: linear-gradient(135deg, #9D65C9, #C77DFF);
             color: white;
             box-shadow: 0 8px 32px rgba(157, 101, 201, 0.3);
         }
-        
+
         .floating-element {
             position: absolute;
             width: 300px;
             height: 300px;
             border-radius: 50%;
-            background: linear-gradient(135deg, 
-                rgba(255, 182, 193, 0.2), 
-                rgba(255, 107, 157, 0.1));
+            background: linear-gradient(135deg,
+                    rgba(255, 182, 193, 0.2),
+                    rgba(255, 107, 157, 0.1));
             filter: blur(80px);
             z-index: -1;
             animation: float 20s ease-in-out infinite;
         }
-        
+
         @keyframes float {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(50px, -50px) rotate(90deg); }
-            50% { transform: translate(0, -100px) rotate(180deg); }
-            75% { transform: translate(-50px, -50px) rotate(270deg); }
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            25% {
+                transform: translate(50px, -50px) rotate(90deg);
+            }
+
+            50% {
+                transform: translate(0, -100px) rotate(180deg);
+            }
+
+            75% {
+                transform: translate(-50px, -50px) rotate(270deg);
+            }
         }
-        
+
         .text-gradient {
             background: linear-gradient(135deg, #FF6B9D, #6C63FF, #36D1DC);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-        
+
         .section-title {
             position: relative;
             display: inline-block;
         }
-        
+
         .section-title::after {
             content: '';
             position: absolute;
@@ -333,7 +369,7 @@
             background: linear-gradient(90deg, #FF6B9D, #6C63FF);
             border-radius: 2px;
         }
-        
+
         .capture-btn {
             width: 80px;
             height: 80px;
@@ -345,12 +381,12 @@
             transition: all 0.3s ease;
             box-shadow: 0 10px 40px rgba(255, 107, 157, 0.3);
         }
-        
+
         .capture-btn:hover {
             transform: scale(1.1);
             box-shadow: 0 15px 50px rgba(255, 107, 157, 0.4);
         }
-        
+
         .capture-btn::after {
             content: '';
             position: absolute;
@@ -362,27 +398,39 @@
             background: linear-gradient(135deg, #FF6B9D, #FF8AB8);
             border-radius: 50%;
         }
-        
+
         .flash-effect {
             animation: flash 0.3s ease-out;
         }
-        
+
         @keyframes flash {
-            0% { opacity: 0; background: rgba(255, 255, 255, 0); }
-            50% { opacity: 1; background: rgba(255, 255, 255, 0.9); }
-            100% { opacity: 0; background: rgba(255, 255, 255, 0); }
+            0% {
+                opacity: 0;
+                background: rgba(255, 255, 255, 0);
+            }
+
+            50% {
+                opacity: 1;
+                background: rgba(255, 255, 255, 0.9);
+            }
+
+            100% {
+                opacity: 0;
+                background: rgba(255, 255, 255, 0);
+            }
         }
     </style>
 </head>
+
 <body class="gradient-bg min-h-screen overflow-x-hidden">
     <!-- Floating Background Elements -->
     <div class="floating-element" style="top: 10%; left: 5%;"></div>
     <div class="floating-element" style="top: 60%; right: 5%; animation-delay: -5s;"></div>
     <div class="floating-element" style="bottom: 20%; left: 20%; animation-delay: -10s;"></div>
-    
+
     <!-- Hidden Canvas -->
     <canvas id="photoCanvas" style="display: none;"></canvas>
-    
+
     <!-- Home View -->
     <div id="homeView" class="container mx-auto px-4 py-12 relative z-10">
         <div class="text-center mb-16 mt-8">
@@ -391,18 +439,20 @@
                 <span class="text-gray-800"> Studio</span>
             </h1>
             <p class="text-xl text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
-                Capture beautiful moments with our aesthetic filters, collage maker, and creative tools. 
+                Capture beautiful moments with our aesthetic filters, collage maker, and creative tools.
                 Perfect for memories, social media, and fun.
             </p>
         </div>
-        
+
         <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Start Camera Card -->
             <div class="card-glass p-10 card-hover cursor-pointer" onclick="startCamera()">
                 <div class="icon-circle">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 </div>
                 <h3 class="text-2xl font-bold text-gray-800 mb-3 text-center">Start Camera</h3>
@@ -410,25 +460,28 @@
                     Capture stunning photos with aesthetic filters, timer options, and creative controls
                 </p>
             </div>
-            
+
             <!-- Gallery Card -->
             <div class="card-glass p-10 card-hover cursor-pointer" onclick="showGallery()">
                 <div class="icon-circle">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
                 <h3 class="text-2xl font-bold text-gray-800 mb-3 text-center">Gallery</h3>
                 <p class="text-gray-600 text-center leading-relaxed">
-                    View and manage your <span class="font-semibold text-[#FF6B9D]" id="photoCount">0</span> photos with favorites and downloads
+                    View and manage your <span class="font-semibold text-[#FF6B9D]" id="photoCount">0</span> photos with
+                    favorites and downloads
                 </p>
             </div>
-            
+
             <!-- Collage Card -->
             <div class="card-glass p-10 card-hover cursor-pointer" onclick="showCollageMode()">
                 <div class="icon-circle">
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v7a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1v-3zM14 16a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3z" />
                     </svg>
                 </div>
                 <h3 class="text-2xl font-bold text-gray-800 mb-3 text-center">Create Collage</h3>
@@ -438,7 +491,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Camera View -->
     <div id="cameraView" class="hidden container mx-auto px-4 py-8 max-w-5xl relative z-10">
         <div class="card-glass">
@@ -446,49 +499,60 @@
             <div class="flex items-center justify-between p-8 border-b border-gray-100">
                 <button onclick="closeCamera()" class="btn-secondary px-6 py-3 rounded-full flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                     Back
                 </button>
                 <h2 class="text-3xl font-bold text-gray-800">Camera Studio</h2>
                 <div class="w-32"></div>
             </div>
-            
+
             <!-- Video Preview -->
             <div class="relative video-container mx-8 mt-8 mb-6">
                 <video id="video" autoplay playsinline class="w-full"></video>
-                <div id="countdown" class="hidden absolute inset-0 flex items-center justify-center bg-black/50 rounded-28">
+                <div id="countdown"
+                    class="hidden absolute inset-0 flex items-center justify-center bg-black/50 rounded-28">
                     <div class="countdown-circle">
                         <span id="countdownText" class="countdown-text">3</span>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Controls -->
             <div class="p-8 space-y-8">
                 <!-- Filters -->
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Aesthetic Filters</h3>
                     <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                        <button onclick="setFilter('none')" class="filter-btn active bg-white text-gray-700 border border-gray-200">Original</button>
-                        <button onclick="setFilter('bw')" class="filter-btn bg-white text-gray-700 border border-gray-200">Monochrome</button>
-                        <button onclick="setFilter('vintage')" class="filter-btn bg-white text-gray-700 border border-gray-200">Vintage</button>
-                        <button onclick="setFilter('vibrant')" class="filter-btn bg-white text-gray-700 border border-gray-200">Vibrant</button>
-                        <button onclick="setFilter('pastel')" class="filter-btn bg-white text-gray-700 border border-gray-200">Pastel</button>
-                        <button onclick="setFilter('dramatic')" class="filter-btn bg-white text-gray-700 border border-gray-200">Dramatic</button>
+                        <button onclick="setFilter('none')"
+                            class="filter-btn active bg-white text-gray-700 border border-gray-200">Original</button>
+                        <button onclick="setFilter('bw')"
+                            class="filter-btn bg-white text-gray-700 border border-gray-200">Monochrome</button>
+                        <button onclick="setFilter('vintage')"
+                            class="filter-btn bg-white text-gray-700 border border-gray-200">Vintage</button>
+                        <button onclick="setFilter('vibrant')"
+                            class="filter-btn bg-white text-gray-700 border border-gray-200">Vibrant</button>
+                        <button onclick="setFilter('pastel')"
+                            class="filter-btn bg-white text-gray-700 border border-gray-200">Pastel</button>
+                        <button onclick="setFilter('dramatic')"
+                            class="filter-btn bg-white text-gray-700 border border-gray-200">Dramatic</button>
                     </div>
                 </div>
-                
+
                 <!-- Aspect Ratio -->
                 <div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Aspect Ratio</h3>
                     <div class="flex gap-3">
-                        <button onclick="setAspectRatio('square')" class="aspect-btn active px-6 py-3">Square (1:1)</button>
-                        <button onclick="setAspectRatio('portrait')" class="aspect-btn px-6 py-3">Portrait (3:4)</button>
-                        <button onclick="setAspectRatio('landscape')" class="aspect-btn px-6 py-3">Landscape (16:9)</button>
+                        <button onclick="setAspectRatio('square')" class="aspect-btn active px-6 py-3">Square
+                            (1:1)</button>
+                        <button onclick="setAspectRatio('portrait')" class="aspect-btn px-6 py-3">Portrait
+                            (3:4)</button>
+                        <button onclick="setAspectRatio('landscape')" class="aspect-btn px-6 py-3">Landscape
+                            (16:9)</button>
                     </div>
                 </div>
-                
+
                 <!-- Timer & Mirror -->
                 <div class="flex items-center gap-8">
                     <div class="flex-1">
@@ -502,12 +566,13 @@
                     </div>
                     <button onclick="toggleMirror()" id="mirrorBtn" class="btn-secondary px-6 py-3">
                         <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         Mirror On
                     </button>
                 </div>
-                
+
                 <!-- Capture Button -->
                 <div class="flex justify-center">
                     <div class="capture-btn" onclick="capturePhoto()"></div>
@@ -515,7 +580,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Gallery View -->
     <div id="galleryView" class="hidden container mx-auto px-4 py-8 max-w-7xl relative z-10">
         <div class="card-glass p-8">
@@ -523,7 +588,8 @@
             <div class="flex items-center justify-between mb-10">
                 <button onclick="closeGallery()" class="btn-secondary px-6 py-3 rounded-full flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                     Back
                 </button>
@@ -532,17 +598,18 @@
                     Clear All
                 </button>
             </div>
-            
+
             <!-- Photo Grid -->
             <div id="photoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 <!-- Photos will be inserted here -->
             </div>
-            
+
             <!-- Empty State -->
             <div id="emptyGallery" class="text-center py-24">
                 <div class="icon-circle mx-auto mb-8">
                     <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </div>
                 <h3 class="text-3xl font-bold text-gray-800 mb-4">No photos yet</h3>
@@ -553,21 +620,22 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Collage View -->
     <div id="collageView" class="hidden container mx-auto px-4 py-8 max-w-7xl relative z-10">
         <div class="card-glass p-8">
             <div class="flex items-center justify-between mb-10">
                 <button onclick="closeCollage()" class="btn-secondary px-6 py-3 rounded-full flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                     Back
                 </button>
                 <h2 class="text-4xl font-bold text-gray-800 section-title">Create Collage</h2>
                 <div class="w-32"></div>
             </div>
-            
+
             <!-- Layout Selection -->
             <div class="mb-10">
                 <h3 class="text-lg font-semibold text-gray-800 mb-6">Choose Layout Style</h3>
@@ -579,27 +647,30 @@
                     <button onclick="setCollageLayout('diagonal')" class="collage-layout-btn">Diagonal</button>
                 </div>
             </div>
-            
-            <p class="text-gray-600 mb-8 text-lg">Select photos for your collage 
-                <span class="font-semibold text-[#FF6B9D]" id="selectedCount">0</span> selected</p>
-            
+
+            <p class="text-gray-600 mb-8 text-lg">Select photos for your collage
+                <span class="font-semibold text-[#FF6B9D]" id="selectedCount">0</span> selected
+            </p>
+
             <!-- Photo Selection Grid -->
-            <div id="collagePhotoGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-10">
+            <div id="collagePhotoGrid"
+                class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-10">
                 <!-- Photos will be inserted here -->
             </div>
-            
+
             <button onclick="createCollage()" class="btn-primary w-full py-5 rounded-full text-lg font-semibold">
                 <svg class="w-6 h-6 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 Create Beautiful Collage
             </button>
         </div>
     </div>
-    
+
     <!-- Flash Effect Container -->
     <div id="flashEffect" class="hidden fixed inset-0 pointer-events-none z-50"></div>
-    
+
     <script>
         let stream = null;
         let photos = JSON.parse(localStorage.getItem('photobooth_photos') || '[]');
@@ -610,34 +681,34 @@
         let mirrorMode = true;
         let collagePhotos = [];
         let collageLayout = '2x2';
-        
+
         updatePhotoCount();
-        
+
         function updatePhotoCount() {
             document.getElementById('photoCount').textContent = photos.length;
         }
-        
+
         async function startCamera() {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { 
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
                         facingMode: 'user',
                         width: { ideal: 1280 },
                         height: { ideal: 720 }
-                    }, 
-                    audio: false 
+                    },
+                    audio: false
                 });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 video.style.transform = mirrorMode ? 'scaleX(-1)' : 'scaleX(1)';
-                
+
                 document.getElementById('homeView').classList.add('hidden');
                 document.getElementById('cameraView').classList.remove('hidden');
             } catch (err) {
                 alert('Camera access denied. Please allow camera permissions.');
             }
         }
-        
+
         function closeCamera() {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
@@ -646,7 +717,7 @@
             document.getElementById('cameraView').classList.add('hidden');
             document.getElementById('homeView').classList.remove('hidden');
         }
-        
+
         function setFilter(filter) {
             currentFilter = filter;
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -655,21 +726,21 @@
             });
             event.target.classList.add('active');
         }
-        
+
         function setAspectRatio(ratio) {
             currentAspectRatio = ratio;
             const video = document.getElementById('video');
             if (ratio === 'square') video.style.aspectRatio = '1/1';
             else if (ratio === 'portrait') video.style.aspectRatio = '3/4';
             else video.style.aspectRatio = '16/9';
-            
+
             document.querySelectorAll('.aspect-btn').forEach(btn => {
                 btn.classList.remove('active');
                 btn.classList.add('bg-white', 'border', 'border-gray-200', 'text-gray-700');
             });
             event.target.classList.add('active');
         }
-        
+
         function setTimer(seconds) {
             currentTimer = seconds;
             document.querySelectorAll('.timer-btn').forEach(btn => {
@@ -678,17 +749,17 @@
             });
             event.target.classList.add('active');
         }
-        
+
         function toggleMirror() {
             mirrorMode = !mirrorMode;
             const video = document.getElementById('video');
             const mirrorBtn = document.getElementById('mirrorBtn');
             video.style.transform = mirrorMode ? 'scaleX(-1)' : 'scaleX(1)';
-            mirrorBtn.innerHTML = mirrorMode ? 
+            mirrorBtn.innerHTML = mirrorMode ?
                 '<svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg> Mirror On' :
                 '<svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg> Mirror Off';
         }
-        
+
         function capturePhoto() {
             if (currentTimer > 0) {
                 startCountdown();
@@ -696,15 +767,15 @@
                 takePhoto();
             }
         }
-        
+
         function startCountdown() {
             const countdownEl = document.getElementById('countdown');
             const countdownText = document.getElementById('countdownText');
             let count = currentTimer;
-            
+
             countdownEl.classList.remove('hidden');
             countdownText.textContent = count;
-            
+
             const interval = setInterval(() => {
                 count--;
                 if (count > 0) {
@@ -716,15 +787,15 @@
                 }
             }, 1000);
         }
-        
+
         function takePhoto() {
             const video = document.getElementById('video');
             const canvas = document.getElementById('photoCanvas');
             const ctx = canvas.getContext('2d');
-            
+
             let width = video.videoWidth;
             let height = video.videoHeight;
-            
+
             if (currentAspectRatio === 'square') {
                 const size = Math.min(width, height);
                 canvas.width = size;
@@ -739,32 +810,32 @@
                 canvas.height = height;
                 ctx.drawImage(video, 0, 0, width, height);
             }
-            
+
             if (mirrorMode) {
                 ctx.scale(-1, 1);
                 ctx.drawImage(canvas, -canvas.width, 0);
             }
-            
+
             applyFilter(ctx, canvas.width, canvas.height);
-            
+
             const photoData = canvas.toDataURL('image/png');
-            photos.push({ 
-                id: Date.now(), 
-                data: photoData, 
+            photos.push({
+                id: Date.now(),
+                data: photoData,
                 timestamp: new Date().toISOString(),
-                filter: currentFilter 
+                filter: currentFilter
             });
             localStorage.setItem('photobooth_photos', JSON.stringify(photos));
             updatePhotoCount();
-            
+
             flashEffect();
         }
-        
+
         function applyFilter(ctx, width, height) {
             const imageData = ctx.getImageData(0, 0, width, height);
             const data = imageData.data;
-            
-            switch(currentFilter) {
+
+            switch (currentFilter) {
                 case 'bw':
                     for (let i = 0; i < data.length; i += 4) {
                         const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
@@ -803,10 +874,10 @@
                     }
                     break;
             }
-            
+
             ctx.putImageData(imageData, 0, 0);
         }
-        
+
         function flashEffect() {
             const flash = document.getElementById('flashEffect');
             flash.classList.remove('hidden');
@@ -816,29 +887,29 @@
                 flash.classList.add('hidden');
             }, 300);
         }
-        
+
         function showGallery() {
             document.getElementById('homeView').classList.add('hidden');
             document.getElementById('galleryView').classList.remove('hidden');
             renderGallery();
         }
-        
+
         function closeGallery() {
             document.getElementById('galleryView').classList.add('hidden');
             document.getElementById('homeView').classList.remove('hidden');
         }
-        
+
         function renderGallery() {
             const grid = document.getElementById('photoGrid');
             const empty = document.getElementById('emptyGallery');
-            
+
             if (photos.length === 0) {
                 grid.classList.add('hidden');
                 empty.classList.remove('hidden');
             } else {
                 grid.classList.remove('hidden');
                 empty.classList.add('hidden');
-                
+
                 grid.innerHTML = photos.map(photo => `
                     <div class="photo-grid-item group cursor-pointer" onclick="viewPhoto(${photo.id})">
                         <img src="${photo.data}" class="w-full h-64 object-cover">
@@ -870,7 +941,7 @@
                 `).join('');
             }
         }
-        
+
         function toggleFavorite(photoId) {
             if (favorites.has(photoId)) {
                 favorites.delete(photoId);
@@ -880,7 +951,7 @@
             localStorage.setItem('photobooth_favorites', JSON.stringify([...favorites]));
             renderGallery();
         }
-        
+
         function downloadPhoto(photoId) {
             const photo = photos.find(p => p.id === photoId);
             const link = document.createElement('a');
@@ -888,7 +959,7 @@
             link.download = `photobooth-${photoId}.png`;
             link.click();
         }
-        
+
         function deletePhoto(photoId) {
             if (confirm('Delete this photo?')) {
                 photos = photos.filter(p => p.id !== photoId);
@@ -899,7 +970,7 @@
                 renderGallery();
             }
         }
-        
+
         function clearAllPhotos() {
             if (confirm('Are you sure you want to delete all photos?')) {
                 photos = [];
@@ -910,19 +981,19 @@
                 renderGallery();
             }
         }
-        
+
         function showCollageMode() {
             document.getElementById('homeView').classList.add('hidden');
             document.getElementById('collageView').classList.remove('hidden');
             renderCollageGrid();
         }
-        
+
         function closeCollage() {
             document.getElementById('collageView').classList.add('hidden');
             document.getElementById('homeView').classList.remove('hidden');
             collagePhotos = [];
         }
-        
+
         function setCollageLayout(layout) {
             collageLayout = layout;
             document.querySelectorAll('.collage-layout-btn').forEach(btn => {
@@ -930,20 +1001,20 @@
             });
             event.target.classList.add('active');
         }
-        
+
         function renderCollageGrid() {
             const grid = document.getElementById('collagePhotoGrid');
             grid.innerHTML = photos.map(photo => `
                 <div onclick="toggleCollagePhoto(${photo.id})" 
                      class="photo-grid-item cursor-pointer relative ${collagePhotos.includes(photo.id) ? 'ring-4 ring-[#FF6B9D] ring-opacity-50' : ''}">
                     <img src="${photo.data}" class="w-full h-64 object-cover">
-                    ${collagePhotos.includes(photo.id) ? 
-                        '<div class="selected-badge"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>' : 
-                        ''}
+                    ${collagePhotos.includes(photo.id) ?
+                    '<div class="selected-badge"><svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></div>' :
+                    ''}
                 </div>
             `).join('');
         }
-        
+
         function toggleCollagePhoto(photoId) {
             if (collagePhotos.includes(photoId)) {
                 collagePhotos = collagePhotos.filter(id => id !== photoId);
@@ -953,16 +1024,16 @@
             document.getElementById('selectedCount').textContent = collagePhotos.length;
             renderCollageGrid();
         }
-        
+
         function createCollage() {
             if (collagePhotos.length === 0) {
                 alert('Please select at least one photo');
                 return;
             }
-            
+
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
+
             const layouts = {
                 '2x2': { cols: 2, rows: 2, count: 4, bg: '#FFE4E8' },
                 '3photos': { cols: 3, rows: 1, count: 3, bg: '#E4F2FF' },
@@ -970,20 +1041,20 @@
                 '1big': { cols: 2, rows: 2, count: 3, bg: '#FFE4F2' },
                 'diagonal': { cols: 3, rows: 3, count: 4, bg: '#E4E8FF' }
             };
-            
+
             const layout = layouts[collageLayout];
             const cellSize = 500;
             const padding = 20;
             canvas.width = cellSize * layout.cols;
             canvas.height = cellSize * layout.rows;
-            
+
             // Gradient background
             const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
             gradient.addColorStop(0, layout.bg);
             gradient.addColorStop(1, '#ffffff');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
+
             let loaded = 0;
             collagePhotos.slice(0, layout.count).forEach((photoId, idx) => {
                 const photo = photos.find(p => p.id === photoId);
@@ -991,8 +1062,8 @@
                 img.src = photo.data;
                 img.onload = () => {
                     let x, y, width, height;
-                    
-                    switch(layout.name || collageLayout) {
+
+                    switch (layout.name || collageLayout) {
                         case '2x2':
                             const col = idx % 2;
                             const row = Math.floor(idx / 2);
@@ -1025,7 +1096,7 @@
                             width = cellSize - padding * 2;
                             height = cellSize - padding * 2;
                     }
-                    
+
                     // Rounded corners
                     ctx.save();
                     ctx.beginPath();
@@ -1033,12 +1104,12 @@
                     ctx.clip();
                     ctx.drawImage(img, x, y, width, height);
                     ctx.restore();
-                    
+
                     // Border
                     ctx.strokeStyle = '#FF6B9D';
                     ctx.lineWidth = 4;
                     ctx.strokeRect(x, y, width, height);
-                    
+
                     loaded++;
                     if (loaded === Math.min(collagePhotos.length, layout.count)) {
                         const link = document.createElement('a');
@@ -1051,4 +1122,5 @@
         }
     </script>
 </body>
+
 </html>
